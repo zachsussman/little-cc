@@ -1,6 +1,5 @@
 #pragma once
 
-typedef enum token_type_e token_type;
 enum token_type_e {
     NAME,
     NUMBER,
@@ -31,6 +30,7 @@ enum token_type_e {
 
     OTHER
 };
+typedef enum token_type_e token_type;
 
 typedef struct token_s token;
 struct token_s {
@@ -41,3 +41,4 @@ struct token_s {
 token* token_new(token_type t, char* r);
 void token_delete(token* t);
 char* str_token_type(token* t);
+

@@ -5,6 +5,7 @@
 #include <string.h>
 #include "../token_q.h"
 #include "tokens.h"
+#include "../vars.h"
 
 #include "tokenize.h"
 
