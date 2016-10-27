@@ -1,4 +1,8 @@
-{
+int test(int q) {
+    0;
+}
+
+int main(int a, int b, int c){
     int x; int y; int z; int n;
     n = 10;
     x = 0;

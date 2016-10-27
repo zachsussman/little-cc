@@ -4,6 +4,7 @@
 
 #include "../util/queue.h"
 #include "types.h"
+#include "env.h"
 
 
 //Using the precedence table from http://en.cppreference.com/w/c/language/operator_precedence:
@@ -43,7 +44,7 @@ enum node_type_e {
     AST_ASSIGN,
 
     // Statement types
-    AST_DECLARATION,
+    AST_LOCAL_DECLARATION,
     AST_STATEMENT,
     AST_IF,
     AST_WHILE,
@@ -51,7 +52,10 @@ enum node_type_e {
     // Block {}
     AST_SEQUENCE,
 
-    AST_FUNCTION
+    AST_FUNCTION,
+    AST_GLOBAL_DECLARATION,
+
+    AST_FILE
 };
 
 // I really don't want to bother with unions, so let's go with this kludge
@@ -125,15 +129,16 @@ typedef struct extra_fn_arg_s extra_fn_arg;
 struct extra_fn_arg_s {
     lang_type type;
     char* name;
-}
+};
 
 typedef struct extra_function_s extra_function;
 struct extra_function_s {
     lang_type ret;
     char* name;
-    extra_fn_arg* args;
+    int argc;
+    extra_fn_arg** args;
     node* body;
-}
+};
 
 node* new_node_var(char* name);
 node* new_node_int(char* repr);
@@ -145,7 +150,7 @@ node* node_call_deq(node* call);
 node* new_node_binop(node_type n, node* left, node* right);
 node* new_node_unop(node_type n, node* inner);
 node* new_node_statement(node* expr);
-node* new_node_declaration(lang_type type, char* name);
+node* new_node_declaration(node_type scope, lang_type type, char* name);
 node* new_node_if(node* cond, node* body);
 node* new_node_while(node* cond, node* body);
 
@@ -155,6 +160,6 @@ node* sequence_deq(node* seq);
 bool sequence_empty(node* seq);
 
 extra_fn_arg* new_node_fn_arg(lang_type type, char* name);
-node* new_node_function(lang_type ret, char* name, int argc, queue* args);
+node* new_node_function(lang_type ret, char* name, queue* args, node* body);
 
 void print_node(node* n);

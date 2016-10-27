@@ -225,7 +225,7 @@ void ast_while_write(FILE* f, node* n, env* E) {
 
 void ast_declaration_write(FILE* f, node* n, env* E) {
     assert(n != NULL);
-    assert(n->type == AST_DECLARATION);
+    assert(n->type == AST_LOCAL_DECLARATION);
 
     extra_declaration* e = (extra_declaration*) n->extra;
     env_add_global(E, e->type, e->name);
@@ -299,7 +299,7 @@ void ast_write(FILE* f, node* n, env* E) {
         case AST_ASSIGN:
             ast_assign_write(f, n, E);
             break;
-        case AST_DECLARATION:
+        case AST_LOCAL_DECLARATION:
             ast_declaration_write(f, n, E);
             break;
         case AST_STATEMENT:

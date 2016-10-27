@@ -66,7 +66,7 @@ node* check_is_lvalue(node* n) {
     return n;
 }
 
-node* parse_type(queue* Q) {
+lang_type parse_type(queue* Q) {
     expect(Q, KW_INT, "int");
     return LANG_INT;
 }
@@ -232,7 +232,7 @@ node* parse_declaration(queue* Q) {
     token* t = safe_deq(Q);
     char* name = strdup(t->repr);
     token_delete(t);
-    node* n = new_node_declaration(type, name);
+    node* n = new_node_declaration(AST_LOCAL_DECLARATION, type, name);
     expect_semicolon(Q);
     return n;
 }
@@ -294,7 +294,7 @@ queue* parse_args(queue* Q) {
     expect(Q, OPEN_PAREN, "(");
     queue* args = queue_new();
     while (safe_peek_type(Q) != CLOSED_PAREN) {
-        lang_type arg_t = parse_type();
+        lang_type arg_t = parse_type(Q);
         token* arg = safe_deq(Q);
         if (arg->type != NAME) {
             printf("Expected variable name\n");
@@ -310,17 +310,25 @@ queue* parse_args(queue* Q) {
 }
 
 node* parse_top_level(queue* Q) {
-    lang_type type = parse_type();
+    lang_type type = parse_type(Q);
     token* t = safe_deq(Q);
+    char* name = strdup(t->repr);
+    token_delete(t);
 
     if (safe_peek_type(Q) == OPEN_PAREN) {
         // Function time! Oh baby
         queue* args = parse_args(Q);
         node* body = parse_sequence(Q);
-        return new_node_function(type, t->repr, args, body);
+        return new_node_function(type, name, args, body);
+    }
+
+    else {
+        node* n = new_node_declaration(AST_GLOBAL_DECLARATION, type, name);
+        expect_semicolon(Q);
+        return n;
     }
 }
 
 node* parse(queue* Q) {
-    return parse_sequence(Q);
+    return parse_top_level(Q);
 }

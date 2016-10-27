@@ -131,7 +131,7 @@ node* new_node_unop(node_type type, node* inner) {
     return n;
 }
 
-node* new_node_declaration(lang_type t, char* name) {
+node* new_node_declaration(node_type scope, lang_type t, char* name) {
     assert(name != NULL);
 
     node* n = malloc(sizeof(node));
@@ -139,7 +139,7 @@ node* new_node_declaration(lang_type t, char* name) {
     e->type = t;
     e->name = strndup(name, MAX_TOKEN_LENGTH);
 
-    n->type = AST_DECLARATION;
+    n->type = scope;
     n->extra = (void*) e;
 
     assert(is_node(n));
@@ -253,13 +253,14 @@ node* new_node_function(lang_type ret, char* name, queue* args, node* body) {
     e->name = strdup(name);
 
     e->argc = queue_length(args);
-    e->args = malloc(sizeof(extra_fn_arg*) * argc);
+    e->args = malloc(sizeof(extra_fn_arg*) * e->argc);
     for (int i = 0; i < e->argc; i++) {
-        e->args[i] = deq(args);
+        e->args[i] = (extra_fn_arg*) deq(args);
     }
 
     e->body = body;
     n->extra = (void*) e;
+    n->type = AST_FUNCTION;
     return n;
 }
 
@@ -278,11 +279,15 @@ void print_unop_node(node* n, int depth) {
     _print_node(e->inner, depth+1);
 }
 
+void _print_n_tabs(int depth) {
+    for (int i = 0; i < depth; i++) printf("\t");
+}
+
 void _print_node(node* n, int depth) {
     assert(is_node(n));
     assert(0 <= depth);
 
-    for (int i = 0; i < depth; i++) printf("\t");
+    _print_n_tabs(depth);
     switch (n->type) {
         case AST_VARIABLE:
             printf("AST_VARIABLE %s\n", ((extra_var*)(n->extra))->name);
@@ -350,8 +355,8 @@ void _print_node(node* n, int depth) {
             printf("AST_ASSIGN\n");
             print_binop_node(n, depth);
             break;
-        case AST_DECLARATION:
-            printf("AST_DECLARATION: LANG_INT %s\n", ((extra_declaration*)(n->extra))->name);
+        case AST_LOCAL_DECLARATION:
+            printf("AST_LOCAL_DECLARATION: LANG_INT %s\n", ((extra_declaration*)(n->extra))->name);
             break;
         case AST_STATEMENT:
             printf("AST_STATEMENT\n");
@@ -371,6 +376,16 @@ void _print_node(node* n, int depth) {
             printf("AST_SEQUENCE\n");
             queue* seq = queue_readonly(((extra_sequence*)(n->extra))->Q);
             while (!queue_empty(seq)) _print_node((node*) deq(seq), depth+1);
+            break;
+        case AST_FUNCTION:
+            printf("AST_FUNCTION: ");
+            extra_function* ex = (extra_function*) n->extra;
+            printf("LANG_INT %s\n", ex->name);
+            for (int i = 0; i < ex->argc; i++) {
+                _print_n_tabs(depth+1);
+                printf("ARG %i: LANG_INT %s\n", i, ex->args[i]->name);
+            }
+            _print_node(ex->body, depth+1);
             break;
         default:
             printf("AST_UNKNOWN\n");
