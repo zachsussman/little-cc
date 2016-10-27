@@ -39,6 +39,7 @@ enum token_type_e {
     KW_INT,
     KW_IF,
     KW_WHILE,
+    KW_RETURN,
 
     OTHER
 };

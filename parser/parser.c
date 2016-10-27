@@ -270,6 +270,13 @@ node* parse_while(queue* Q) {
     return new_node_while(cond, body);
 }
 
+node* parse_return(queue* Q) {
+    expect(Q, KW_RETURN, "return");
+    node* inner = parse_expr(Q);
+    expect(Q, SEMICOLON, ";");
+    return new_node_unop(AST_RETURN, inner);
+}
+
 node* parse_statement(queue* Q) {
     token_type t = safe_peek_type(Q);
 
@@ -282,6 +289,8 @@ node* parse_statement(queue* Q) {
         return parse_if(Q);
     } else if (t == KW_WHILE) {
         return parse_while(Q);
+    } else if (t == KW_RETURN) {
+        return parse_return(Q);
     }
     else {
         node* n = parse_expr(Q);

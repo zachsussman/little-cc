@@ -29,6 +29,8 @@ void ast_var_write(FILE* f, node* n, env* E) {
     var_info* v = env_get_info(E, e->name);
     if (v->type == VAR_GLOBAL) {
         fprintf(f, "\tmov rax, qword [g%i]\n", v->index);
+    } else if (v->type == VAR_ARG) {
+        fprintf(f, "\tmov rax, qword [rbp+%i]\n", (v->index+1)*8);
     }
 }
 
@@ -50,9 +52,11 @@ void ast_call_write(FILE* f, node* n, env* E) {
     int arg_num = 0;
     while (!node_call_empty(n)) {
         ast_write(f, node_call_deq(n), E);
-        if (arg_num < 6) fprintf(f, "\tmov %s, rax\n", arg_registers[arg_num]);
-        else emit(f, "push rax");
+        emit(f, "push rax");
         arg_num++;
+    }
+    for (int i = arg_num-1; i >= 0; i--) {
+        fprintf(f, "\tpop %s\n", arg_registers[i]);
     }
 
     emit(f, "mov al, 0");
@@ -223,6 +227,19 @@ void ast_while_write(FILE* f, node* n, env* E) {
     fprintf(f, "label_%i:\n", end_label);
 }
 
+void ast_return_write(FILE* f, node* n, env* E) {
+    assert(n != NULL);
+    assert(n->type == AST_RETURN);
+
+    extra_unop* e = (extra_unop*) n->extra;
+    ast_write(f, e->inner, E);
+
+
+    emit(f, "pop rbp");
+    fprintf(f, "\tadd rsp, %i\n", env_num_args(E)*8);
+    emit(f, "ret");
+}
+
 void ast_declaration_write(FILE* f, node* n, env* E) {
     assert(n != NULL);
     assert(n->type == AST_LOCAL_DECLARATION);
@@ -235,13 +252,35 @@ void ast_sequence_write(FILE* f, node* n, env* E) {
     assert(n != NULL);
     assert(n->type == AST_SEQUENCE);
 
-    emit(f, "push rbx");
-
     while (!sequence_empty(n)) {
         ast_write(f, sequence_deq(n), E);
     }
+}
 
-    emit(f, "pop rbx");
+void ast_function_write(FILE* f, node* n, env* E) {
+    extra_function* e = (extra_function*) n->extra;
+    env_add_fn(E, e->name, e->ret);
+    for (int i = 0; i < e->argc; i++) {
+        env_add_fn_arg(E, e->name, e->args[i]->type, e->args[i]->name);
+    }
+
+    if (e->body == NULL) return;
+
+    fprintf(f, "_%s:\n", e->name);
+    for (int i = e->argc-1; i >= 0; i--) {
+        fprintf(f, "\tpush %s\n", arg_registers[i]);
+    }
+    emit(f, "push rbp");
+    emit(f, "mov rbp, rsp");
+
+    env_set_fn(E, e->name);
+    ast_write(f, e->body, E);
+    env_clear_fn(E);
+
+
+    emit(f, "pop rbp");
+    fprintf(f, "\tadd rsp, %i\n", e->argc*8);
+    emit(f, "ret");
 }
 
 void ast_write(FILE* f, node* n, env* E) {
@@ -311,8 +350,14 @@ void ast_write(FILE* f, node* n, env* E) {
         case AST_WHILE:
             ast_while_write(f, n, E);
             break;
+        case AST_RETURN:
+            ast_return_write(f, n, E);
+            break;
         case AST_SEQUENCE:
             ast_sequence_write(f, n, E);
+            break;
+        case AST_FUNCTION:
+            ast_function_write(f, n, E);
             break;
         default:
             emit(f, "; unknown instruction");
@@ -334,7 +379,6 @@ void write_header(FILE* f) {
     fprintf(f, "extern _printf\n");
     fprintf(f, "section .text\n");
     fprintf(f, "global _main\n");
-    fprintf(f, "_main:");
     fprintf(f, "\n");
 }
 

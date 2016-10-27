@@ -16,10 +16,10 @@ var_info* new_global_var(env* E, lang_type t) {
     return v;
 }
 
-var_info* new_local_var(fn_info* f, lang_type t) {
+var_info* new_arg_var(fn_info* f, lang_type t) {
     var_info* v = malloc(sizeof(var_info));
     v->lang_t = t;
-    v->type = VAR_LOCAL;
+    v->type = VAR_ARG;
     v->index = f->argc++;
     return v;
 }
@@ -40,6 +40,7 @@ env* env_new() {
     env* E = malloc(sizeof(env));
     E->vars = hash_new(30); // Fudged value, not really sure
     E->strings = hash_new(30);
+    E->fns = hash_new(30);
     E->label_count = 0;
     E->curr_fn = NULL;
 
@@ -70,11 +71,13 @@ var_info* env_get_info(env* E, char* name) {
     if (E->curr_fn && hash_get(E->curr_fn->args, name)) {
         return (var_info*) hash_get(E->curr_fn->args, name);
     }
-    if (hash_get(E->vars, name) == NULL) {
-        printf("Variable %v not found\n", name);
+    else if (hash_get(E->vars, name)) {
+        return (var_info*) hash_get(E->vars, name);
+    } else {
+        printf("Variable '%s' not found\n", name);
         assert(false);
     }
-    return (var_info*) hash_get(E->vars, name);
+    
 }
 
 void env_set_fn(env* E, char* name) {
@@ -89,6 +92,17 @@ void env_set_fn(env* E, char* name) {
     }
 }
 
+void env_clear_fn(env* E) {
+    assert(is_env(E));
+    E->curr_fn = NULL;
+}
+
+int env_num_args(env* E) {
+    assert(is_env(E));
+    if (E->curr_fn == NULL) return 0;
+    else return E->curr_fn->argc;
+}
+
 void env_add_fn(env* E, char* name, lang_type ret) {
     assert(is_env(E));
     char* new_name = strdup(name);
@@ -101,7 +115,7 @@ void env_add_fn_arg(env* E, char* name, lang_type t, char* arg) {
 
     char* new_arg = strdup(arg);
     fn_info* f = hash_get(E->fns, name);
-    hash_insert(f->args, new_arg, new_local_var(f, t));
+    hash_insert(f->args, new_arg, new_arg_var(f, t));
 }
 
 void env_do_over_vars(env* E, void* info, void (*f)(void*, char*, var_info*)) {

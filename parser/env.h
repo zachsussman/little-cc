@@ -6,6 +6,7 @@
 typedef enum scope_type_e scope_type;
 enum scope_type_e {
     VAR_GLOBAL,
+    VAR_ARG,
     VAR_LOCAL
 };
 
@@ -46,6 +47,10 @@ var_info* env_get_info(env* E, char* name);
 
 void env_add_fn(env* E, char* name, lang_type ret);
 void env_add_fn_arg(env* E, char* name, lang_type t, char* arg);
+
+void env_set_fn(env* E, char* name);
+void env_clear_fn(env* E);
+int env_num_args(env* E);
 
 int env_get_string(env* E, char* s);
 void env_do_over_vars(env* E, void* info, void (*f)(void*, char*, var_info*));

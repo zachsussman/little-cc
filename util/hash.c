@@ -106,4 +106,6 @@ void hash_do_over(hash* H, void* info, void (*f)(void*, char*, void*)) {
             c = c->next;
         }
     }
+
+    assert(is_hash(H));
 }

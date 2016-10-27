@@ -48,6 +48,7 @@ enum node_type_e {
     AST_STATEMENT,
     AST_IF,
     AST_WHILE,
+    AST_RETURN,
 
     // Block {}
     AST_SEQUENCE,

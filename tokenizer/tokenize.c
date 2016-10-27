@@ -107,6 +107,9 @@ void parse_name(queue* Q, char** pline) {
     } else if (strcmp(repr, "while") == 0) {
         free(repr);
         enq(Q, token_new(KW_WHILE, "while"));
+    } else if (strcmp(repr, "return") == 0) {
+        free(repr);
+        enq(Q, token_new(KW_RETURN, "return"));
     }
     else {
         token* tok = token_new(NAME, repr);

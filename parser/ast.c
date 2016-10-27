@@ -372,6 +372,10 @@ void _print_node(node* n, int depth) {
             _print_node(((extra_if*)(n->extra))->cond, depth+1);
             _print_node(((extra_if*)(n->extra))->body, depth+1);
             break;
+        case AST_RETURN:
+            printf("AST_RETURN\n");
+            print_unop_node(n, depth);
+            break;
         case AST_SEQUENCE:
             printf("AST_SEQUENCE\n");
             queue* seq = queue_readonly(((extra_sequence*)(n->extra))->Q);
