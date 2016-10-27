@@ -4,18 +4,8 @@
 #include <stdbool.h>
 #include <assert.h>
 #include "tokenizer/tokens.h"
-#include "util/list.h"
+#include "util/queue.h"
 
-typedef struct queue_s queue;
-struct queue_s {
-    list* front;
-    list* back;
-};
-
-queue* queue_new();
-bool queue_empty(queue* Q);
-void enq(queue* Q, token* d);
-token* peek(queue* Q);
-token* deq(queue* Q);
-
-void queue_test();
+void token_enq(queue* Q, token* d);
+token* token_peek(queue* Q);
+token* token_deq(queue* Q);

@@ -3,6 +3,7 @@
 enum token_type_e {
     NAME,
     NUMBER,
+    STRING,
 
     OPEN_BRACE,
     CLOSED_BRACE,
@@ -18,15 +19,26 @@ enum token_type_e {
     OP_BOOL_AND,
     OP_BOOL_OR,
     OP_ASSIGN,
-    OP_EQUALS,
+    OP_EQ,
     OP_NOT_BANG,
     OP_NOT_TILDE,
-    OP_NOT_EQUALS,
+    OP_NEQ,
 
     OP_LT,
     OP_GT,
+    OP_LTE,
+    OP_GTE,
     OP_ARROW,
     OP_DOT,
+
+    OP_COMMA,
+
+    OPEN_PAREN,
+    CLOSED_PAREN,
+
+    KW_INT,
+    KW_IF,
+    KW_WHILE,
 
     OTHER
 };

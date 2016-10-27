@@ -39,6 +39,10 @@ char* str_token_type(token* T) {
             return "NUMBER";
             break;
 
+        case KW_INT:
+            return "KW";
+            break;
+
         case OTHER: 
             return "OTHER";
             break;

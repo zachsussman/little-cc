@@ -23,8 +23,7 @@ bool is_char_in_range(char c, char bottom, char top) {
 bool is_beginning_name_char(char c) {
     return ('_' == c) 
         || is_char_in_range(c, 'a', 'z')
-        || is_char_in_range(c, 'A', 'Z')
-        || is_char_in_range(c, '0', '9');
+        || is_char_in_range(c, 'A', 'Z');
 }
 
 bool is_number_char(char c) {
@@ -35,7 +34,15 @@ bool is_name_char(char c) {
     return is_beginning_name_char(c) || is_number_char(c);
 }
 
+void inspect_for_keywords(queue* Q) {
+    assert(!queue_empty(Q));
 
+    token* tok = peek(Q);
+    if (tok->type != NAME) {
+        return;
+    }
+
+}
 
 void parse_long(queue* Q, char** pline, token_type type, classifier* f) {
     int len = 0;
@@ -56,12 +63,98 @@ void parse_long(queue* Q, char** pline, token_type type, classifier* f) {
     enq(Q, tok);
 }
 
-void parse_name(queue* Q, char** pline) {
-    parse_long(Q, pline, NAME, &is_name_char);
+void parse_number(queue* Q, char** pline) {
+    int len = 0;
+    // Find the length of the token by scanning 
+    while(len < MAX_TOKEN_LENGTH 
+            && (*pline)[len] != 0
+            && is_number_char((*pline)[len])) {
+        len++;
+    }
+
+    char* repr = calloc(len, sizeof(char));
+    for (int i = 0; i < len && **pline != 0 && is_number_char(**pline); i++) {
+        repr[i] = **pline;
+        (*pline)++;
+    }
+
+    token* tok = token_new(NUMBER, repr);
+    enq(Q, tok);
 }
 
-void parse_number(queue* Q, char** pline) {
-    parse_long(Q, pline, NUMBER, &is_number_char);
+void parse_name(queue* Q, char** pline) {
+    int len = 0;
+    // Find the length of the token by scanning 
+    while(len < MAX_TOKEN_LENGTH 
+            && (*pline)[len] != 0
+            && is_name_char((*pline)[len])) {
+        len++;
+    }
+
+    char* repr = calloc(len, sizeof(char));
+    for (int i = 0; i < len && **pline != 0 && is_name_char(**pline); i++) {
+        repr[i] = **pline;
+        (*pline)++;
+    }
+
+
+    if (strcmp(repr, "int") == 0) {
+        free(repr);
+        enq(Q, token_new(KW_INT, "int"));
+    } else if (strcmp(repr, "if") == 0) {
+        free(repr);
+        enq(Q, token_new(KW_IF, "if"));
+    } else if (strcmp(repr, "while") == 0) {
+        free(repr);
+        enq(Q, token_new(KW_WHILE, "while"));
+    }
+    else {
+        token* tok = token_new(NAME, repr);
+        enq(Q, tok);
+    }
+}
+
+char parse_string_advance(char** pline) {
+    char c = 0;
+    if (**pline == '\\') {
+        (*pline)++;
+        if (**pline == 'n') {
+            c = '\n';
+        } else if (**pline == 't') {
+            c = '\t';
+        } else {
+            c = **pline;
+        }
+    } else {
+        c = **pline;
+    }
+    (*pline)++;
+    return c;
+}
+
+void parse_string(queue* Q, char** pline) {
+    int len = 0;
+    char* temp_p = *pline;
+
+    parse_string_advance(&temp_p);
+    // Find the length of the token by scanning 
+    while(*temp_p != 0 && *temp_p != '"') {
+        len++;
+        parse_string_advance(&temp_p);
+    }
+
+    parse_string_advance(pline);
+
+    char* repr = calloc(len, sizeof(char));
+    for (int i = 0; i < len && **pline != 0 && **pline != '"'; i++) {
+        repr[i] = parse_string_advance(pline);
+    }
+
+    parse_string_advance(pline);
+
+    token* tok = token_new(STRING, repr);
+    enq(Q, tok);
+
 }
 
 void parse_symbol(queue* Q, char** pline) {
@@ -95,6 +188,18 @@ void parse_symbol(queue* Q, char** pline) {
         case '.':
             type = OP_DOT;
             repr = ".";
+            break;
+        case '(':
+            type = OPEN_PAREN;
+            repr = "(";
+            break;
+        case ')':
+            type = CLOSED_PAREN;
+            repr = ")";
+            break;
+        case ',':
+            type = OP_COMMA;
+            repr = ",";
             break;
         case '-':
             if ((*pline)[1] == '>') {
@@ -131,7 +236,7 @@ void parse_symbol(queue* Q, char** pline) {
             break;
         case '=':
             if ((*pline)[1] == '=') {
-                type = OP_EQUALS;
+                type = OP_EQ;
                 repr = "==";
                 (*pline)++;
             }
@@ -140,9 +245,31 @@ void parse_symbol(queue* Q, char** pline) {
                 repr = "=";
             }
             break;
+        case '>':
+            if ((*pline)[1] == '=') {
+                type = OP_GTE;
+                repr = ">=";
+                (*pline)++;
+            }
+            else {
+                type = OP_GT;
+                repr = ">";
+            }
+            break;
+        case '<':
+            if ((*pline)[1] == '=') {
+                type = OP_LTE;
+                repr = "<=";
+                (*pline)++;
+            }
+            else {
+                type = OP_LT;
+                repr = "<";
+            }
+            break;
         case '!':
             if ((*pline)[1] == '=') {
-                type = OP_NOT_EQUALS;
+                type = OP_NEQ;
                 repr = "!=";
                 (*pline)++;
             }
@@ -173,6 +300,7 @@ bool next_token(queue* Q, char** pline) {
     char c = **pline;
     if (is_beginning_name_char(c)) parse_name(Q, pline);
     else if (is_number_char(c)) parse_number(Q, pline);
+    else if (c == '"') parse_string(Q, pline);
     else parse_symbol(Q, pline);
     return false;
 }

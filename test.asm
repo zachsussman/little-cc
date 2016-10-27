@@ -1,39 +1,61 @@
-; hello.asm - a "hello, world" program using NASM
-
+default rel
+extern _exit
+extern _printf
 section .text
-
-global mystart                ; make the main function externally visible
-
-mystart:
-
-; 1 print "hello, world"
-
-    ; 1a prepare the arguments for the system call to write
-    push dword mylen          ; message length                           
-    push dword mymsg          ; message to write
-    push dword 1              ; file descriptor value
-
-    ; 1b make the system call to write
-    mov eax, 0x4              ; system call number for write
-    sub esp, 4                ; OS X (and BSD) system calls needs "extra space" on stack
-    int 0x80                  ; make the actual system call
-
-    ; 1c clean up the stack
-    add esp, 16               ; 3 args * 4 bytes/arg + 4 bytes extra space = 16 bytes
-    
-; 2 exit the program
-
-    ; 2a prepare the argument for the sys call to exit
-    push dword 0              ; exit status returned to the operating system
-
-    ; 2b make the call to sys call to exit
-    mov eax, 0x1              ; system call number for exit
-    sub esp, 4                ; OS X (and BSD) system calls needs "extra space" on stack
-    int 0x80                  ; make the system call
-
-    ; 2c no need to clean up the stack because no code here would executed: already exited
-    
+global _main
+_main:
+	push rbx
+	mov rax, 10
+	mov [g3], rax
+	mov rax, 0
+	mov [g0], rax
+	mov rax, 1
+	mov [g1], rax
+label_0:
+	mov rax, 0
+	push rax
+	mov rax, qword [g3]
+	pop rcx
+	cmp rax, rcx
+	setg al
+	movzx rax, al
+	cmp rax, 0
+	je label_1
+	push rbx
+	mov rax, qword [g1]
+	mov [g2], rax
+	mov rax, qword [g0]
+	push rax
+	mov rax, qword [g1]
+	pop rcx
+	add rax, rcx
+	mov [g1], rax
+	mov rax, qword [g2]
+	mov [g0], rax
+	mov rax, 1
+	push rax
+	mov rax, qword [g3]
+	pop rcx
+	sub rax, rcx
+	mov [g3], rax
+	pop rbx
+	jmp label_0
+label_1:
+	mov rax, _string_0
+	mov rdi, rax
+	mov rax, qword [g1]
+	mov rsi, rax
+	mov al, 0
+	call _printf
+	pop rbx
+	mov rdi, rax
+	mov rax, 0x2000001
+	syscall
+	
 section .data
-
-  mymsg db "hello, world", 0xa  ; string with a carriage-return
-  mylen equ $-mymsg             ; string length in bytes
+	dummy: dw 16
+	g0: dq 0
+	g1: dq 0
+	g2: dq 0
+	g3: dq 0
+	_string_0: db 84, 104, 101, 32, 49, 48, 116, 104, 32, 102, 105, 98, 111, 110, 97, 99, 99, 105, 32, 110, 117, 109, 98, 101, 114, 32, 105, 115, 58, 32, 37, 105, 10, 0
