@@ -110,6 +110,12 @@ void parse_name(queue* Q, char** pline) {
     } else if (strcmp(repr, "return") == 0) {
         free(repr);
         enq(Q, token_new(KW_RETURN, "return"));
+    } else if (strcmp(repr, "void") == 0) {
+        free(repr);
+        enq(Q, token_new(KW_VOID, "void"));
+    } else if (strcmp(repr, "else") == 0) {
+        free(repr);
+        enq(Q, token_new(KW_ELSE, "else"));
     }
     else {
         token* tok = token_new(NAME, repr);
@@ -125,6 +131,8 @@ char parse_string_advance(char** pline) {
             c = '\n';
         } else if (**pline == 't') {
             c = '\t';
+        } else if (**pline == '0') {
+            c = '\0';
         } else {
             c = **pline;
         }
@@ -156,6 +164,21 @@ void parse_string(queue* Q, char** pline) {
     parse_string_advance(pline);
 
     token* tok = token_new(STRING, repr);
+    enq(Q, tok);
+
+}
+
+void parse_character(queue* Q, char** pline) {
+    parse_string_advance(pline);
+
+    char c = parse_string_advance(pline);
+    parse_string_advance(pline);
+
+    char* repr = malloc(sizeof(char)*2);
+    repr[0] = c;
+    repr[1] = '\0';
+
+    token* tok = token_new(CHARACTER, repr);
     enq(Q, tok);
 
 }
@@ -304,6 +327,7 @@ bool next_token(queue* Q, char** pline) {
     if (is_beginning_name_char(c)) parse_name(Q, pline);
     else if (is_number_char(c)) parse_number(Q, pline);
     else if (c == '"') parse_string(Q, pline);
+    else if (c == '\'') parse_character(Q, pline);
     else parse_symbol(Q, pline);
     return false;
 }

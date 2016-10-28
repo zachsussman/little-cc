@@ -2,6 +2,7 @@
 
 #include "../util/hash.h"
 #include "ast.h"
+#include "types.h"
 
 typedef enum scope_type_e scope_type;
 enum scope_type_e {
@@ -12,7 +13,7 @@ enum scope_type_e {
 
 typedef struct var_info_s var_info;
 struct var_info_s {
-    lang_type lang_t;
+    var_type* lang_t;
     scope_type type;
     int index;
 };
@@ -20,7 +21,7 @@ struct var_info_s {
 typedef struct fn_info_s fn_info;
 struct fn_info_s {
     int argc;
-    lang_type ret;
+    var_type* ret;
     hash* args;
 };
 
@@ -42,11 +43,11 @@ struct env_s {
 
 env* env_new();
 
-void env_add_global(env* E, lang_type t, char* name);
+void env_add_global(env* E, var_type* t, char* name);
 var_info* env_get_info(env* E, char* name);
 
-void env_add_fn(env* E, char* name, lang_type ret);
-void env_add_fn_arg(env* E, char* name, lang_type t, char* arg);
+void env_add_fn(env* E, char* name, var_type* ret);
+void env_add_fn_arg(env* E, char* name, var_type* t, char* arg);
 
 void env_set_fn(env* E, char* name);
 void env_clear_fn(env* E);

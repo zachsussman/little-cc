@@ -207,7 +207,16 @@ void ast_if_write(FILE* f, node* n, env* E) {
     emit(f, "cmp rax, 0");
     fprintf(f, "\tje label_%i\n", end_label);
     ast_write(f, e->body, E);
-    fprintf(f, "label_%i:\n", end_label);
+
+    if (e->else_body == NULL) {
+        fprintf(f, "label_%i:\n", end_label);
+    } else {
+        int real_end_label = env_get_label(E);
+        fprintf(f, "\tjmp label_%i\n", real_end_label);
+        fprintf(f, "label_%i:\n", end_label);
+        ast_write(f, e->else_body, E);
+        fprintf(f, "label_%i:\n", real_end_label);
+    }
 }
 
 void ast_while_write(FILE* f, node* n, env* E) {

@@ -8,7 +8,7 @@
 #include "env.h"
 
 
-var_info* new_global_var(env* E, lang_type t) {
+var_info* new_global_var(env* E, var_type* t) {
     var_info* v = malloc(sizeof(var_info));
     v->lang_t = t;
     v->type = VAR_GLOBAL;
@@ -16,7 +16,7 @@ var_info* new_global_var(env* E, lang_type t) {
     return v;
 }
 
-var_info* new_arg_var(fn_info* f, lang_type t) {
+var_info* new_arg_var(fn_info* f, var_type* t) {
     var_info* v = malloc(sizeof(var_info));
     v->lang_t = t;
     v->type = VAR_ARG;
@@ -24,7 +24,7 @@ var_info* new_arg_var(fn_info* f, lang_type t) {
     return v;
 }
 
-fn_info* new_fn_info(lang_type ret) {
+fn_info* new_fn_info(var_type* ret) {
     fn_info* v = malloc(sizeof(fn_info));
     v->ret = ret;
     v->args = hash_new(5); // Guess?
@@ -56,7 +56,7 @@ int env_get_string(env* E, char* s) {
     return (int)hash_get(E->strings, s);
 }
 
-void env_add_global(env* E, lang_type t, char* name) {
+void env_add_global(env* E, var_type* t, char* name) {
     assert(is_env(E));
 
     char* new_name = strdup(name);
@@ -103,14 +103,14 @@ int env_num_args(env* E) {
     else return E->curr_fn->argc;
 }
 
-void env_add_fn(env* E, char* name, lang_type ret) {
+void env_add_fn(env* E, char* name, var_type* ret) {
     assert(is_env(E));
     char* new_name = strdup(name);
     fn_info* f = new_fn_info(ret);
     hash_insert(E->fns, new_name, f);
 }
 
-void env_add_fn_arg(env* E, char* name, lang_type t, char* arg) {
+void env_add_fn_arg(env* E, char* name, var_type* t, char* arg) {
     assert(is_env(E));
 
     char* new_arg = strdup(arg);

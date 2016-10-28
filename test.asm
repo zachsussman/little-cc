@@ -29,16 +29,8 @@ _factorial:
 	pop rbp
 	add rsp, 8
 	ret
+	jmp label_1
 label_0:
-	mov rax, 2
-	push rax
-	mov rax, qword [rbp+8]
-	pop rcx
-	cmp rax, rcx
-	setge al
-	movzx rax, al
-	cmp rax, 0
-	je label_1
 	mov rax, _string_1
 	push rax
 	mov rax, qword [rbp+8]

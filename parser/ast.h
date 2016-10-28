@@ -110,7 +110,7 @@ struct extra_sequence_s {
 
 typedef struct extra_declaration_s extra_declaration;
 struct extra_declaration_s {
-    lang_type type;
+    var_type*  type;
     char* name;
 };
 
@@ -118,6 +118,7 @@ typedef struct extra_if_s extra_if;
 struct extra_if_s {
     node* cond;
     node* body;
+    node* else_body;
 };
 
 typedef struct extra_while_s extra_while;
@@ -128,13 +129,13 @@ struct extra_while_s {
 
 typedef struct extra_fn_arg_s extra_fn_arg;
 struct extra_fn_arg_s {
-    lang_type type;
+    var_type*  type;
     char* name;
 };
 
 typedef struct extra_function_s extra_function;
 struct extra_function_s {
-    lang_type ret;
+    var_type*  ret;
     char* name;
     int argc;
     extra_fn_arg** args;
@@ -151,8 +152,8 @@ node* node_call_deq(node* call);
 node* new_node_binop(node_type n, node* left, node* right);
 node* new_node_unop(node_type n, node* inner);
 node* new_node_statement(node* expr);
-node* new_node_declaration(node_type scope, lang_type type, char* name);
-node* new_node_if(node* cond, node* body);
+node* new_node_declaration(node_type scope, var_type*  type, char* name);
+node* new_node_if(node* cond, node* body, node* else_body);
 node* new_node_while(node* cond, node* body);
 
 node* new_node_sequence();
@@ -160,7 +161,7 @@ void sequence_enq(node* seq, node* next);
 node* sequence_deq(node* seq);
 bool sequence_empty(node* seq);
 
-extra_fn_arg* new_node_fn_arg(lang_type type, char* name);
-node* new_node_function(lang_type ret, char* name, queue* args, node* body);
+extra_fn_arg* new_node_fn_arg(var_type*  type, char* name);
+node* new_node_function(var_type*  ret, char* name, queue* args, node* body);
 
 void print_node(node* n);

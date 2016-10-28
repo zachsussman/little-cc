@@ -4,6 +4,7 @@ enum token_type_e {
     NAME,
     NUMBER,
     STRING,
+    CHARACTER,
 
     OPEN_BRACE,
     CLOSED_BRACE,
@@ -40,6 +41,8 @@ enum token_type_e {
     KW_IF,
     KW_WHILE,
     KW_RETURN,
+    KW_VOID,
+    KW_ELSE,
 
     OTHER
 };

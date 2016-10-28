@@ -131,7 +131,7 @@ node* new_node_unop(node_type type, node* inner) {
     return n;
 }
 
-node* new_node_declaration(node_type scope, lang_type t, char* name) {
+node* new_node_declaration(node_type scope, var_type*  t, char* name) {
     assert(name != NULL);
 
     node* n = malloc(sizeof(node));
@@ -159,7 +159,7 @@ node* new_node_statement(node* expr) {
     return n;
 }
 
-node* new_node_if(node* cond, node* body) {
+node* new_node_if(node* cond, node* body, node* else_body) {
     assert(is_node(cond));
     assert(is_node(body));
 
@@ -167,6 +167,7 @@ node* new_node_if(node* cond, node* body) {
     extra_if* e = malloc(sizeof(extra_if));
     e->cond = cond;
     e->body = body;
+    e->else_body = else_body;
     n->extra = (void*) e;
     n->type = AST_IF;
 
@@ -239,14 +240,14 @@ node* sequence_peek(node* seq) {
     return (node*) peek(e->Q);
 }
 
-extra_fn_arg* new_node_fn_arg(lang_type type, char* name) {
+extra_fn_arg* new_node_fn_arg(var_type*  type, char* name) {
     extra_fn_arg* e = malloc(sizeof(extra_fn_arg));
     e->type = type;
     e->name = strdup(name);
     return e;
 }
 
-node* new_node_function(lang_type ret, char* name, queue* args, node* body) {
+node* new_node_function(var_type*  ret, char* name, queue* args, node* body) {
     node* n = malloc(sizeof(node));
     extra_function* e = malloc(sizeof(extra_function));
     e->ret = ret;
@@ -356,7 +357,9 @@ void _print_node(node* n, int depth) {
             print_binop_node(n, depth);
             break;
         case AST_LOCAL_DECLARATION:
-            printf("AST_LOCAL_DECLARATION: LANG_INT %s\n", ((extra_declaration*)(n->extra))->name);
+            printf("AST_LOCAL_DECLARATION: ");
+            type_print(((extra_declaration*)(n->extra))->type);
+            printf(" %s\n", ((extra_declaration*)(n->extra))->name);
             break;
         case AST_STATEMENT:
             printf("AST_STATEMENT\n");
@@ -364,8 +367,12 @@ void _print_node(node* n, int depth) {
             break;
         case AST_IF:
             printf("AST_IF\n");
-            _print_node(((extra_if*)(n->extra))->cond, depth+1);
-            _print_node(((extra_if*)(n->extra))->body, depth+1);
+            extra_if* exif = (extra_if*) n->extra;
+            _print_node(exif->cond, depth+1);
+            _print_node(exif->body, depth+1);
+            if (exif->else_body != NULL) {
+                _print_node(exif->else_body, depth+1);
+            }
             break;
         case AST_WHILE:
             printf("AST_WHILE\n");
@@ -384,10 +391,13 @@ void _print_node(node* n, int depth) {
         case AST_FUNCTION:
             printf("AST_FUNCTION: ");
             extra_function* ex = (extra_function*) n->extra;
-            printf("LANG_INT %s\n", ex->name);
+            type_print(ex->ret);
+            printf(" %s\n", ex->name);
             for (int i = 0; i < ex->argc; i++) {
                 _print_n_tabs(depth+1);
-                printf("ARG %i: LANG_INT %s\n", i, ex->args[i]->name);
+                printf("ARG %i: ", i);
+                type_print(ex->args[i]->type);
+                printf(" %s\n", ex->args[i]->name);
             }
             _print_node(ex->body, depth+1);
             break;

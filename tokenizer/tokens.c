@@ -18,7 +18,8 @@ token* token_new(token_type type, char* r) {
 }
 
 bool is_dynamic_token(token* T) {
-    return T->type == NAME || T->type == NUMBER || T->type == OTHER;
+    return T->type == NAME || T->type == NUMBER || T->type == STRING ||
+            T->type == CHARACTER || T->type == OTHER;
 }
 
 void token_delete(token* T) {

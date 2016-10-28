@@ -11,8 +11,6 @@
 #include "../util/stack.h"
 
 
-
-
 token* safe_deq(queue* Q) {
     if (queue_empty(Q)) {
         printf("Not enough tokens in queue for this operation");
@@ -66,9 +64,22 @@ node* check_is_lvalue(node* n) {
     return n;
 }
 
-lang_type parse_type(queue* Q) {
-    expect(Q, KW_INT, "int");
-    return LANG_INT;
+/* Types in C are complicated, I'll use the following grammar: 
+ * type := "int" | "void" | type "*"
+ */
+
+var_type* parse_type(queue* Q) {
+    token_type t = safe_peek_type(Q);
+    var_type* type;
+    if (t == KW_INT) type = type_new_base(LANG_INT);
+    else if (t == KW_VOID) type = type_new_base(LANG_VOID);
+    safe_deq(Q);
+
+    while (safe_peek_type(Q) == OP_MUL) {
+        expect(Q, OP_MUL, "*");
+        type = type_new_pointer(type);
+    }
+    return type;
 }
 
 node* parse_parens(queue* Q) {
@@ -228,7 +239,7 @@ node* parse_assign(queue* Q) {
 node* parse_statement(queue* Q);
 
 node* parse_declaration(queue* Q) {
-    lang_type type = parse_type(Q);
+    var_type*  type = parse_type(Q);
     token* t = safe_deq(Q);
     char* name = strdup(t->repr);
     token_delete(t);
@@ -258,7 +269,12 @@ node* parse_if(queue* Q) {
     node* cond = parse_expr(Q);
     expect(Q, CLOSED_PAREN, ")");
     node* body = parse_statement(Q);
-    return new_node_if(cond, body);
+    node* else_body = NULL;
+    if (safe_peek_type(Q) == KW_ELSE) {
+        expect(Q, KW_ELSE, "else");
+        else_body = parse_statement(Q);
+    }
+    return new_node_if(cond, body, else_body);
 }
 
 node* parse_while(queue* Q) {
@@ -272,7 +288,12 @@ node* parse_while(queue* Q) {
 
 node* parse_return(queue* Q) {
     expect(Q, KW_RETURN, "return");
-    node* inner = parse_expr(Q);
+    node* inner;
+    if (safe_peek_type(Q) == SEMICOLON) {
+        inner = new_node_int("0");
+    } else {
+        inner = parse_expr(Q);
+    }
     expect(Q, SEMICOLON, ";");
     return new_node_unop(AST_RETURN, inner);
 }
@@ -303,7 +324,7 @@ queue* parse_args(queue* Q) {
     expect(Q, OPEN_PAREN, "(");
     queue* args = queue_new();
     while (safe_peek_type(Q) != CLOSED_PAREN) {
-        lang_type arg_t = parse_type(Q);
+        var_type* arg_t = parse_type(Q);
         token* arg = safe_deq(Q);
         if (arg->type != NAME) {
             printf("Expected variable name\n");
@@ -318,8 +339,8 @@ queue* parse_args(queue* Q) {
     return args;
 }
 
-node* parse_top_level(queue* Q) {
-    lang_type type = parse_type(Q);
+node* parse_top_declaration(queue* Q) {
+    var_type* type = parse_type(Q);
     token* t = safe_deq(Q);
     char* name = strdup(t->repr);
     token_delete(t);
@@ -338,6 +359,22 @@ node* parse_top_level(queue* Q) {
     }
 }
 
+// node* parse_struct_declaration(queue* Q) {
+//     expect(Q, KW_STRUCT, "struct");
+//     char* name = strdup(safe_deq(Q)->repr);
+//     expect(Q, OPEN_BRACE, "{");
+//     queue* fields = queue_new();
+//     while (safe_peek_type(Q) != CLOSED_BRACE) {
+//         var_type* type = parse_type(Q);
+//         token* f = safe_deq(Q);
+//         if (n->type != NAME) {
+//             printf("Expected variable name\n");
+//             exit(1);
+//         }
+//         char* field = arg->repr;
+//     }
+// }
+
 node* parse(queue* Q) {
-    return parse_top_level(Q);
+    return parse_top_declaration(Q);
 }

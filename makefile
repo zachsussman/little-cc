@@ -6,8 +6,8 @@ TOK_OBJS = tokenizer/tokens.o tokenizer/tokenize.o
 UTIL_DEPS = util/list.h util/stack.h util/queue.h util/hash.h
 UTIL_OBJS = util/list.o util/stack.o util/queue.o util/hash.o
 
-PARSE_DEPS = parser/ast.h parser/parser.h parser/env.h
-PARSE_OBJS = parser/ast.o parser/parser.o parser/env.o
+PARSE_DEPS = parser/ast.h parser/parser.h parser/env.h parser/types.h
+PARSE_OBJS = parser/ast.o parser/parser.o parser/env.o parser/types.c
 
 WRITE_DEPS = writer/driver.h
 WRITE_OBJS = writer/driver.o
