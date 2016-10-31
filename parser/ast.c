@@ -101,6 +101,30 @@ node* node_call_deq(node* call) {
 }
 
 
+node* new_node_sizeof(var_type* type) {
+    node* n = malloc(sizeof(node));
+    extra_sizeof* e = malloc(sizeof(extra_sizeof));
+    e->type = type;
+    n->extra = (void*) e;
+    n->type = AST_SIZEOF;
+
+    assert(is_node(n));
+    return n;
+}
+
+node* new_node_arrow(node* inner, char* field) {
+    assert(is_node(inner));
+
+    node* n = malloc(sizeof(node));
+    extra_arrow* e = malloc(sizeof(extra_arrow));
+    e->inner = inner;
+    e->field = strdup(field);
+    n->extra = (void*) e;
+    n->type = AST_ARROW;
+
+    assert(is_node(n));
+    return n;
+}
 
 
 node* new_node_binop(node_type type, node* left, node* right) {
@@ -265,7 +289,16 @@ node* new_node_function(var_type*  ret, char* name, queue* args, node* body) {
     return n;
 }
 
+node* new_node_struct(char* name, var_type* decl) {
+    node* n = malloc(sizeof(node));
+    extra_struct* e = malloc(sizeof(extra_struct));
 
+    e->name = name;
+    e->decl = decl;
+    n->extra = (void*) e;
+    n->type = AST_STRUCT_DECLARATION;
+    return n;
+}
 
 void _print_node(node* n, int depth);
 
@@ -303,6 +336,15 @@ void _print_node(node* n, int depth) {
             printf("AST_FN_CALL %s\n", ((extra_call*)(n->extra))->fn_name);
             queue* args = queue_readonly(((extra_call*)(n->extra))->args);
             while (!queue_empty(args)) _print_node((node*) deq(args), depth+1);
+            break;
+        case AST_SIZEOF:
+            printf("AST_SIZEOF");
+            type_print(((extra_sizeof*)(n->extra))->type);
+            printf("\n");
+            break;
+        case AST_ARROW:
+            printf("AST_ARROW %s\n", ((extra_arrow*)(n->extra))->field);
+            _print_node(((extra_arrow*)(n->extra))->inner, depth+1);
             break;
         case AST_ADDRESS:
             printf("AST_ADDRESS\n");
@@ -406,6 +448,33 @@ void _print_node(node* n, int depth) {
             break;
     }
 }
+
+void _ast_locals(queue* locals, node* n) {
+    if (n == NULL) return;
+
+    if (n->type == AST_SEQUENCE) {
+        queue* Q = queue_readonly(((extra_sequence*)(n->extra))->Q);
+        while (!queue_empty(Q)) _ast_locals(locals, deq(Q));
+    } else if (n->type == AST_LOCAL_DECLARATION) {
+        enq(locals, n->extra);
+    } else if (n->type == AST_FUNCTION) {
+        _ast_locals(locals, ((extra_function*)(n->extra))->body);
+    } else if (n->type == AST_IF) {
+        extra_if* e = n->extra;
+        _ast_locals(locals, e->body);
+        _ast_locals(locals, e->else_body);
+    } else if (n->type == AST_WHILE) {
+        _ast_locals(locals, ((extra_while*)(n->extra))->body);
+    }
+}
+
+queue* ast_locals(node* n) {
+    queue* locals = queue_new();
+    printf("ast_locals, %p\n", locals);
+    _ast_locals(locals, n);
+    return locals;
+}
+
 void print_node(node* n) {
     _print_node(n, 0);
 }

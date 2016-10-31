@@ -53,11 +53,12 @@ void parse_long(queue* Q, char** pline, token_type type, classifier* f) {
         len++;
     }
 
-    char* repr = calloc(len, sizeof(char));
+    char* repr = calloc(len+1, sizeof(char));
     for (int i = 0; i < len && **pline != 0 && (*f)(**pline); i++) {
         repr[i] = **pline;
         (*pline)++;
     }
+    repr[len] = '\0';
 
     token* tok = token_new(type, repr);
     enq(Q, tok);
@@ -72,11 +73,12 @@ void parse_number(queue* Q, char** pline) {
         len++;
     }
 
-    char* repr = calloc(len, sizeof(char));
+    char* repr = calloc(len+1, sizeof(char));
     for (int i = 0; i < len && **pline != 0 && is_number_char(**pline); i++) {
         repr[i] = **pline;
         (*pline)++;
     }
+    repr[len] = '\0';
 
     token* tok = token_new(NUMBER, repr);
     enq(Q, tok);
@@ -91,11 +93,12 @@ void parse_name(queue* Q, char** pline) {
         len++;
     }
 
-    char* repr = calloc(len, sizeof(char));
+    char* repr = calloc(len+1, sizeof(char));
     for (int i = 0; i < len && **pline != 0 && is_name_char(**pline); i++) {
         repr[i] = **pline;
         (*pline)++;
     }
+    repr[len] = '\0';
 
 
     if (strcmp(repr, "int") == 0) {
@@ -116,6 +119,12 @@ void parse_name(queue* Q, char** pline) {
     } else if (strcmp(repr, "else") == 0) {
         free(repr);
         enq(Q, token_new(KW_ELSE, "else"));
+    } else if (strcmp(repr, "struct") == 0) {
+        free(repr);
+        enq(Q, token_new(KW_STRUCT, "struct"));
+    } else if (strcmp(repr, "sizeof") == 0) {
+        free(repr);
+        enq(Q, token_new(KW_SIZEOF, "sizeof"));
     }
     else {
         token* tok = token_new(NAME, repr);
@@ -156,10 +165,11 @@ void parse_string(queue* Q, char** pline) {
 
     parse_string_advance(pline);
 
-    char* repr = calloc(len, sizeof(char));
+    char* repr = calloc(len+1, sizeof(char));
     for (int i = 0; i < len && **pline != 0 && **pline != '"'; i++) {
         repr[i] = parse_string_advance(pline);
     }
+    repr[len] = '\0';
 
     parse_string_advance(pline);
 

@@ -49,12 +49,13 @@ bool is_hash(hash* H) {
 hash* hash_new(int cap) {
     assert(cap > 0);
 
-    hash* H = malloc(sizeof(H));
+
+    hash* H = malloc(sizeof(hash));
+    assert(H != NULL);
     H->size = 0;
     H->capacity = cap;
-    H->chains = calloc(sizeof(hash_chain*), cap);
+    H->chains = (hash_chain**) malloc(cap * sizeof(hash_chain*));
     for (int i = 0; i < cap; i++) H->chains[i] = NULL;
-
     assert(is_hash(H));
     return H;
 }

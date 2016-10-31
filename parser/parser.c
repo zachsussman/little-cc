@@ -1,4 +1,4 @@
-#include <stdbool.h>
+// #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
@@ -9,7 +9,11 @@
 #include "ast.h"
 #include "../token_q.h"
 #include "../util/stack.h"
+#include "types.h"
 
+// This is a terrible, kludgy workaround, and I apologize to myself and others.
+hash* h_type_names = NULL;
+hash* h_struct_names = NULL;
 
 token* safe_deq(queue* Q) {
     if (queue_empty(Q)) {
@@ -53,7 +57,7 @@ void expect_semicolon(queue* Q) {
 node* parse_expr(queue* Q);
 
 bool is_lvalue(node* n) {
-    return n->type == AST_VARIABLE || n->type == AST_DEREFERENCE;
+    return n->type == AST_VARIABLE || n->type == AST_DEREFERENCE || n->type == AST_ARROW;
 }
 
 node* check_is_lvalue(node* n) {
@@ -68,11 +72,25 @@ node* check_is_lvalue(node* n) {
  * type := "int" | "void" | type "*"
  */
 
+bool can_parse_type(queue* Q) {
+    token_type t = safe_peek_type(Q);
+    token* tok = safe_peek(Q);
+    return t == KW_INT || t == KW_VOID || t == KW_STRUCT || 
+           (t == NAME && hash_get(h_type_names, tok->repr) != NULL);
+}
+
 var_type* parse_type(queue* Q) {
     token_type t = safe_peek_type(Q);
     var_type* type;
     if (t == KW_INT) type = type_new_base(LANG_INT);
     else if (t == KW_VOID) type = type_new_base(LANG_VOID);
+    else if (t == KW_STRUCT) {
+        safe_deq(Q);
+        type = type_new_undet_struct(safe_peek(Q)->repr);
+    }
+    else {
+        type = type_new_undet(safe_peek(Q)->repr);
+    }
     safe_deq(Q);
 
     while (safe_peek_type(Q) == OP_MUL) {
@@ -115,6 +133,10 @@ node* parse_parens(queue* Q) {
         expect(Q, CLOSED_PAREN, ")");
     } else if (t->type == STRING) {
         n = new_node_string(t->repr);
+    } else if (t->type == KW_SIZEOF) {
+        expect(Q, OPEN_PAREN, "(");
+        n = new_node_sizeof(parse_type(Q));
+        expect(Q, CLOSED_PAREN, ")");
     }
     else {
         printf("Ay no! expected a name or number");
@@ -126,7 +148,20 @@ node* parse_parens(queue* Q) {
 
 // Level 1
 node* parse_unary_postfix(queue* Q) {
-    return parse_parens(Q);
+    node* inner = parse_parens(Q);
+
+    token_type type = safe_peek_type(Q);
+    while (type == OP_ARROW) {
+        expect(Q, OP_ARROW, "->");
+        token* f = safe_deq(Q);
+        if (f->type != NAME) {
+            printf("Expected name for field, found type %i\n", f->type);
+            exit(1);
+        }
+        inner = new_node_arrow(inner, f->repr);
+        type = safe_peek_type(Q);
+    }
+    return inner;
 }
 
 // Level 2
@@ -239,7 +274,7 @@ node* parse_assign(queue* Q) {
 node* parse_statement(queue* Q);
 
 node* parse_declaration(queue* Q) {
-    var_type*  type = parse_type(Q);
+    var_type* type = parse_type(Q);
     token* t = safe_deq(Q);
     char* name = strdup(t->repr);
     token_delete(t);
@@ -301,7 +336,7 @@ node* parse_return(queue* Q) {
 node* parse_statement(queue* Q) {
     token_type t = safe_peek_type(Q);
 
-    if (t == KW_INT) {
+    if (can_parse_type(Q)) {
         return parse_declaration(Q);
     }
     else if (t == OPEN_BRACE) {
@@ -359,22 +394,35 @@ node* parse_top_declaration(queue* Q) {
     }
 }
 
-// node* parse_struct_declaration(queue* Q) {
-//     expect(Q, KW_STRUCT, "struct");
-//     char* name = strdup(safe_deq(Q)->repr);
-//     expect(Q, OPEN_BRACE, "{");
-//     queue* fields = queue_new();
-//     while (safe_peek_type(Q) != CLOSED_BRACE) {
-//         var_type* type = parse_type(Q);
-//         token* f = safe_deq(Q);
-//         if (n->type != NAME) {
-//             printf("Expected variable name\n");
-//             exit(1);
-//         }
-//         char* field = arg->repr;
-//     }
-// }
+node* parse_struct_declaration(queue* Q) {
+    expect(Q, KW_STRUCT, "struct");
+    char* name = strdup(safe_deq(Q)->repr);
+    expect(Q, OPEN_BRACE, "{");
+    var_type* s = type_new_struct();
+    while (safe_peek_type(Q) != CLOSED_BRACE) {
+        var_type* type = parse_type(Q);
+        token* f = safe_deq(Q);
+        if (f->type != NAME) {
+            printf("Expected variable name\n");
+            exit(1);
+        }
+        char* field = f->repr;
+        type_add_field(s, field, type);
+        expect(Q, SEMICOLON, ";");
+    }
+    expect(Q, CLOSED_BRACE, "}");
+    expect(Q, SEMICOLON, ";");
+
+    return new_node_struct(name, s);
+}
+
+node* parse_top(queue* Q) {
+    if (safe_peek_type(Q) == KW_STRUCT) return parse_struct_declaration(Q);
+    else return parse_top_declaration(Q);
+}
+
 
 node* parse(queue* Q) {
-    return parse_top_declaration(Q);
+    if (h_type_names == NULL) h_type_names = hash_new(30);
+    return parse_top(Q);
 }

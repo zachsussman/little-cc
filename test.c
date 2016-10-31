@@ -1,14 +1,12 @@
-int** factorial(int n) {
-    if (n < 2) {
-        printf("Base case: %i\n", n);
-        return 1;
-    }
-    else {
-        printf("Recursive: %i\n", n);
-        return n*factorial(n-1);
-    }
-}
+struct local {
+    int x;
+    int y;
+};
 
-void main() {
-    printf("factorial(10): %i\n", factorial(10));
+int main(int argc) {
+    struct local* q;
+    q = malloc(sizeof(struct local));
+    q->x = 10;
+    q->y = 20;
+    printf("%i\n", q->x + q->y);
 }

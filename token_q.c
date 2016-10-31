@@ -9,7 +9,7 @@ void token_enq(queue* Q, token* t) {
 
 token* token_deq(queue* Q) {
     token* t = (token*) deq(Q);
-    printf("%s ", t->repr);
+    printf("%s %i ", t->repr, t->type);
     return t;
 }
 

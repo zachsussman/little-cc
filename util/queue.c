@@ -39,6 +39,7 @@ void enq(queue* Q, void* d) {
     Q->back->next = l;
     l->next = NULL;
     Q->back = l;
+    
     assert(is_queue(Q));
 }
 
@@ -61,6 +62,8 @@ void* deq(queue* Q) {
 }
 
 queue* queue_readonly(queue* Q) {
+    assert(Q != NULL);
+
     queue* new = malloc(sizeof(queue));
     new->front = Q->front;
     new->back = Q->back;

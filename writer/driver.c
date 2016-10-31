@@ -30,7 +30,10 @@ void ast_var_write(FILE* f, node* n, env* E) {
     if (v->type == VAR_GLOBAL) {
         fprintf(f, "\tmov rax, qword [g%i]\n", v->index);
     } else if (v->type == VAR_ARG) {
-        fprintf(f, "\tmov rax, qword [rbp+%i]\n", (v->index+1)*8);
+        int local_size = env_get_local_size(E);
+        fprintf(f, "\tmov rax, qword [rbp+%i]\n", local_size + v->index + 8);
+    } else if (v->type == VAR_LOCAL) {
+        fprintf(f, "\tmov rax, qword [rbp+%i]\n", v->index + 8);
     }
 }
 
@@ -61,6 +64,43 @@ void ast_call_write(FILE* f, node* n, env* E) {
 
     emit(f, "mov al, 0");
     fprintf(f, "\tcall _%s\n", e->fn_name);
+}
+
+void ast_sizeof_write(FILE* f, node* n, env* E) {
+    assert(n != NULL);
+    assert(n->type == AST_SIZEOF);
+
+    extra_sizeof* e = (extra_sizeof*) n->extra;
+    var_type* t = e->type;
+    if (t->base == LANG_UNDET || t->base == LANG_UNDET_STRUCT)
+        t = env_get_type(E, t->extra);
+
+    int size = type_get_size(t);
+    fprintf(f, "\tmov rax, %d\n", size);
+}
+
+void ast_arrow_write(FILE* f, node* n, env* E) {
+    assert(n != NULL);
+    assert(n->type == AST_ARROW);
+
+    extra_arrow* e = (extra_arrow*) n->extra;
+    var_type* t = env_ast_type(E, e->inner);
+    if (t->base != LANG_POINTER) {
+        printf("Attempted to dereference non-pointer\n");
+        exit(1);
+    }
+    var_type* s = (var_type*) t->extra;
+    if (s->base == LANG_UNDET || s->base == LANG_UNDET_STRUCT) {
+        s = env_get_type(E, s->extra);
+    }
+    if (s->base != LANG_STRUCT) {
+        printf("Attempted to arrow non-struct-pointer %i\n", s->base);
+        exit(1);
+    }
+    int index = type_get_field(s, e->field)->index;
+
+    ast_write(f, e->inner, E);
+    fprintf(f, "\tmov rax, [rax+%i]\n", index*8);
 }
 
 void ast_address_write(FILE* f, node* n, env* E) {
@@ -167,6 +207,36 @@ void ast_neq_write(FILE* f, node* n, env* E) {
     ast_binop_write(f, n, E, "cmp rax, rcx\n\tsetne al\n\tmovzx rax, al");
 }
 
+void ast_lvalue_write(FILE* f, node* n, env* E) {
+    assert(n != NULL);
+
+    if (n->type == AST_VARIABLE) {
+        extra_var* e = (extra_var*) n->extra;
+        var_info* v = env_get_info(E, e->name);
+        if (v->type == VAR_GLOBAL) {
+            fprintf(f, "\tmov rax, g%i\n", v->index);
+        } else if (v->type == VAR_ARG) {
+            fprintf(f, "\tlea rax, [rbp+%i]\n", env_get_local_size(E) + v->index + 8);
+        } else if (v->type == VAR_LOCAL) {
+            fprintf(f, "\tlea rax, [rbp+%i]\n", v->index + 8);
+        }
+    }
+    else if (n->type == AST_DEREFERENCE) {
+        ast_write(f, ((extra_unop*)(n->extra))->inner, E);
+    } else if (n->type == AST_ARROW) {
+        extra_arrow* e = n->extra;
+        ast_write(f, e->inner, E);
+        var_type* s = env_ast_type(E, e->inner);
+        if (s->base != LANG_POINTER) {
+            printf("Attempted to dereference non-pointer type %i", s->base);
+            exit(1);
+        }
+        s = s->extra;
+        int index = env_get_field(E, s, e->field)->index;
+        fprintf(f, "\tadd rax, %i\n", index*8);
+    }
+}
+
 void ast_assign_write(FILE* f, node* n, env* E) {
     assert(n != NULL);
     assert(n->type == AST_ASSIGN);
@@ -174,18 +244,11 @@ void ast_assign_write(FILE* f, node* n, env* E) {
     extra_binop* e = (extra_binop*) n->extra;
     ast_write(f, e->right, E);
 
-    if (e->left->type == AST_VARIABLE) {
-        char* name = ((extra_var*) e->left->extra)->name;
-        fprintf(f, "\tmov [g%i], rax\n", env_get_info(E, name)->index);
-    } else if (e->left->type == AST_DEREFERENCE) {
-        emit(f, "push rax");
-        extra_unop* u = (extra_unop*) e->left->extra;
-        ast_write(f, u->inner, E);
-        emit(f, "mov rcx, rax");
-        emit(f, "pop rax");
-        emit(f, "mov [rcx], rax");
-    }
-}
+    emit(f, "push rax");
+    ast_lvalue_write(f, e->left, E);
+    emit(f, "pop rcx");
+    emit(f, "mov [rax], rcx");
+}  
     
 
 void ast_statement_write(FILE* f, node* n, env* E) {
@@ -245,7 +308,7 @@ void ast_return_write(FILE* f, node* n, env* E) {
 
 
     emit(f, "pop rbp");
-    fprintf(f, "\tadd rsp, %i\n", env_num_args(E)*8);
+    fprintf(f, "\tadd rsp, %i\n", env_get_local_size(E) + env_get_args_size(E));
     emit(f, "ret");
 }
 
@@ -253,8 +316,10 @@ void ast_declaration_write(FILE* f, node* n, env* E) {
     assert(n != NULL);
     assert(n->type == AST_LOCAL_DECLARATION);
 
-    extra_declaration* e = (extra_declaration*) n->extra;
-    env_add_global(E, e->type, e->name);
+    // Do nothing, lookahead does this for us
+
+    // extra_declaration* e = (extra_declaration*) n->extra;
+    // env_add_global(E, e->type, e->name);
 }
 
 void ast_sequence_write(FILE* f, node* n, env* E) {
@@ -267,29 +332,46 @@ void ast_sequence_write(FILE* f, node* n, env* E) {
 }
 
 void ast_function_write(FILE* f, node* n, env* E) {
+    assert(n != NULL);
+    assert(n->type == AST_FUNCTION);
+
     extra_function* e = (extra_function*) n->extra;
     env_add_fn(E, e->name, e->ret);
     for (int i = 0; i < e->argc; i++) {
         env_add_fn_arg(E, e->name, e->args[i]->type, e->args[i]->name);
     }
 
+    env_add_fn_locals(E, e->name, ast_locals(n));
     if (e->body == NULL) return;
 
     fprintf(f, "_%s:\n", e->name);
     for (int i = e->argc-1; i >= 0; i--) {
         fprintf(f, "\tpush %s\n", arg_registers[i]);
     }
+
     emit(f, "push rbp");
     emit(f, "mov rbp, rsp");
 
     env_set_fn(E, e->name);
+
+    fprintf(f, "\tsub rsp, %i\n", env_get_local_size(E));
     ast_write(f, e->body, E);
-    env_clear_fn(E);
 
-
+    fprintf(f, "\tadd rsp, %i\n", env_get_local_size(E));
     emit(f, "pop rbp");
-    fprintf(f, "\tadd rsp, %i\n", e->argc*8);
+    fprintf(f, "\tadd rsp, %i\n", env_get_args_size(E));
+
     emit(f, "ret");
+
+    env_clear_fn(E);
+}
+
+void ast_struct_write(FILE* f, node* n, env* E) {
+    assert(n != NULL);
+    assert(n->type == AST_STRUCT_DECLARATION);
+
+    extra_struct* e = (extra_struct*) n->extra;
+    env_register_struct(E, e->name, e->decl);
 }
 
 void ast_write(FILE* f, node* n, env* E) {
@@ -307,6 +389,12 @@ void ast_write(FILE* f, node* n, env* E) {
             break;
         case AST_FN_CALL:
             ast_call_write(f, n, E);
+            break;
+        case AST_SIZEOF:
+            ast_sizeof_write(f, n, E);
+            break;
+        case AST_ARROW:
+            ast_arrow_write(f, n, E);
             break;
         case AST_ADDRESS:
             ast_address_write(f, n, E);
@@ -368,6 +456,9 @@ void ast_write(FILE* f, node* n, env* E) {
         case AST_FUNCTION:
             ast_function_write(f, n, E);
             break;
+        case AST_STRUCT_DECLARATION:
+            ast_struct_write(f, n, E);
+            break;
         default:
             emit(f, "; unknown instruction");
             break;
@@ -386,6 +477,7 @@ void write_header(FILE* f) {
     fprintf(f, "default rel\n");
     fprintf(f, "extern _exit\n");
     fprintf(f, "extern _printf\n");
+    fprintf(f, "extern _malloc\n");
     fprintf(f, "section .text\n");
     fprintf(f, "global _main\n");
     fprintf(f, "\n");
@@ -407,9 +499,6 @@ void write_string(void* vf, char* name, int index) {
 }
 
 void write_footer(FILE* f, env* E) {
-    emit(f, "mov rdi, rax");
-    emit(f, "mov rax, 0x2000001");
-    emit(f, "syscall");
     emit(f, "");
     fprintf(f, "section .data\n");
     emit(f, "dummy: dw 16"); 

@@ -43,6 +43,8 @@ enum token_type_e {
     KW_RETURN,
     KW_VOID,
     KW_ELSE,
+    KW_STRUCT,
+    KW_SIZEOF,
 
     OTHER
 };

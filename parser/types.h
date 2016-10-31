@@ -8,7 +8,10 @@ enum lang_type_e {
     LANG_INT,
     LANG_VOID,
     LANG_POINTER,
-    LANG_FN
+    LANG_FN,
+    LANG_STRUCT,
+    LANG_UNDET_STRUCT,
+    LANG_UNDET
 };
 
 typedef struct var_type_s var_type;
@@ -43,8 +46,13 @@ var_type* type_pointer_inner(var_type* p);
 var_type* type_new_fn(var_type* ret);
 
 
-var_type* type_new_struct(int nfields, hash* fields);
+var_type* type_new_struct();
 void type_add_field(var_type* s, char* name, var_type* type);
 t_struct_field* type_get_field(var_type* s, char* name);
+
+var_type* type_new_undet_struct(char* name);
+var_type* type_new_undet(char* name);
+
+int type_get_size(var_type* t);
 
 void type_print(var_type* v);
