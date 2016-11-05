@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdbool.h>
+#include "../diff.h"
 #include "list.h"
 
 typedef struct stack_s stack;

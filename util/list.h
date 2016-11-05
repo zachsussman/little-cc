@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdbool.h>
+#include "../diff.h"
 
 typedef struct list_s list;
 struct list_s {

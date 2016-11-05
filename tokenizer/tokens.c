@@ -1,6 +1,4 @@
-#include <stdlib.h>
-#include <assert.h>
-#include <stdbool.h>
+#include "../diff.h"
 
 #include "tokens.h"
 

@@ -1,6 +1,5 @@
 #pragma once
-#include <stdlib.h>
-#include <stdio.h>
+#include "../diff.h"
 #include "../parser/ast.h"
 #include "../parser/env.h"
 

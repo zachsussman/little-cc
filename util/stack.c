@@ -1,6 +1,4 @@
-#include <stdlib.h>
-#include <stdbool.h>
-#include <assert.h>
+#include "../diff.h"
 #include "stack.h"
 #include "list.h"
 

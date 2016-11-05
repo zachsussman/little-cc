@@ -1,15 +1,11 @@
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
-#include <string.h>
+#include "../diff.h"
 #include "../vars.h"
 #include "../util/queue.h"
 
 #include "ast.h"
 
 bool is_node(node* n) {
-    return n != NULL && n->extra != NULL;
+    return n != NULL && (n->type == AST_BREAK || n->extra != NULL);
 }
 
 node* new_node_var(char* name) {
@@ -42,6 +38,18 @@ node* new_node_int(char* repr) {
     assert(is_node(n));
     return n;
 
+}
+
+
+node* new_node_char(char val) {
+    node* n = malloc(sizeof(node));
+    extra_char* e = malloc(sizeof(extra_char));
+    e->val = val;
+    n->extra = (void*) e;
+    n->type = AST_CHAR;
+
+    assert(is_node(n));
+    return n;
 }
 
 node* new_node_string(char* s) {
@@ -112,6 +120,20 @@ node* new_node_sizeof(var_type* type) {
     return n;
 }
 
+node* new_node_cast(var_type* type, node* inner) {
+    assert(is_node(inner));
+
+    node* n = malloc(sizeof(node));
+    extra_cast* e = malloc(sizeof(extra_cast));
+    e->type = type;
+    e->inner = inner;
+    n->extra = (void*) e;
+    n->type = AST_CAST;
+
+    assert(is_node(n));
+    return n;
+}
+
 node* new_node_arrow(node* inner, char* field) {
     assert(is_node(inner));
 
@@ -155,13 +177,14 @@ node* new_node_unop(node_type type, node* inner) {
     return n;
 }
 
-node* new_node_declaration(node_type scope, var_type*  t, char* name) {
+node* new_node_declaration(node_type scope, var_type*  t, char* name, node* init) {
     assert(name != NULL);
 
     node* n = malloc(sizeof(node));
     extra_declaration* e = malloc(sizeof(extra_declaration));
     e->type = t;
     e->name = strndup(name, MAX_TOKEN_LENGTH);
+    e->init = init;
 
     n->type = scope;
     n->extra = (void*) e;
@@ -213,6 +236,70 @@ node* new_node_while(node* cond, node* body) {
     assert(is_node(n));
     return n;
 }
+
+node* new_node_for(node* init, node* cond, node* end, node* body) {
+    assert(is_node(init));
+    assert(is_node(cond));
+    assert(is_node(end));
+    assert(is_node(body));
+
+    node* n = malloc(sizeof(node));
+    extra_for* e = malloc(sizeof(extra_for));
+    e->init = init;
+    e->cond = cond;
+    e->end = end;
+    e->body = body;
+    n->extra = (void*) e;
+    n->type = AST_FOR;
+
+    assert(is_node(n));
+    return n;
+}
+
+node* new_node_break() {
+    node* n = malloc(sizeof(node));
+    n->type = AST_BREAK;
+    n->extra = NULL;
+
+    assert(is_node(n));
+    return n;
+}
+
+extra_case* new_node_case(int val, node* body) {
+    extra_case* e = malloc(sizeof(extra_case));
+    e->val = val;
+    e->body = body;
+    return e;
+}
+
+node* new_node_switch(node* cond, queue* cases, node* n_default) {
+    node* n = malloc(sizeof(node));
+    extra_switch* e = malloc(sizeof(extra_switch));
+
+    int maxn = 0;
+    queue* q = queue_readonly(cases);
+    while(!queue_empty(q)) {
+        extra_case* c = deq(q);
+        if (c->val > maxn) maxn = c->val;
+    }
+
+    e->cond = cond;
+    e->cases = malloc(sizeof(extra_case*) * (maxn+1));
+    q = queue_readonly(cases);
+    while (!queue_empty(q)) {
+        extra_case* ca = deq(q);
+        e->cases[ca->val] = ca;
+    }
+    e->n_default = n_default;
+    e->length = maxn+1;
+
+    n->type = AST_SWITCH;
+    n->extra = e;
+
+    assert(is_node(n));
+    return n;
+}
+
 
 node* new_node_sequence() {
     node* n = malloc(sizeof(node));
@@ -300,6 +387,32 @@ node* new_node_struct(char* name, var_type* decl) {
     return n;
 }
 
+node* new_node_typedef(var_type* type, char* name) {
+    node* n = malloc(sizeof(node));
+    extra_typedef* e = malloc(sizeof(extra_typedef));
+
+    e->name = name;
+    e->type = type;
+    n->extra = (void*) e;
+    n->type = AST_TYPEDEF;
+    return n;
+}
+
+node* new_node_enum(char* name) {
+    node* n = malloc(sizeof(node));
+    extra_enum* e = malloc(sizeof(extra_enum));
+
+    e->name = name;
+    e->vals = queue_new();
+    n->extra = e;
+    n->type = AST_ENUM;
+    return n;
+}
+
+void enum_add_val(node* n, char* val) {
+    enq(((extra_enum*)(n->extra))->vals, val);
+}
+
 void _print_node(node* n, int depth);
 
 void print_binop_node(node* n, int depth) {
@@ -338,13 +451,31 @@ void _print_node(node* n, int depth) {
             while (!queue_empty(args)) _print_node((node*) deq(args), depth+1);
             break;
         case AST_SIZEOF:
-            printf("AST_SIZEOF");
+            printf("AST_SIZEOF ");
             type_print(((extra_sizeof*)(n->extra))->type);
             printf("\n");
+            break;
+        case AST_CAST:
+            printf("AST_CAST ");
+            type_print(((extra_cast*)(n->extra))->type);
+            printf("\n");
+            _print_node(((extra_cast*)(n->extra))->inner, depth+1);
             break;
         case AST_ARROW:
             printf("AST_ARROW %s\n", ((extra_arrow*)(n->extra))->field);
             _print_node(((extra_arrow*)(n->extra))->inner, depth+1);
+            break;
+        case AST_ARRAY_SUB:
+            printf("AST_ARRAY_SUB\n");
+            print_binop_node(n, depth);
+            break;
+        case AST_INCREMENT:
+            printf("AST_INCREMENT\n");
+            print_unop_node(n, depth);
+            break;
+        case AST_DECREMENT:
+            printf("AST_DECREMENT\n");
+            print_unop_node(n, depth);
             break;
         case AST_ADDRESS:
             printf("AST_ADDRESS\n");
@@ -402,6 +533,8 @@ void _print_node(node* n, int depth) {
             printf("AST_LOCAL_DECLARATION: ");
             type_print(((extra_declaration*)(n->extra))->type);
             printf(" %s\n", ((extra_declaration*)(n->extra))->name);
+            if (((extra_declaration*)(n->extra))->init)
+                _print_node(((extra_declaration*)(n->extra))->init, depth+1);
             break;
         case AST_STATEMENT:
             printf("AST_STATEMENT\n");
@@ -418,8 +551,15 @@ void _print_node(node* n, int depth) {
             break;
         case AST_WHILE:
             printf("AST_WHILE\n");
-            _print_node(((extra_if*)(n->extra))->cond, depth+1);
-            _print_node(((extra_if*)(n->extra))->body, depth+1);
+            _print_node(((extra_while*)(n->extra))->cond, depth+1);
+            _print_node(((extra_while*)(n->extra))->body, depth+1);
+            break;
+        case AST_FOR:
+            printf("AST_FOR\n");
+            _print_node(((extra_for*)(n->extra))->init, depth+1);
+            _print_node(((extra_for*)(n->extra))->cond, depth+1);
+            _print_node(((extra_for*)(n->extra))->end, depth+1);
+            _print_node(((extra_for*)(n->extra))->body, depth+1);
             break;
         case AST_RETURN:
             printf("AST_RETURN\n");
@@ -441,7 +581,7 @@ void _print_node(node* n, int depth) {
                 type_print(ex->args[i]->type);
                 printf(" %s\n", ex->args[i]->name);
             }
-            _print_node(ex->body, depth+1);
+            if (ex->body != NULL) _print_node(ex->body, depth+1);
             break;
         default:
             printf("AST_UNKNOWN\n");
@@ -465,6 +605,10 @@ void _ast_locals(queue* locals, node* n) {
         _ast_locals(locals, e->else_body);
     } else if (n->type == AST_WHILE) {
         _ast_locals(locals, ((extra_while*)(n->extra))->body);
+    } else if (n->type == AST_FOR) {
+        extra_for* e = n->extra;
+        _ast_locals(locals, e->init);
+        _ast_locals(locals, e->body);
     }
 }
 

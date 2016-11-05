@@ -7,6 +7,7 @@ typedef enum lang_type_e lang_type;
 enum lang_type_e {
     LANG_INT,
     LANG_VOID,
+    LANG_CHAR,
     LANG_POINTER,
     LANG_FN,
     LANG_STRUCT,
@@ -53,6 +54,6 @@ t_struct_field* type_get_field(var_type* s, char* name);
 var_type* type_new_undet_struct(char* name);
 var_type* type_new_undet(char* name);
 
-int type_get_size(var_type* t);
+
 
 void type_print(var_type* v);

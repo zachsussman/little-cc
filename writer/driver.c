@@ -1,13 +1,12 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <assert.h>
+#include "../diff.h"
 
 #include "../parser/ast.h"
 #include "driver.h"
 #include "../parser/env.h"
 
 char** arg_registers;
+
+void ast_lvalue_write(FILE* f, node* n, env* E);
 
 void emit(FILE* f, char* s) {
     fprintf(f, "\t%s\n", s);
@@ -17,7 +16,15 @@ void ast_int_write(FILE* f, node* n, env* E) {
     assert(n != NULL);
     assert(n->type == AST_INTEGER);
 
-    extra_int* e = (extra_int*)n->extra;
+    extra_int* e = n->extra;
+    fprintf(f, "\tmov rax, %i\n", e->val);
+}
+
+void ast_char_write(FILE* f, node* n, env* E) {
+    assert(n != NULL);
+    assert(n->type == AST_CHAR);
+
+    extra_char* e = n->extra;
     fprintf(f, "\tmov rax, %i\n", e->val);
 }
 
@@ -27,13 +34,23 @@ void ast_var_write(FILE* f, node* n, env* E) {
 
     extra_var* e = (extra_var*) n->extra;
     var_info* v = env_get_info(E, e->name);
+
+    char* mov_str;
+    int var_size = type_get_size(E, v->lang_t);
+    if (var_size == 1) {
+        mov_str = "movzx rax, byte";
+    } else {
+        mov_str = "mov rax, qword";
+    }
+
     if (v->type == VAR_GLOBAL) {
-        fprintf(f, "\tmov rax, qword [g%i]\n", v->index);
+        fprintf(f, "\t%s [g%i]\n", mov_str, v->index);
     } else if (v->type == VAR_ARG) {
-        int local_size = env_get_local_size(E);
-        fprintf(f, "\tmov rax, qword [rbp+%i]\n", local_size + v->index + 8);
+        fprintf(f, "\t%s [rbp+%i]\n", mov_str, v->index + 8);
     } else if (v->type == VAR_LOCAL) {
-        fprintf(f, "\tmov rax, qword [rbp+%i]\n", v->index + 8);
+        fprintf(f, "\t%s [rbp-%i]\n", mov_str, v->index + 8);
+    } else if (v->type == VAR_CONST) {
+        fprintf(f, "\tmov rax, %i\n", v->index);
     }
 }
 
@@ -72,10 +89,9 @@ void ast_sizeof_write(FILE* f, node* n, env* E) {
 
     extra_sizeof* e = (extra_sizeof*) n->extra;
     var_type* t = e->type;
-    if (t->base == LANG_UNDET || t->base == LANG_UNDET_STRUCT)
+    while (t->base == LANG_UNDET || t->base == LANG_UNDET_STRUCT)
         t = env_get_type(E, t->extra);
-
-    int size = type_get_size(t);
+    int size = type_get_size(E, t);
     fprintf(f, "\tmov rax, %d\n", size);
 }
 
@@ -90,7 +106,7 @@ void ast_arrow_write(FILE* f, node* n, env* E) {
         exit(1);
     }
     var_type* s = (var_type*) t->extra;
-    if (s->base == LANG_UNDET || s->base == LANG_UNDET_STRUCT) {
+    while (s->base == LANG_UNDET || s->base == LANG_UNDET_STRUCT) {
         s = env_get_type(E, s->extra);
     }
     if (s->base != LANG_STRUCT) {
@@ -103,17 +119,70 @@ void ast_arrow_write(FILE* f, node* n, env* E) {
     fprintf(f, "\tmov rax, [rax+%i]\n", index*8);
 }
 
+void ast_array_sub_write(FILE* f, node* n, env* E) {
+    assert(n != NULL);
+    assert(n->type == AST_ARRAY_SUB);
+
+    extra_binop* e = (extra_binop*) n->extra;
+    var_type* t = env_ast_type(E, e->left);
+    if (t->base != LANG_POINTER) {
+        printf("Attempted to dereference non-pointer\n");
+        exit(1);
+    }
+    var_type* s = (var_type*) t->extra;
+    while (s->base == LANG_UNDET || s->base == LANG_UNDET_STRUCT) {
+        s = env_get_type(E, s->extra);
+    }
+
+    ast_write(f, e->right, E);
+    fprintf(f, "\timul rax, %i\n", type_get_size(E, s));
+    emit(f, "push rax");
+    ast_write(f, e->left, E);
+    emit(f, "pop rcx");
+    emit(f, "add rax, rcx");
+    emit(f, "mov rax, [rax]");
+}
+
+void ast_cast_write(FILE* f, node* n, env* E) {
+    assert(n != NULL);
+    assert(n->type == AST_CAST);
+
+    extra_cast* e = n->extra;
+    ast_write(f, e->inner, E);
+}
+
+void ast_increment_write(FILE* f, node* n, env* E) {
+    assert(n != NULL);
+    assert(n->type == AST_INCREMENT);
+
+    extra_unop* e = n->extra;
+
+    ast_lvalue_write(f, e->inner, E);
+    emit(f, "mov rcx, [rax]");
+    emit(f, "add qword [rax], 1");
+    emit(f, "mov rax, rcx");
+}
+
+void ast_decrement_write(FILE* f, node* n, env* E) {
+    assert(n != NULL);
+    assert(n->type == AST_DECREMENT);
+
+    extra_unop* e = n->extra;
+
+    ast_lvalue_write(f, e->inner, E);
+    emit(f, "mov rcx, [rax]");
+    emit(f, "sub qword [rax], 1");
+    emit(f, "mov rax, rcx");
+}
+
+
 void ast_address_write(FILE* f, node* n, env* E) {
     assert(n != NULL);
     assert(n->type == AST_ADDRESS);
 
     extra_unop* u = (extra_unop*) n->extra;
-    assert(u->inner->type == AST_VARIABLE);
-    extra_var* e = (extra_var*) u->inner->extra;
-    var_info* v = env_get_info(E, e->name);
-    if (v->type == VAR_GLOBAL) {
-        fprintf(f, "\tmov rax, g%i\n", v->index);
-    }
+
+    ast_lvalue_write(f, u->inner, E);
 }
 
 void ast_dereference_write(FILE* f, node* n, env* E) {
@@ -123,6 +192,17 @@ void ast_dereference_write(FILE* f, node* n, env* E) {
     extra_unop* u = (extra_unop*) n->extra;
     ast_write(f, u->inner, E);
     emit(f, "mov rax, [rax]");
+}
+
+void ast_logical_not_write(FILE* f, node* n, env* E) {
+    assert(n != NULL);
+    assert(n->type == AST_LOGICAL_NOT);
+
+    extra_unop* u = (extra_unop*) n->extra;
+    ast_write(f, u->inner, E);
+    emit(f, "test rax, rax");
+    emit(f, "setz cl");
+    emit(f, "movzx rax, cl");
 }
 
 void ast_binop_write(FILE* f, node* n, env* E, char* op) {
@@ -216,9 +296,9 @@ void ast_lvalue_write(FILE* f, node* n, env* E) {
         if (v->type == VAR_GLOBAL) {
             fprintf(f, "\tmov rax, g%i\n", v->index);
         } else if (v->type == VAR_ARG) {
-            fprintf(f, "\tlea rax, [rbp+%i]\n", env_get_local_size(E) + v->index + 8);
-        } else if (v->type == VAR_LOCAL) {
             fprintf(f, "\tlea rax, [rbp+%i]\n", v->index + 8);
+        } else if (v->type == VAR_LOCAL) {
+            fprintf(f, "\tlea rax, [rbp-%i]\n", v->index + 8);
         }
     }
     else if (n->type == AST_DEREFERENCE) {
@@ -234,7 +314,53 @@ void ast_lvalue_write(FILE* f, node* n, env* E) {
         s = s->extra;
         int index = env_get_field(E, s, e->field)->index;
         fprintf(f, "\tadd rax, %i\n", index*8);
+    } else if (n->type == AST_ARRAY_SUB) {
+        extra_binop* e = (extra_binop*) n->extra;
+        var_type* t = env_ast_type(E, e->left);
+        if (t->base != LANG_POINTER) {
+            printf("Attempted to dereference non-pointer\n");
+            exit(1);
+        }
+        var_type* s = (var_type*) t->extra;
+        while (s->base == LANG_UNDET || s->base == LANG_UNDET_STRUCT) {
+            s = env_get_type(E, s->extra);
+        }
+
+        ast_write(f, e->right, E);
+        fprintf(f, "\timul rax, %i\n", type_get_size(E, s));
+        emit(f, "push rax");
+        ast_write(f, e->left, E);
+        emit(f, "pop rcx");
+        emit(f, "add rax, rcx");
     }
+}
+
+void ast_logical_and_write(FILE* f, node* n, env* E) {
+    assert(n != NULL);
+    assert(n->type == AST_LOGICAL_AND);
+
+    int end_label = env_get_label(E);
+
+    extra_binop* e = (extra_binop*) n->extra;
+    ast_write(f, e->left, E);
+    emit(f, "test rax, rax");
+    fprintf(f, "\tjz label_%i\n", end_label);
+    ast_write(f, e->right, E);
+    fprintf(f, "label_%i:\n", end_label);
+}
+
+void ast_logical_or_write(FILE* f, node* n, env* E) {
+    assert(n != NULL);
+    assert(n->type == AST_LOGICAL_OR);
+
+    int end_label = env_get_label(E);
+
+    extra_binop* e = (extra_binop*) n->extra;
+    ast_write(f, e->left, E);
+    emit(f, "test rax, rax");
+    fprintf(f, "\tjnz label_%i\n", end_label);
+    ast_write(f, e->right, E);
+    fprintf(f, "label_%i:\n", end_label);
 }
 
 void ast_assign_write(FILE* f, node* n, env* E) {
@@ -247,7 +373,10 @@ void ast_assign_write(FILE* f, node* n, env* E) {
     emit(f, "push rax");
     ast_lvalue_write(f, e->left, E);
     emit(f, "pop rcx");
-    emit(f, "mov [rax], rcx");
+
+    int type_size = type_get_size(E, env_ast_type(E, e->left));
+    if (type_size == 1) emit(f, "mov [rax], cl");
+    else emit(f, "mov [rax], rcx");
 }  
     
 
@@ -289,6 +418,8 @@ void ast_while_write(FILE* f, node* n, env* E) {
     int cond_label = env_get_label(E);
     int end_label = env_get_label(E);
 
+    env_register_end(E, end_label);
+
     extra_while* e = (extra_while*) n->extra;
     fprintf(f, "label_%i:\n", cond_label);
     ast_write(f, e->cond, E);
@@ -297,6 +428,31 @@ void ast_while_write(FILE* f, node* n, env* E) {
     ast_write(f, e->body, E);
     fprintf(f, "\tjmp label_%i\n", cond_label);
     fprintf(f, "label_%i:\n", end_label);
+
+    env_deregister_end(E);
+}
+
+void ast_for_write(FILE* f, node* n, env* E) {
+    assert(n != NULL);
+    assert(n->type == AST_FOR);
+
+    int cond_label = env_get_label(E);
+    int end_label = env_get_label(E);
+
+    env_register_end(E, end_label);
+
+    extra_for* e = n->extra;
+    ast_write(f, e->init, E);
+    fprintf(f, "label_%i:\n", cond_label);
+    ast_write(f, e->cond, E);
+    emit(f, "cmp rax, 0");
+    fprintf(f, "\tje label_%i\n", end_label);
+    ast_write(f, e->body, E);
+    ast_write(f, e->end, E);
+    fprintf(f, "\tjmp label_%i\n", cond_label);
+    fprintf(f, "label_%i:\n", end_label);
+
+    env_deregister_end(E);
 }
 
 void ast_return_write(FILE* f, node* n, env* E) {
@@ -307,19 +463,31 @@ void ast_return_write(FILE* f, node* n, env* E) {
     ast_write(f, e->inner, E);
 
 
+    fprintf(f, "\tadd rsp, %i\n", env_get_local_size(E));
     emit(f, "pop rbp");
-    fprintf(f, "\tadd rsp, %i\n", env_get_local_size(E) + env_get_args_size(E));
+    fprintf(f, "\tadd rsp, %i\n", env_get_args_size(E));
+
     emit(f, "ret");
+}
+
+void ast_break_write(FILE* f, node* n, env* E) {
+    assert(n != NULL);
+    assert(n->type == AST_BREAK);
+
+    int end_label = env_last_end(E);
+    fprintf(f, "\tjmp label_%i\n", end_label);
 }
 
 void ast_declaration_write(FILE* f, node* n, env* E) {
     assert(n != NULL);
     assert(n->type == AST_LOCAL_DECLARATION);
 
-    // Do nothing, lookahead does this for us
+    extra_declaration* e = (extra_declaration*) n->extra;
 
-    // extra_declaration* e = (extra_declaration*) n->extra;
-    // env_add_global(E, e->type, e->name);
+    if (e->init == NULL) return;
+    var_info* v = env_get_info(E, e->name);
+    ast_write(f, e->init, E);
+    fprintf(f, "\tmov [rbp-%i], rax\n", v->index + 8);
 }
 
 void ast_sequence_write(FILE* f, node* n, env* E) {
@@ -331,11 +499,57 @@ void ast_sequence_write(FILE* f, node* n, env* E) {
     }
 }
 
+void ast_switch_write(FILE* f, node* n, env* E) {
+    assert(n != NULL);
+    assert(n->type == AST_SWITCH);
+
+    extra_switch* e = n->extra;
+
+    ast_write(f, e->cond, E);
+
+    int switchn = env_register_switch(E, e->length, e->cases);
+    int endl = env_get_label(E);
+    env_register_end(E, endl);
+
+    // emit(f, "cmp rax, 0");
+    // fprintf(f, "\tjl switch_%i_default\n", switchn);
+    // fprintf(f, "\tcmp rax, %i\n", e->length);
+    // fprintf(f, "\tjge switch_%i_default\n", switchn);
+
+    // Fuck this. If I can figure this out later I will, but it's 1:00 AM
+    // emit(f, "imul rax, 8");
+    // fprintf(f, "\tmov rcx, qword [switch_table_%i+rax]\n", switchn);
+    // emit(f, "jmp rcx");
+    // fprintf(f, "switch_%i_base:\n", switchn);
+
+    for (int i = 0; i < e->length; i++) {
+        if (e->cases[i]) {
+            fprintf(f, "\tcmp rax, %i\n", i);
+            fprintf(f, "\tje switch_%i_case_%i\n", switchn, i);
+        }
+    }
+    fprintf(f, "\tjmp switch_%i_default\n", switchn);
+
+    for (int i = 0; i < e->length; i++) {
+        if (e->cases[i]) {
+            fprintf(f, "switch_%i_case_%i:\n", switchn, i);
+            ast_write(f, e->cases[i]->body, E);
+        }
+    }
+
+    fprintf(f, "switch_%i_default:\n", switchn);
+    ast_write(f, e->n_default, E);
+
+    fprintf(f, "label_%i:\n", endl);
+    env_deregister_end(E);
+}
+
 void ast_function_write(FILE* f, node* n, env* E) {
     assert(n != NULL);
     assert(n->type == AST_FUNCTION);
 
     extra_function* e = (extra_function*) n->extra;
+    if (e->body == NULL) return;
     env_add_fn(E, e->name, e->ret);
     for (int i = 0; i < e->argc; i++) {
         env_add_fn_arg(E, e->name, e->args[i]->type, e->args[i]->name);
@@ -345,6 +559,7 @@ void ast_function_write(FILE* f, node* n, env* E) {
     if (e->body == NULL) return;
 
     fprintf(f, "_%s:\n", e->name);
+    if (e->argc % 16 != 0) emit(f, "sub rsp, 8");
     for (int i = e->argc-1; i >= 0; i--) {
         fprintf(f, "\tpush %s\n", arg_registers[i]);
     }
@@ -374,12 +589,38 @@ void ast_struct_write(FILE* f, node* n, env* E) {
     env_register_struct(E, e->name, e->decl);
 }
 
+void ast_typedef_write(FILE* f, node* n, env* E) {
+    assert(n != NULL);
+    assert(n->type == AST_TYPEDEF);
+
+    extra_typedef* e = (extra_typedef*) n->extra;
+    env_register_typedef(E, e->name, e->type);
+}
+
+void ast_enum_write(FILE* f, node* n, env* E) {
+    assert(n != NULL);
+    assert(n->type == AST_ENUM);
+
+    extra_enum* e = n->extra;
+
+    env_register_typedef(E, e->name, type_new_base(LANG_INT));
+
+    int i = 0;
+    while (!queue_empty(e->vals)) {
+        env_add_enum_value(E, deq(e->vals), i);
+        i++;
+    }
+}
+
 void ast_write(FILE* f, node* n, env* E) {
     assert(n != NULL);
 
     switch(n->type) {
         case AST_INTEGER:
             ast_int_write(f, n, E);
+            break;
+        case AST_CHAR:
+            ast_char_write(f, n, E);
             break;
         case AST_VARIABLE:
             ast_var_write(f, n, E);
@@ -393,14 +634,29 @@ void ast_write(FILE* f, node* n, env* E) {
         case AST_SIZEOF:
             ast_sizeof_write(f, n, E);
             break;
+        case AST_CAST:
+            ast_cast_write(f, n, E);
+            break;
         case AST_ARROW:
             ast_arrow_write(f, n, E);
+            break;
+        case AST_ARRAY_SUB:
+            ast_array_sub_write(f, n, E);
+            break;
+        case AST_INCREMENT:
+            ast_increment_write(f, n, E);
+            break;
+        case AST_DECREMENT:
+            ast_decrement_write(f, n, E);
             break;
         case AST_ADDRESS:
             ast_address_write(f, n, E);
             break;
         case AST_DEREFERENCE:
             ast_dereference_write(f, n, E);
+            break;
+        case AST_LOGICAL_NOT:
+            ast_logical_not_write(f, n, E);
             break;
         case AST_ADDITION:
             ast_add_write(f, n, E);
@@ -432,6 +688,12 @@ void ast_write(FILE* f, node* n, env* E) {
         case AST_NEQ:
             ast_neq_write(f, n, E);
             break;
+        case AST_LOGICAL_AND:
+            ast_logical_and_write(f, n, E);
+            break;
+        case AST_LOGICAL_OR:
+            ast_logical_or_write(f, n, E);
+            break;
         case AST_ASSIGN:
             ast_assign_write(f, n, E);
             break;
@@ -450,6 +712,15 @@ void ast_write(FILE* f, node* n, env* E) {
         case AST_RETURN:
             ast_return_write(f, n, E);
             break;
+        case AST_FOR:
+            ast_for_write(f, n, E);
+            break;
+        case AST_BREAK:
+            ast_break_write(f, n, E);
+            break;
+        case AST_SWITCH:
+            ast_switch_write(f, n, E);
+            break;
         case AST_SEQUENCE:
             ast_sequence_write(f, n, E);
             break;
@@ -459,8 +730,14 @@ void ast_write(FILE* f, node* n, env* E) {
         case AST_STRUCT_DECLARATION:
             ast_struct_write(f, n, E);
             break;
+        case AST_TYPEDEF:
+            ast_typedef_write(f, n, E);
+            break;
+        case AST_ENUM:
+            ast_enum_write(f, n, E);
+            break;
         default:
-            emit(f, "; unknown instruction");
+            fprintf(f, "; unknown instruction %i\n", n->type);
             break;
     }
 }
@@ -484,6 +761,7 @@ void write_header(FILE* f) {
 }
 
 void write_var(void* vf, char* name, var_info* v) {
+    if (v->type == VAR_CONST) return;
     FILE* f = (FILE*) vf;
     fprintf(f, "\tg%i: %s 0\n", v->index, "dq");
 }
@@ -498,10 +776,18 @@ void write_string(void* vf, char* name, int index) {
     fprintf(f, "0\n");
 }
 
+void write_switch(FILE* f, switch_info* s, int switchn) {
+    fprintf(f, "switch_table_%i:\n", switchn);
+    for (int i = 0; i < s->max; i++) {
+        fprintf(f, "\tdq switch_%i_case_%i\n", switchn, i);
+    }
+}
+
 void write_footer(FILE* f, env* E) {
     emit(f, "");
     fprintf(f, "section .data\n");
     emit(f, "dummy: dw 16"); 
     env_do_over_vars(E, (void*) f, &write_var);
     env_do_over_strings(E, (void*) f, &write_string);
+    // env_do_over_switches(E, f, &write_switch);
 }

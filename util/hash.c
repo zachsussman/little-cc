@@ -1,7 +1,4 @@
-#include <stdlib.h>
-#include <stdbool.h>
-#include <assert.h>
-#include <string.h>
+#include "../diff.h"
 
 #include "hash.h"
 
@@ -11,8 +8,8 @@ int hash_str(char *str)
     int h = 5381;
     int c;
 
-    while ((c = *str++))
-        h = ((h << 5) + h) + c; /* hash * 33 + c */
+    while ((c = *(str++)))
+        h = h * 33 + c; /* hash * 33 + c */
 
     return h;
 }
@@ -97,13 +94,15 @@ void* hash_get(hash* H, char* key) {
     return NULL;
 }
 
-void hash_do_over(hash* H, void* info, void (*f)(void*, char*, void*)) {
+typedef void foo(void*, void*, void*);
+
+void hash_do_over(hash* H, void* info, void* f) {
     assert(is_hash(H));
 
     for (int i = 0; i < H->capacity; i++) {
         hash_chain* c = H->chains[i];
         while (c != NULL) {
-            (*f)(info, c->key, c->value);
+            (*((foo*)f))(info, c->key, c->value);
             c = c->next;
         }
     }

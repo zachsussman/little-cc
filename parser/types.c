@@ -1,12 +1,10 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <assert.h>
-#include <string.h>
+#include "../diff.h"
 
 #include "types.h"
  
 var_type* VAR_INT = NULL;
 var_type* VAR_VOID = NULL;
+var_type* VAR_CHAR = NULL;
 var_type* type_new_base(lang_type t) {
     if (VAR_INT == NULL) {
         VAR_INT = malloc(sizeof(var_type));
@@ -18,8 +16,19 @@ var_type* type_new_base(lang_type t) {
         VAR_VOID->base = LANG_VOID;
         VAR_VOID->extra = NULL;
     }
+    if (VAR_CHAR == NULL) {
+        VAR_CHAR = malloc(sizeof(var_type));
+        VAR_CHAR->base = LANG_CHAR;
+        VAR_CHAR->extra = NULL;
+    }
 
-    return (t == LANG_INT) ? VAR_INT : VAR_VOID;
+    if (t == LANG_INT) return VAR_INT;
+    else if (t == LANG_VOID) return VAR_VOID;
+    else if (t == LANG_CHAR) return VAR_CHAR;
+    else {
+        printf("Unknown type %i\n", t);
+        exit(1);
+    }
 }
 
 var_type* type_new_pointer(var_type* inner) {
@@ -55,6 +64,7 @@ void type_add_field(var_type* s, char* name, var_type* type) {
     f->type = type;
     f->index = e->nfields;
     (e->nfields)++;
+    (e->size) += 8;
 
     hash_insert(e->fields, strdup(name), f);
 }
@@ -82,24 +92,6 @@ var_type* type_new_undet(char* name) {
     return v;
 }
 
-int type_get_size(var_type* t) {
-    assert(t != NULL);
-
-    switch (t->base) {
-        case LANG_VOID:
-        case LANG_INT:
-        case LANG_POINTER:
-            return 8;
-        case LANG_UNDET_STRUCT:
-        case LANG_UNDET:
-            printf("Sizeof undetermined type %s == big no-no\n (types.c type_get_size)\n", t->extra);
-            exit(1);
-        case LANG_STRUCT:
-            return ((t_struct_extra*)(t->extra))->size;
-        default:
-            return 8;
-    }
-}
 
 void type_print(var_type* v) {
     assert(v != NULL);
@@ -110,6 +102,9 @@ void type_print(var_type* v) {
             break;
         case LANG_VOID:
             printf("void");
+            break;
+        case LANG_CHAR:
+            printf("char");
             break;
         case LANG_POINTER:
             type_print(type_pointer_inner(v));

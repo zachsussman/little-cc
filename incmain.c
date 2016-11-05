@@ -10,17 +10,16 @@
 #include "util/hash.h"
 
 int main(int argc, char** argv) {
-    printf("%i\n", AST_FILE);
 
     queue* token_queue = queue_new();
 
     int ok = 0;
-    char* filename;
-    if (argc > 1) filename = argv[1];
-    else filename = "test.asm";
-    FILE* f = fopen(filename, "w");
-    write_header(f);
-    env* E = env_new();
+    // char* filename;
+    // if (argc > 1) filename = argv[1];
+    // else filename = "test.asm";
+    // FILE* f = fopen(filename, "w");
+    // write_header(f);
+    // env* E = env_new();
     printf("Allocated e'rything\n");
 
     while (ok == 0) {
@@ -28,11 +27,9 @@ int main(int argc, char** argv) {
     }
 
     while (!queue_empty(token_queue)) {
-        node* n = parse(token_queue);
-        print_node(n);
-        ast_write(f, n, E);
+        token_deq(token_queue);
     }
-    write_footer(f, E);
-    fclose(f);
+    // write_footer(f, E);
+    // fclose(f);
     return 0;
 }

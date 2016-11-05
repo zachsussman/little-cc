@@ -1,5 +1,5 @@
 #include "queue.h"
-#include <stdio.h>
+#include "../diff.h"
 
 bool is_segment_q(list* a, list* b) {
     if (a == NULL || b == NULL) return false;

@@ -12,7 +12,7 @@ PARSE_OBJS = parser/ast.o parser/parser.o parser/env.o parser/types.c
 WRITE_DEPS = writer/driver.h
 WRITE_OBJS = writer/driver.o
 
-MAIN_DEPS = token_q.h
+MAIN_DEPS = token_q.h diff.h
 MAIN_OBJS = token_q.o main.o
 
 DEPS = $(TOK_DEPS) $(UTIL_DEPS) $(PARSE_DEPS) $(WRITE_DEPS) $(MAIN_DEPS)

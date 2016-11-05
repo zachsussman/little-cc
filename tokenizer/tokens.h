@@ -32,10 +32,17 @@ enum token_type_e {
     OP_ARROW,
     OP_DOT,
 
+    OP_INC,
+    OP_DEC,
+
+    OP_COLON,
+
     OP_COMMA,
 
     OPEN_PAREN,
     CLOSED_PAREN,
+    OPEN_BRACKET,
+    CLOSED_BRACKET,
 
     KW_INT,
     KW_IF,
@@ -45,6 +52,14 @@ enum token_type_e {
     KW_ELSE,
     KW_STRUCT,
     KW_SIZEOF,
+    KW_TYPEDEF,
+    KW_CHAR,
+    KW_FOR,
+    KW_SWITCH,
+    KW_CASE,
+    KW_DEFAULT,
+    KW_BREAK,
+    KW_ENUM,
 
     OTHER
 };

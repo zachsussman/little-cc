@@ -15,7 +15,9 @@ struct hash_s {
     hash_chain** chains;
 };
 
+
+int hash_str(char *str);
 hash* hash_new(int capacity);
 void hash_insert(hash* H, char* k, void* v);
 void* hash_get(hash* H, char* k);
-void hash_do_over(hash* H, void* info, void (*f)(void*, char*, void*) );
+void hash_do_over(hash* H, void* info, void* f);

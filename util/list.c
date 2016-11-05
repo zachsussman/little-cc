@@ -1,5 +1,4 @@
-#include <stdbool.h>
-#include <stdlib.h>
+#include "../diff.h"
 #include "list.h"
 
 bool is_segment(list* a, list* b) {

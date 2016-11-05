@@ -1,8 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <assert.h>
-#include <string.h>
+#include "../diff.h"
 #include "../token_q.h"
 #include "tokens.h"
 #include "../vars.h"
@@ -125,6 +121,30 @@ void parse_name(queue* Q, char** pline) {
     } else if (strcmp(repr, "sizeof") == 0) {
         free(repr);
         enq(Q, token_new(KW_SIZEOF, "sizeof"));
+    } else if (strcmp(repr, "typedef") == 0) {
+        free(repr);
+        enq(Q, token_new(KW_TYPEDEF, "typedef"));
+    } else if (strcmp(repr, "for") == 0) {
+        free(repr);
+        enq(Q, token_new(KW_FOR, "for"));
+    } else if (strcmp(repr, "switch") == 0) {
+        free(repr);
+        enq(Q, token_new(KW_SWITCH, "switch"));
+    } else if (strcmp(repr, "case") == 0) {
+        free(repr);
+        enq(Q, token_new(KW_CASE, "case"));
+    } else if (strcmp(repr, "default") == 0) {
+        free(repr);
+        enq(Q, token_new(KW_DEFAULT, "default"));
+    } else if (strcmp(repr, "break") == 0) {
+        free(repr);
+        enq(Q, token_new(KW_BREAK, "break"));
+    } else if (strcmp(repr, "char") == 0) {
+        free(repr);
+        enq(Q, token_new(KW_CHAR, "char"));
+    } else if (strcmp(repr, "enum") == 0) {
+        free(repr);
+        enq(Q, token_new(KW_ENUM, "enum"));
     }
     else {
         token* tok = token_new(NAME, repr);
@@ -197,10 +217,7 @@ void parse_symbol(queue* Q, char** pline) {
     token_type type;
     char* repr;
     switch(**pline) {
-        case '+':
-            type = OP_PLUS;
-            repr = "+";
-            break;
+
         case '*':
             type = OP_MUL;
             repr = "*";
@@ -237,10 +254,37 @@ void parse_symbol(queue* Q, char** pline) {
             type = OP_COMMA;
             repr = ",";
             break;
+        case '[':
+            type = OPEN_BRACKET;
+            repr = "[";
+            break;
+        case ']':
+            type = CLOSED_BRACKET;
+            repr = "]";
+            break;
+        case ':':
+            type = OP_COLON;
+            repr = ":";
+            break;
+        case '+':
+            if ((*pline)[1] == '+') {
+                type = OP_INC;
+                repr = "++";
+                (*pline)++;
+            }
+            else {
+                type = OP_PLUS;
+                repr = "+";
+            }
+            break;
         case '-':
             if ((*pline)[1] == '>') {
                 type = OP_ARROW;
                 repr = "->";
+                (*pline)++;
+            } else if ((*pline)[1] == '-') {
+                type = OP_DEC;
+                repr = "--";
                 (*pline)++;
             }
             else {
@@ -316,7 +360,7 @@ void parse_symbol(queue* Q, char** pline) {
             break;
         default:
             repr = calloc(sizeof(char), 2);
-            repr[0] = **pline;
+            *repr = **pline;
             type = OTHER;
     }
 
@@ -332,6 +376,8 @@ void skip_whitespace(char** pline) {
 bool next_token(queue* Q, char** pline) {
     skip_whitespace(pline);
     if (**pline == 0) return true;
+    if (**pline == '/' && *(*pline+1) == '/') return true;
+    if (**pline == '#') return true;
 
     char c = **pline;
     if (is_beginning_name_char(c)) parse_name(Q, pline);
