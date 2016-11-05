@@ -28,3 +28,20 @@ test: main test.c
 	cat test.c | ./main
 	nasm -o test.o -f macho64 test.asm
 	ld -lc test.o -o test /usr/lib/libc.dylib /usr/lib/crt1.o
+
+my_cc: main
+	./my_cc.sh incmain
+	./my_cc.sh token_q
+	./my_cc.sh tokenizer/tokens
+	./my_cc.sh tokenizer/tokenize
+	./my_cc.sh util/list
+	./my_cc.sh util/queue
+	./my_cc.sh util/hash
+	./my_cc.sh parser/ast
+	./my_cc.sh parser/parser
+	./my_cc.sh parser/types
+	ld -lc obj/util/list.o obj/util/queue.o obj/util/hash.o \
+		obj/tokenizer/tokens.o obj/tokenizer/tokenize.o \
+		obj/incmain.o obj/parser/ast.o obj/parser/parser.o \
+		obj/parser/types.o obj/token_q.o \
+		-o test /usr/lib/libc.dylib /usr/lib/crt1.o

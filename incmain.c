@@ -9,6 +9,8 @@
 
 #include "util/hash.h"
 
+int main(int argc, char** argv);
+
 int main(int argc, char** argv) {
 
     queue* token_queue = queue_new();
@@ -22,12 +24,20 @@ int main(int argc, char** argv) {
     // env* E = env_new();
     printf("Allocated e'rything\n");
 
+    char* filename;
+    if (argc > 1) filename = argv[1];
+    else filename = "main.c";
+    FILE* f = fopen(filename, "r");
+
+
+
     while (ok == 0) {
-        ok = parse_line(token_queue);
+        ok = parse_line(token_queue, f);
     }
 
     while (!queue_empty(token_queue)) {
-        token_deq(token_queue);
+        token* t = token_deq(token_queue);
+        printf("%s %i\n", t->repr, t->type);
     }
     // write_footer(f, E);
     // fclose(f);

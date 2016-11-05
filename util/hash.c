@@ -79,6 +79,23 @@ void hash_insert(hash* H, char* key, void* value) {
     assert(is_hash(H));
 }
 
+bool hash_in(hash* H, char* key) {
+    assert(is_hash(H));
+
+    int i = key_index(H, key);
+    for (hash_chain* c = H->chains[i]; c != NULL; c = c->next) {
+        if (strcmp(key, c->key) == 0) {
+            assert(is_hash(H));
+            return true;
+        }
+    }
+
+    assert(is_hash(H));
+    return false;
+}
+
+
+
 void* hash_get(hash* H, char* key) {
     assert(is_hash(H));
 

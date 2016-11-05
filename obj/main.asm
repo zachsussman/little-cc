@@ -14,7 +14,7 @@ _main:
 	sub rsp, 48
 	mov rax, _string_1
 	push rax
-	mov rax, 42
+	mov rax, 43
 	push rax
 	pop rsi
 	pop rdi

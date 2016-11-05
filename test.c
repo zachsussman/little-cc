@@ -1,9 +1,8 @@
-struct token_s {
-    int type;
-};
-typedef struct token_s token;
+int strncmp();
+int printf();
 
-token* token_new(int t) {
-    token* T;
-    T->type = t;
+
+int main() {
+    char** q;
+    (*q)[1];
 }

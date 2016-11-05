@@ -140,7 +140,12 @@ void ast_array_sub_write(FILE* f, node* n, env* E) {
     ast_write(f, e->left, E);
     emit(f, "pop rcx");
     emit(f, "add rax, rcx");
-    emit(f, "mov rax, [rax]");
+    if (type_get_size(E, s) == 1) {
+        emit(f, "xor rcx, rcx");
+        emit(f, "mov cl, [rax]");
+        emit(f, "mov rax, rcx");
+    }
+    else emit(f, "mov rax, [rax]");
 }
 
 void ast_cast_write(FILE* f, node* n, env* E) {
@@ -175,6 +180,15 @@ void ast_decrement_write(FILE* f, node* n, env* E) {
     emit(f, "mov rax, rcx");
 }
 
+void ast_negative_write(FILE* f, node* n, env* E) {
+    assert(n != NULL);
+    assert(n->type == AST_NEGATIVE);
+
+    extra_unop* u = (extra_unop*) n->extra;
+    ast_write(f, u->inner, E);
+    emit(f, "neg rax");
+}
+
 
 void ast_address_write(FILE* f, node* n, env* E) {
     assert(n != NULL);
@@ -191,7 +205,16 @@ void ast_dereference_write(FILE* f, node* n, env* E) {
 
     extra_unop* u = (extra_unop*) n->extra;
     ast_write(f, u->inner, E);
-    emit(f, "mov rax, [rax]");
+
+    int var_size = type_get_size(E, env_ast_type(E, n));
+    if (var_size == 1) {
+        emit(f, "xor rcx, rcx");
+        emit(f, "mov cl, [rax]");
+        emit(f, "mov rax, rcx");
+    }
+    else {
+        emit(f, "mov rax, [rax]");
+    }
 }
 
 void ast_logical_not_write(FILE* f, node* n, env* E) {
@@ -521,9 +544,8 @@ void ast_switch_write(FILE* f, node* n, env* E) {
     // fprintf(f, "\tmov rcx, qword [switch_table_%i+rax]\n", switchn);
     // emit(f, "jmp rcx");
     // fprintf(f, "switch_%i_base:\n", switchn);
-
     for (int i = 0; i < e->length; i++) {
-        if (e->cases[i]) {
+        if (e->cases[i] != NULL) {
             fprintf(f, "\tcmp rax, %i\n", i);
             fprintf(f, "\tje switch_%i_case_%i\n", switchn, i);
         }
@@ -549,17 +571,24 @@ void ast_function_write(FILE* f, node* n, env* E) {
     assert(n->type == AST_FUNCTION);
 
     extra_function* e = (extra_function*) n->extra;
-    if (e->body == NULL) return;
+    if (e->body == NULL) {
+        env_reg_fn(E, e->name, e->ret);
+        // printf("Invisible function\n");
+        // fprintf(f, "extern _%s\n", e->name);
+        return;
+    }
     env_add_fn(E, e->name, e->ret);
     for (int i = 0; i < e->argc; i++) {
         env_add_fn_arg(E, e->name, e->args[i]->type, e->args[i]->name);
     }
 
     env_add_fn_locals(E, e->name, ast_locals(n));
-    if (e->body == NULL) return;
+
+    env_set_fn(E, e->name);
 
     fprintf(f, "_%s:\n", e->name);
-    if (e->argc % 16 != 0) emit(f, "sub rsp, 8");
+    if (e->argc % 2 != 0) 
+        fprintf(f, "\tsub rsp, %i\n", 8);
     for (int i = e->argc-1; i >= 0; i--) {
         fprintf(f, "\tpush %s\n", arg_registers[i]);
     }
@@ -567,7 +596,7 @@ void ast_function_write(FILE* f, node* n, env* E) {
     emit(f, "push rbp");
     emit(f, "mov rbp, rsp");
 
-    env_set_fn(E, e->name);
+
 
     fprintf(f, "\tsub rsp, %i\n", env_get_local_size(E));
     ast_write(f, e->body, E);
@@ -648,6 +677,9 @@ void ast_write(FILE* f, node* n, env* E) {
             break;
         case AST_DECREMENT:
             ast_decrement_write(f, n, E);
+            break;
+        case AST_NEGATIVE:
+            ast_negative_write(f, n, E);
             break;
         case AST_ADDRESS:
             ast_address_write(f, n, E);
@@ -752,11 +784,7 @@ void write_header(FILE* f) {
     arg_registers[5] = "r9";
 
     fprintf(f, "default rel\n");
-    fprintf(f, "extern _exit\n");
-    fprintf(f, "extern _printf\n");
-    fprintf(f, "extern _malloc\n");
     fprintf(f, "section .text\n");
-    fprintf(f, "global _main\n");
     fprintf(f, "\n");
 }
 
@@ -776,6 +804,10 @@ void write_string(void* vf, char* name, int index) {
     fprintf(f, "0\n");
 }
 
+void write_fn_info(FILE* f, char* name, fn_info* fn) {
+    if (fn->local_size == -1) fprintf(f, "extern _%s\n", name);
+    else fprintf(f, "global _%s\n", name);
+}
 void write_switch(FILE* f, switch_info* s, int switchn) {
     fprintf(f, "switch_table_%i:\n", switchn);
     for (int i = 0; i < s->max; i++) {
@@ -789,5 +821,6 @@ void write_footer(FILE* f, env* E) {
     emit(f, "dummy: dw 16"); 
     env_do_over_vars(E, (void*) f, &write_var);
     env_do_over_strings(E, (void*) f, &write_string);
+    env_do_over_fns(E, f, &write_fn_info);
     // env_do_over_switches(E, f, &write_switch);
 }

@@ -10,8 +10,6 @@
 #include "util/hash.h"
 
 int main(int argc, char** argv) {
-    printf("%i\n", AST_FILE);
-
     queue* token_queue = queue_new();
 
     int ok = 0;
@@ -21,15 +19,14 @@ int main(int argc, char** argv) {
     FILE* f = fopen(filename, "w");
     write_header(f);
     env* E = env_new();
-    printf("Allocated e'rything\n");
 
     while (ok == 0) {
-        ok = parse_line(token_queue);
+        ok = parse_line(token_queue, stdin);
     }
 
     while (!queue_empty(token_queue)) {
         node* n = parse(token_queue);
-        print_node(n);
+        if (DEBUGGING) print_node(n);
         ast_write(f, n, E);
     }
     write_footer(f, E);

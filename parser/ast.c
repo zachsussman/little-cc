@@ -284,7 +284,7 @@ node* new_node_switch(node* cond, queue* cases, node* n_default) {
     }
 
     e->cond = cond;
-    e->cases = malloc(sizeof(extra_case*) * (maxn+1));
+    e->cases = calloc((maxn+1), sizeof(extra_case*));
     q = queue_readonly(cases);
     while (!queue_empty(q)) {
         extra_case* ca = deq(q);
@@ -614,7 +614,6 @@ void _ast_locals(queue* locals, node* n) {
 
 queue* ast_locals(node* n) {
     queue* locals = queue_new();
-    printf("ast_locals, %p\n", locals);
     _ast_locals(locals, n);
     return locals;
 }

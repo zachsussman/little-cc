@@ -28,6 +28,7 @@ enum node_type_e {
     AST_DECREMENT,
 
     // Precedence 2
+    AST_NEGATIVE,
     AST_ADDRESS,
     AST_DEREFERENCE,
     AST_LOGICAL_NOT,

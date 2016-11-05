@@ -1,12 +1,7 @@
 default rel
-extern _exit
-extern _printf
-extern _malloc
 section .text
-global _main
 
 _token_enq:
-	sub rsp, 8
 	push rsi
 	push rdi
 	push rbp
@@ -36,6 +31,9 @@ _token_deq:
 	mov al, 0
 	call _deq
 	mov [rbp-8], rax
+	mov rax, 0
+	cmp rax, 0
+	je label_1
 	mov rax, _string_1
 	push rax
 	mov rax, qword [rbp-8]
@@ -49,6 +47,7 @@ _token_deq:
 	pop rdi
 	mov al, 0
 	call _printf
+label_1:
 	mov rax, qword [rbp-8]
 	add rsp, 16
 	pop rbp
@@ -81,3 +80,28 @@ _token_peek:
 section .data
 	dummy: dw 16
 	_string_1: db 37, 115, 32, 0
+extern _token_delete
+extern _queue_length
+extern _queue_test
+extern _getline
+extern _calloc
+extern _printf
+extern _queue_readonly
+extern _queue_empty
+extern _strncmp
+extern _queue_new
+extern _str_token_type
+extern _exit
+extern _strcmp
+extern _fopen
+extern _free
+extern _malloc
+global _token_deq
+extern _deq
+extern _queue_free
+global _token_peek
+extern _is_segment
+extern _peek
+global _token_enq
+extern _enq
+extern _token_new

@@ -79,6 +79,7 @@ int env_get_local_size(env* E);
 int env_get_string(env* E, char* s);
 void env_do_over_vars(env* E, void* info, void *f);
 void env_do_over_strings(env* E, void* info, void *f);
+void env_do_over_fns(env* E, void* info, void* f);
 
 void env_register_struct(env* E, char* name, var_type* decl);
 t_struct_field* env_get_field(env* E, var_type* s, char* field);

@@ -10,6 +10,7 @@
 // This is a terrible, kludgy workaround, and I apologize to myself and others.
 hash* h_type_names = NULL;
 hash* h_struct_names = NULL;
+hash* h_enum_vals = NULL;
 
 token* safe_deq(queue* Q) {
     if (queue_empty(Q)) {
@@ -214,6 +215,9 @@ node* parse_unary_prefix(queue* Q) {
     } else if (type == OP_NOT_BANG) {
         expect(Q, OP_NOT_BANG, "!");
         return new_node_unop(AST_LOGICAL_NOT, parse_unary_prefix(Q));
+    } else if (type == OP_MINUS) {
+        expect(Q, OP_MINUS, "-");
+        return new_node_unop(AST_NEGATIVE, parse_unary_prefix(Q));
     }
     else {
         return parse_unary_postfix(Q);
@@ -435,11 +439,19 @@ node* parse_break(queue* Q) {
 extra_case* parse_case(queue* Q) {
     expect(Q, KW_CASE, "case");
     node* cond = parse_expr(Q);
-    int val;
-    if (cond->type == AST_INTEGER) val = ((extra_int*)(cond->extra))->val;
+    int val = 0;
+    if (cond->type == AST_INTEGER) 
+        val = ((extra_int*)(cond->extra))->val;
+    else if (cond->type == AST_CHAR) 
+        val = ((extra_char*)(cond->extra))->val;
+    else if (cond->type == AST_VARIABLE) {
+        // FML
+        if (!hash_in(h_enum_vals, ((extra_var*)(cond->extra))->name))
+            err("Only integers allowed as cases");
+        else val = (int) hash_get(h_enum_vals, ((extra_var*)(cond->extra))->name);
+    }
     else {
-        printf("Only integers allowed as cases\n");
-        exit(1);
+        err("Only integers allowed as cases\n");
     }
 
     expect(Q, OP_COLON, ":");
@@ -589,10 +601,13 @@ node* parse_enum(queue* Q) {
 
     node* n = new_node_enum(name);
 
+    int i = 0;
     while (safe_peek_type(Q) != CLOSED_BRACE) {
         char* val = get_name(Q, "Enum val must be a name");
         enum_add_val(n, val);
         if (safe_peek_type(Q) == OP_COMMA) expect(Q, OP_COMMA, ",");
+        hash_insert(h_enum_vals, strdup(val), (void*)i);
+        i++;
     }
 
     expect(Q, CLOSED_BRACE, "}");
@@ -611,5 +626,6 @@ node* parse_top(queue* Q) {
 node* parse(queue* Q) {
     if (h_struct_names == NULL) h_struct_names = hash_new(30);
     if (h_type_names == NULL) h_type_names = hash_new(30);
+    if (h_enum_vals == NULL) h_enum_vals = hash_new(30);
     return parse_top(Q);
 }

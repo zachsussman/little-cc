@@ -1,9 +1,165 @@
-#include "../diff.h"
-#include "../token_q.h"
-#include "tokens.h"
-#include "../vars.h"
+# 1 "tokenizer/tokenize.c"
+# 1 "<built-in>" 1
+# 1 "<built-in>" 3
+# 329 "<built-in>" 3
+# 1 "<command line>" 1
+# 1 "<built-in>" 2
+# 1 "tokenizer/tokenize.c" 2
+# 1 "tokenizer/../diff.h" 1
+# 17 "tokenizer/../diff.h"
+typedef int bool;
 
-#include "tokenize.h"
+
+
+typedef int size_t;
+
+
+void exit(int a);
+void printf(char* b);
+void* malloc(int size);
+void free(void* p);
+void* calloc(int n, int size);
+int strcmp(char* a, char* b);
+int strncmp(char* a, char* b, int n);
+void getline();
+void* fopen();
+# 2 "tokenizer/tokenize.c" 2
+# 1 "tokenizer/../token_q.h" 1
+
+
+
+# 1 "tokenizer/../tokenizer/tokens.h" 1
+
+
+enum token_type_e {
+    NAME,
+    NUMBER,
+    STRING,
+    CHARACTER,
+
+    OPEN_BRACE,
+    CLOSED_BRACE,
+
+    SEMICOLON,
+
+    OP_PLUS,
+    OP_MINUS,
+    OP_MUL,
+    OP_DIV,
+    OP_SINGLE_AND,
+    OP_SINGLE_OR,
+    OP_BOOL_AND,
+    OP_BOOL_OR,
+    OP_ASSIGN,
+    OP_EQ,
+    OP_NOT_BANG,
+    OP_NOT_TILDE,
+    OP_NEQ,
+
+    OP_LT,
+    OP_GT,
+    OP_LTE,
+    OP_GTE,
+    OP_ARROW,
+    OP_DOT,
+
+    OP_INC,
+    OP_DEC,
+
+    OP_COLON,
+
+    OP_COMMA,
+
+    OPEN_PAREN,
+    CLOSED_PAREN,
+    OPEN_BRACKET,
+    CLOSED_BRACKET,
+
+    KW_INT,
+    KW_IF,
+    KW_WHILE,
+    KW_RETURN,
+    KW_VOID,
+    KW_ELSE,
+    KW_STRUCT,
+    KW_SIZEOF,
+    KW_TYPEDEF,
+    KW_CHAR,
+    KW_FOR,
+    KW_SWITCH,
+    KW_CASE,
+    KW_DEFAULT,
+    KW_BREAK,
+    KW_ENUM,
+
+    OTHER
+};
+typedef enum token_type_e token_type;
+
+typedef struct token_s token;
+struct token_s {
+    token_type type;
+    char* repr;
+};
+
+token* token_new(token_type t, char* r);
+void token_delete(token* t);
+char* str_token_type(token* t);
+# 5 "tokenizer/../token_q.h" 2
+# 1 "tokenizer/../util/queue.h" 1
+
+
+
+
+# 1 "tokenizer/../util/list.h" 1
+
+
+
+
+typedef struct list_s list;
+struct list_s {
+    void* data;
+    list* next;
+};
+
+bool is_segment(list* a, list* b);
+# 6 "tokenizer/../util/queue.h" 2
+
+typedef struct queue_s queue;
+struct queue_s {
+    list* front;
+    list* back;
+};
+
+queue* queue_new();
+bool queue_empty(queue* Q);
+void enq(queue* Q, void* d);
+void* peek(queue* Q);
+void* deq(queue* Q);
+queue* queue_readonly(queue* Q);
+int queue_length(queue* Q);
+void queue_free(queue* Q);
+
+void queue_test();
+# 6 "tokenizer/../token_q.h" 2
+
+void token_enq(queue* Q, token* d);
+token* token_peek(queue* Q);
+token* token_deq(queue* Q);
+# 3 "tokenizer/tokenize.c" 2
+
+# 1 "tokenizer/../vars.h" 1
+# 5 "tokenizer/tokenize.c" 2
+
+# 1 "tokenizer/tokenize.h" 1
+
+
+
+
+
+
+int parse_line(queue* Q, void* f);
+# 7 "tokenizer/tokenize.c" 2
 
 bool is_whitespace(char c) {
     return c == ' ' || c == '\t' || c == '\n';
@@ -14,7 +170,7 @@ bool is_char_in_range(char c, char bottom, char top) {
 }
 
 bool is_beginning_name_char(char c) {
-    return ('_' == c) 
+    return ('_' == c)
         || is_char_in_range(c, 'a', 'z')
         || is_char_in_range(c, 'A', 'Z');
 }
@@ -28,7 +184,7 @@ bool is_name_char(char c) {
 }
 
 void inspect_for_keywords(queue* Q) {
-    assert(!queue_empty(Q));
+    0;
 
     token* tok = peek(Q);
     if (tok->type != NAME) {
@@ -36,31 +192,11 @@ void inspect_for_keywords(queue* Q) {
     }
 
 }
-
-// void parse_long(queue* Q, char** pline, token_type type, classifier* f) {
-//     int len = 0;
-//     // Find the length of the token by scanning 
-//     while(len < MAX_TOKEN_LENGTH 
-//             && (*pline)[len] != 0
-//             && (*f)((*pline)[len])) {
-//         len++;
-//     }
-
-//     char* repr = calloc(len+1, sizeof(char));
-//     for (int i = 0; i < len && **pline != 0 && (*f)(**pline); i++) {
-//         repr[i] = **pline;
-//         (*pline)++;
-//     }
-//     repr[len] = '\0';
-
-//     token* tok = token_new(type, repr);
-//     enq(Q, tok);
-// }
-
+# 60 "tokenizer/tokenize.c"
 void parse_number(queue* Q, char** pline) {
     int len = 0;
-    // Find the length of the token by scanning 
-    while(len < MAX_TOKEN_LENGTH 
+
+    while(len < 80
             && (*pline)[len] != 0
             && is_number_char((*pline)[len])) {
         len++;
@@ -79,8 +215,8 @@ void parse_number(queue* Q, char** pline) {
 
 void parse_name(queue* Q, char** pline) {
     int len = 0;
-    // Find the length of the token by scanning 
-    while(len < MAX_TOKEN_LENGTH 
+
+    while(len < 80
             && (*pline)[len] != 0
             && is_name_char((*pline)[len])) {
         len++;
@@ -97,7 +233,7 @@ void parse_name(queue* Q, char** pline) {
         free(repr);
         enq(Q, token_new(KW_INT, "int"));
         return;
-    } 
+    }
     else if (!strcmp(repr, "if")) {
         free(repr);
         enq(Q, token_new(KW_IF, "if"));
@@ -175,7 +311,7 @@ void parse_string(queue* Q, char** pline) {
     char* temp_p = *pline;
 
     parse_string_advance(&temp_p);
-    // Find the length of the token by scanning 
+
     while(*temp_p != 0 && *temp_p != '"') {
         len++;
         parse_string_advance(&temp_p);
@@ -375,9 +511,9 @@ void skip_whitespace(char** pline) {
 
 bool next_token(queue* Q, char** pline) {
     skip_whitespace(pline);
-    if (**pline == 0) return true;
-    if (**pline == '/' && *(*pline+1) == '/') return true;
-    if (**pline == '#') return true;
+    if (**pline == 0) return 1;
+    if (**pline == '/' && *(*pline+1) == '/') return 1;
+    if (**pline == '#') return 1;
 
 
     char c = **pline;
@@ -386,19 +522,19 @@ bool next_token(queue* Q, char** pline) {
     else if (c == '"') parse_string(Q, pline);
     else if (c == '\'') parse_character(Q, pline);
     else parse_symbol(Q, pline);
-    return false;
+    return 0;
 }
 
-int parse_line(queue* Q, FILE* f) {
+int parse_line(queue* Q, void* f) {
     size_t n;
-    char* buf = NULL;
+    char* buf = 0;
     int read = getline(&buf, &n, f);
     if (-1 == read) return -1;
 
 
     char* line = buf;
     while (!next_token(Q, &line)) {}
-    free(buf); line = NULL; buf = NULL;
+    free(buf); line = 0; buf = 0;
 
     return 0;
 }

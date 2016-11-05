@@ -53,6 +53,17 @@ fn_info* new_fn_info(var_type* ret) {
     return v;
 }
 
+
+fn_info* new_fn_reg_info (var_type* ret) {
+    fn_info* v = malloc(sizeof(fn_info));
+    v->ret = ret;
+    v->args = hash_new(5); // Guess?
+    v->locals = hash_new(5);
+    v->argc = 0;
+    v->local_size = -1;
+    return v;
+}
+
 bool is_env(env* E) {
     return E != NULL && E->vars != NULL;
 }
@@ -135,12 +146,27 @@ int env_num_args(env* E) {
     else return E->curr_fn->argc;
 }
 
-void env_add_fn(env* E, char* name, var_type* ret) {
+void env_reg_fn(env* E, char* name, var_type* ret) {
     assert(is_env(E));
 
     char* new_name = strdup(name);
-    fn_info* f = new_fn_info(ret);
+    fn_info* f = new_fn_reg_info(ret);
     hash_insert(E->fns, new_name, f);
+}
+
+void env_add_fn(env* E, char* name, var_type* ret) {
+    assert(is_env(E));
+
+    if (hash_get(E->fns, name) == NULL) {
+           char* new_name = strdup(name);
+        fn_info* f = new_fn_info(ret);
+        hash_insert(E->fns, new_name, f); 
+    }
+    else {
+        fn_info* fn = hash_get(E->fns, name);
+        fn->local_size = 0;
+    }
+
 }
 
 void env_add_fn_arg(env* E, char* name, var_type* t, char* arg) {
@@ -250,6 +276,16 @@ var_type* _env_ast_unop_type(env* E, node* n) {
     return env_ast_type(E, e->inner);
 }
 
+var_type* env_dereference_type(env* E, var_type* type) {
+    while (type != NULL && (type->base == LANG_UNDET_STRUCT || type->base == LANG_UNDET)) 
+        type = env_get_type(E, type->extra);
+    if (type->base != LANG_POINTER) {
+        printf("Attempted to dereference non-pointer type %i (env_ast_type)\n", type->base);
+        exit(1);
+    }
+    return type->extra;
+}
+
 // Yes, this shouldn't be here.  Well, fuck you too.
 var_type* env_ast_type(env* E, node* n) {
     assert(n != NULL);
@@ -274,27 +310,20 @@ var_type* env_ast_type(env* E, node* n) {
         type = type_new_base(LANG_INT);
     } else if (t == AST_ARROW) {
         extra_arrow* e = (extra_arrow*)n->extra;
-        // var_type* st_t = env_ast_type(E, e->inner)->extra;
-        // while (st_t != NULL && (st_t->base == LANG_UNDET_STRUCT || st_t->base == LANG_UNDET)) 
-        //     st_t = env_get_type(E, type->extra);
-        // if (st_t->base != LANG_STRUCT) {
-        //     printf("Attempted to arrow non-struct, env ast type, %i\n", st_t->base);
-        //     exit(1);
-        // }
-        type = type_get_field(env_ast_type(E, e->inner), e->field)->type;
+        var_type* st_t = env_ast_type(E, e->inner)->extra;
+        while (st_t != NULL && (st_t->base == LANG_UNDET_STRUCT || st_t->base == LANG_UNDET)) 
+            st_t = env_get_type(E, st_t->extra);
+        if (st_t->base != LANG_STRUCT) {
+            printf("Attempted to arrow non-struct, env ast type, %i\n", st_t->base);
+            exit(1);
+        }
+        type = type_get_field(st_t, e->field)->type;
     } else if (t == AST_ARRAY_SUB) {
-        type = env_ast_type(E, ((extra_binop*)(n->extra))->left);
+        type = env_dereference_type(E, env_ast_type(E, ((extra_binop*)(n->extra))->left));
     } else if (t == AST_ADDRESS) {
         type = type_new_pointer(_env_ast_unop_type(E, n));
     } else if (t == AST_DEREFERENCE) {
-        type = _env_ast_unop_type(E, n);
-        while (type != NULL && (type->base == LANG_UNDET_STRUCT || type->base == LANG_UNDET)) 
-            type = env_get_type(E, type->extra);
-        if (type->base != LANG_POINTER) {
-            printf("Attempted to dereference non-pointer type %i (env_ast_type)\n", type->base);
-            exit(1);
-        }
-        type = type->extra;
+        type = env_dereference_type(E, _env_ast_unop_type(E, n));
     } else if (t == AST_INCREMENT || t == AST_DECREMENT) {
         type = _env_ast_unop_type(E, n);
     } else if (t == AST_ADDITION || t == AST_SUBTRACTION || t == AST_MULTIPLICATION || t == AST_DIVISION) {
@@ -323,6 +352,11 @@ void env_do_over_vars(env* E, void* info, void* f) {
 void env_do_over_strings(env* E, void* info, void* f) {
     assert(is_env(E));
     hash_do_over(E->strings, info, (void (*)(void*, char *, void*))f);
+}
+
+void env_do_over_fns(env* E, void* info, void* f) {
+    assert(is_env(E));
+    hash_do_over(E->fns, info, (void (*)(void*, char *, void*))f);
 }
 
 int env_get_label(env* E) {
@@ -385,6 +419,7 @@ int type_get_size(env* E, var_type* t) {
         case LANG_STRUCT:
             return ((t_struct_extra*)(t->extra))->size;
         default:
-            return 8;
+            printf("What is type %i?\n", t->base);
+            exit(1);
     }
 }
