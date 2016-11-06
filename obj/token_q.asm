@@ -31,7 +31,7 @@ _token_deq:
 	mov al, 0
 	call _deq
 	mov [rbp-8], rax
-	mov rax, 0
+	mov rax, 1
 	cmp rax, 0
 	je label_1
 	mov rax, _string_1
@@ -84,9 +84,9 @@ extern _token_delete
 extern _queue_length
 extern _queue_test
 extern _getline
-extern _calloc
 extern _printf
 extern _queue_readonly
+extern _calloc
 extern _queue_empty
 extern _strncmp
 extern _queue_new
@@ -99,8 +99,8 @@ extern _malloc
 global _token_deq
 extern _deq
 extern _queue_free
-global _token_peek
 extern _is_segment
+global _token_peek
 extern _peek
 global _token_enq
 extern _enq

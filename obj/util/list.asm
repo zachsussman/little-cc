@@ -58,8 +58,8 @@ label_2:
 section .data
 	dummy: dw 16
 extern _getline
-extern _calloc
 extern _printf
+extern _calloc
 extern _strncmp
 extern _exit
 extern _strcmp

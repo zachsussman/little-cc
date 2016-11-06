@@ -2487,8 +2487,8 @@ section .data
 	_string_43: db 124, 124, 0
 	_string_27: db 45, 62, 0
 	_string_15: db 99, 104, 97, 114, 0
-global _parse_string_advance
 extern _token_delete
+global _parse_string_advance
 global _skip_whitespace
 global _parse_string
 global _parse_number
@@ -2497,32 +2497,32 @@ extern _queue_length
 global _parse_name
 global _is_number_char
 global _is_char_in_range
+global _parse_symbol
 extern _queue_test
 extern _getline
-global _parse_symbol
-extern _calloc
 extern _printf
 extern _queue_readonly
+extern _calloc
 extern _queue_empty
 extern _strncmp
 extern _queue_new
 extern _str_token_type
 extern _exit
-global _parse_line
 extern _strcmp
+global _parse_line
 global _is_name_char
-global _is_beginning_name_char
 extern _fopen
 extern _free
 extern _malloc
+global _is_beginning_name_char
 global _is_whitespace
 extern _token_deq
 extern _deq
 extern _queue_free
-extern _token_peek
 extern _is_segment
 global _next_token
 global _parse_character
+extern _token_peek
 extern _peek
 extern _token_enq
 extern _enq

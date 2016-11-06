@@ -38,6 +38,7 @@ struct t_struct_extra_s {
     int nfields;
     int size;
     hash* fields;
+    char* name;
 };
 
 void types_init();
@@ -47,7 +48,7 @@ var_type* type_pointer_inner(var_type* p);
 var_type* type_new_fn(var_type* ret);
 
 
-var_type* type_new_struct();
+var_type* type_new_struct(char* name);
 void type_add_field(var_type* s, char* name, var_type* type);
 t_struct_field* type_get_field(var_type* s, char* name);
 

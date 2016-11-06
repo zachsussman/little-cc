@@ -155,7 +155,7 @@ void token_enq(queue* Q, token* t) {
 
 token* token_deq(queue* Q) {
     token* t = (token*) deq(Q);
-    if (0) printf("%s ", t->repr, t->type);
+    if (1) printf("%s ", t->repr, t->type);
     return t;
 }
 

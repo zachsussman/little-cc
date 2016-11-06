@@ -1,33 +1,529 @@
-#include "../diff.h"
-#include "../vars.h"
-#include "../util/queue.h"
+# 1 "parser/ast.c"
+# 1 "<built-in>" 1
+# 1 "<built-in>" 3
+# 329 "<built-in>" 3
+# 1 "<command line>" 1
+# 1 "<built-in>" 2
+# 1 "parser/ast.c" 2
+# 1 "parser/../diff.h" 1
+# 17 "parser/../diff.h"
+typedef int bool;
 
-#include "ast.h"
+
+
+typedef int size_t;
+
+
+void exit(int a);
+void printf(char* b);
+void* malloc(int size);
+void free(void* p);
+void* calloc(int n, int size);
+int strcmp(char* a, char* b);
+int strncmp(char* a, char* b, int n);
+void getline();
+void* fopen();
+# 2 "parser/ast.c" 2
+# 1 "parser/../vars.h" 1
+# 3 "parser/ast.c" 2
+# 1 "parser/../util/queue.h" 1
+
+
+
+# 1 "parser/../util/../tokenizer/tokens.h" 1
+
+
+enum token_type_e {
+    NAME,
+    NUMBER,
+    STRING,
+    CHARACTER,
+
+    OPEN_BRACE,
+    CLOSED_BRACE,
+
+    SEMICOLON,
+
+    OP_PLUS,
+    OP_MINUS,
+    OP_MUL,
+    OP_DIV,
+    OP_SINGLE_AND,
+    OP_SINGLE_OR,
+    OP_BOOL_AND,
+    OP_BOOL_OR,
+    OP_ASSIGN,
+    OP_EQ,
+    OP_NOT_BANG,
+    OP_NOT_TILDE,
+    OP_NEQ,
+
+    OP_LT,
+    OP_GT,
+    OP_LTE,
+    OP_GTE,
+    OP_ARROW,
+    OP_DOT,
+
+    OP_INC,
+    OP_DEC,
+
+    OP_COLON,
+
+    OP_COMMA,
+
+    OPEN_PAREN,
+    CLOSED_PAREN,
+    OPEN_BRACKET,
+    CLOSED_BRACKET,
+
+    KW_INT,
+    KW_IF,
+    KW_WHILE,
+    KW_RETURN,
+    KW_VOID,
+    KW_ELSE,
+    KW_STRUCT,
+    KW_SIZEOF,
+    KW_TYPEDEF,
+    KW_CHAR,
+    KW_FOR,
+    KW_SWITCH,
+    KW_CASE,
+    KW_DEFAULT,
+    KW_BREAK,
+    KW_ENUM,
+
+    OTHER
+};
+typedef enum token_type_e token_type;
+
+typedef struct token_s token;
+struct token_s {
+    token_type type;
+    char* repr;
+};
+
+token* token_new(token_type t, char* r);
+void token_delete(token* t);
+char* str_token_type(token* t);
+# 5 "parser/../util/queue.h" 2
+# 1 "parser/../util/list.h" 1
+
+
+
+
+typedef struct list_s list;
+struct list_s {
+    void* data;
+    list* next;
+};
+
+bool is_segment(list* a, list* b);
+# 6 "parser/../util/queue.h" 2
+
+typedef struct queue_s queue;
+struct queue_s {
+    list* front;
+    list* back;
+};
+
+queue* queue_new();
+bool queue_empty(queue* Q);
+void enq(queue* Q, void* d);
+void* peek(queue* Q);
+void* deq(queue* Q);
+queue* queue_readonly(queue* Q);
+int queue_length(queue* Q);
+void queue_free(queue* Q);
+
+void queue_test();
+# 4 "parser/ast.c" 2
+
+# 1 "parser/ast.h" 1
+
+
+
+
+
+# 1 "parser/types.h" 1
+
+
+
+# 1 "parser/../util/hash.h" 1
+
+
+
+typedef struct hash_chain_s hash_chain;
+struct hash_chain_s {
+    char* key;
+    void* value;
+    hash_chain* next;
+};
+
+typedef struct hash_s hash;
+struct hash_s {
+    int size;
+    int capacity;
+    hash_chain** chains;
+};
+
+
+int hash_str(char *str);
+hash* hash_new(int capacity);
+bool hash_in(hash* H, char* k);
+void hash_insert(hash* H, char* k, void* v);
+void* hash_get(hash* H, char* k);
+void hash_do_over(hash* H, void* info, void* f);
+# 5 "parser/types.h" 2
+
+typedef enum lang_type_e lang_type;
+enum lang_type_e {
+    LANG_INT,
+    LANG_VOID,
+    LANG_CHAR,
+    LANG_POINTER,
+    LANG_FN,
+    LANG_STRUCT,
+    LANG_UNDET_STRUCT,
+    LANG_UNDET
+};
+
+typedef struct var_type_s var_type;
+struct var_type_s {
+    lang_type base;
+    void* extra;
+};
+
+typedef struct t_fn_extra_s t_fn_extra;
+struct t_fn_extra_s {
+    var_type* ret;
+    queue* args;
+};
+
+typedef struct t_struct_field_s t_struct_field;
+struct t_struct_field_s {
+    var_type* type;
+    int index;
+};
+
+typedef struct t_struct_extra_s t_struct_extra;
+struct t_struct_extra_s {
+    int nfields;
+    int size;
+    hash* fields;
+    char* name;
+};
+
+void types_init();
+var_type* type_new_base(lang_type t);
+var_type* type_new_pointer(var_type* inner);
+var_type* type_pointer_inner(var_type* p);
+var_type* type_new_fn(var_type* ret);
+
+
+var_type* type_new_struct(char* name);
+void type_add_field(var_type* s, char* name, var_type* type);
+t_struct_field* type_get_field(var_type* s, char* name);
+
+var_type* type_new_undet_struct(char* name);
+var_type* type_new_undet(char* name);
+
+
+
+void type_print(var_type* v);
+# 7 "parser/ast.h" 2
+
+
+
+typedef enum node_type_e node_type;
+enum node_type_e {
+
+
+    AST_NONE,
+    AST_VARIABLE,
+    AST_INTEGER,
+    AST_CHAR,
+    AST_FN_CALL,
+    AST_STRING,
+    AST_CAST,
+
+    AST_SIZEOF,
+
+
+    AST_ARROW,
+    AST_ARRAY_SUB,
+    AST_INCREMENT,
+    AST_DECREMENT,
+
+
+    AST_NEGATIVE,
+    AST_ADDRESS,
+    AST_DEREFERENCE,
+    AST_LOGICAL_NOT,
+
+
+    AST_MULTIPLICATION,
+    AST_DIVISION,
+
+
+    AST_ADDITION,
+    AST_SUBTRACTION,
+
+
+    AST_LT,
+    AST_LTE,
+    AST_GT,
+    AST_GTE,
+
+
+    AST_EQ,
+    AST_NEQ,
+
+
+
+    AST_LOGICAL_AND,
+
+
+    AST_LOGICAL_OR,
+
+
+    AST_ASSIGN,
+
+
+    AST_LOCAL_DECLARATION,
+    AST_STATEMENT,
+    AST_IF,
+    AST_WHILE,
+    AST_RETURN,
+    AST_FOR,
+    AST_BREAK,
+    AST_SWITCH,
+
+
+    AST_SEQUENCE,
+
+    AST_FUNCTION,
+    AST_GLOBAL_DECLARATION,
+    AST_STRUCT_DECLARATION,
+    AST_TYPEDEF,
+    AST_ENUM,
+
+    AST_FILE
+};
+
+
+typedef struct node_s node;
+struct node_s {
+    node_type type;
+    void* extra;
+};
+
+typedef struct extra_var_s extra_var;
+struct extra_var_s {
+    char* name;
+};
+
+typedef struct extra_string_s extra_string;
+struct extra_string_s {
+    char* s;
+};
+
+typedef struct extra_int_s extra_int;
+struct extra_int_s {
+    int val;
+};
+
+typedef struct extra_char_s extra_char;
+struct extra_char_s {
+    int val;
+};
+
+typedef struct extra_call_s extra_call;
+struct extra_call_s {
+    char* fn_name;
+    queue* args;
+};
+
+typedef struct extra_sizeof_s extra_sizeof;
+struct extra_sizeof_s {
+    var_type* type;
+};
+
+typedef struct extra_cast_s extra_cast;
+struct extra_cast_s {
+    var_type* type;
+    node* inner;
+};
+
+typedef struct extra_arrow_s extra_arrow;
+struct extra_arrow_s {
+    node* inner;
+    char* field;
+};
+
+typedef struct extra_binop_s extra_binop;
+struct extra_binop_s {
+    node* left;
+    node* right;
+};
+
+typedef struct extra_unop_s extra_unop;
+struct extra_unop_s {
+    node* inner;
+};
+
+typedef struct extra_statement_s extra_statement;
+struct extra_statement_s {
+    node* expr;
+};
+
+typedef struct extra_sequence_s extra_sequence;
+struct extra_sequence_s {
+    queue* Q;
+};
+
+typedef struct extra_declaration_s extra_declaration;
+struct extra_declaration_s {
+    var_type* type;
+    char* name;
+    node* init;
+};
+
+typedef struct extra_if_s extra_if;
+struct extra_if_s {
+    node* cond;
+    node* body;
+    node* else_body;
+};
+
+typedef struct extra_while_s extra_while;
+struct extra_while_s {
+    node* cond;
+    node* body;
+};
+
+typedef struct extra_for_s extra_for;
+struct extra_for_s {
+    node* init;
+    node* cond;
+    node* end;
+    node* body;
+};
+
+
+typedef struct extra_case_s extra_case;
+struct extra_case_s {
+    int val;
+    node* body;
+};
+
+typedef struct extra_switch_s extra_switch;
+struct extra_switch_s {
+    node* cond;
+    int length;
+    extra_case** cases;
+    node* n_default;
+};
+
+typedef struct extra_fn_arg_s extra_fn_arg;
+struct extra_fn_arg_s {
+    var_type* type;
+    char* name;
+};
+
+typedef struct extra_function_s extra_function;
+struct extra_function_s {
+    var_type* ret;
+    char* name;
+    int argc;
+    extra_fn_arg** args;
+    node* body;
+};
+
+typedef struct extra_struct_s extra_struct;
+struct extra_struct_s {
+    char* name;
+    var_type* decl;
+};
+
+typedef struct extra_typedef_s extra_typedef;
+struct extra_typedef_s {
+    var_type* type;
+    char* name;
+};
+
+typedef struct extra_enum_s extra_enum;
+struct extra_enum_s {
+    char* name;
+    queue* vals;
+};
+
+node* new_node_var(char* name);
+node* new_node_int(char* repr);
+node* new_node_char(char val);
+node* new_node_string(char* s);
+
+node* new_node_call(char* repr);
+void node_call_enq(node* call, node* arg);
+bool node_call_empty(node* call);
+node* node_call_deq(node* call);
+
+node* new_node_sizeof(var_type* type);
+node* new_node_cast(var_type* type, node* inner);
+node* new_node_arrow(node* inner, char* field);
+node* new_node_binop(node_type n, node* left, node* right);
+node* new_node_unop(node_type n, node* inner);
+node* new_node_statement(node* expr);
+node* new_node_declaration(node_type scope, var_type* type, char* name, node* init);
+node* new_node_if(node* cond, node* body, node* else_body);
+node* new_node_while(node* cond, node* body);
+node* new_node_for(node* init, node* cond, node* end, node* body);
+node* new_node_break();
+
+extra_case* new_node_case(int val, node* body);
+node* new_node_switch(node* cond, queue* cases, node* n_default);
+
+node* new_node_sequence();
+void sequence_enq(node* seq, node* next);
+node* sequence_deq(node* seq);
+bool sequence_empty(node* seq);
+
+extra_fn_arg* new_node_fn_arg(var_type* type, char* name);
+node* new_node_function(var_type* ret, char* name, queue* args, node* body);
+node* new_node_struct(char* name, var_type* decl);
+node* new_node_typedef(var_type* type, char* name);
+node* new_node_enum(char* name);
+void enum_add_val(node* n, char* val);
+
+queue* ast_locals(node* n);
+void print_node(node* n);
+# 6 "parser/ast.c" 2
 
 bool is_node(node* n) {
-    return n != NULL && (n->type == AST_BREAK || n->extra != NULL);
+    return n != 0 && (n->type == AST_BREAK || n->extra != 0);
 }
 
 node* new_node_var(char* name) {
-    assert(name != NULL);
+    0;
 
     node* n = malloc(sizeof(node));
     extra_var* e = malloc(sizeof(extra_var));
-    e->name = strndup(name, MAX_TOKEN_LENGTH);
+    e->name = strndup(name, 80);
     n->extra = (void*)e;
     n->type = AST_VARIABLE;
 
-    assert(is_node(n));
+    0;
     return n;
 }
 
 
 node* new_node_int(char* repr) {
-    assert(repr != NULL);
+    0;
 
     char* end;
     int val = strtol(repr, &end, 10);
-    assert(*end == 0);
+    0;
 
     node* n = malloc(sizeof(node));
     extra_int* e = malloc(sizeof(extra_int));
@@ -35,7 +531,7 @@ node* new_node_int(char* repr) {
     n->extra = (void*)e;
     n->type = AST_INTEGER;
 
-    assert(is_node(n));
+    0;
     return n;
 
 }
@@ -48,12 +544,12 @@ node* new_node_char(char val) {
     n->extra = (void*) e;
     n->type = AST_CHAR;
 
-    assert(is_node(n));
+    0;
     return n;
 }
 
 node* new_node_string(char* s) {
-    assert(s != NULL);
+    0;
 
     node* n = malloc(sizeof(node));
     extra_string* e = malloc(sizeof(extra_string));
@@ -61,28 +557,28 @@ node* new_node_string(char* s) {
     n->extra = (void*)e;
     n->type = AST_STRING;
 
-    assert(is_node(n));
+    0;
     return n;
 }
 
 node* new_node_call(char* fn_name) {
-    assert(fn_name != NULL);
+    0;
 
     node* n = malloc(sizeof(node));
     extra_call* e = malloc(sizeof(extra_call));
-    e->fn_name = strndup(fn_name, MAX_TOKEN_LENGTH);
+    e->fn_name = strndup(fn_name, 80);
     e->args = queue_new();
     n->extra = (void*)e;
     n->type = AST_FN_CALL;
 
-    assert(is_node(n));
+    0;
     return n;
 }
 
 void node_call_enq(node* call, node* arg) {
-    assert(is_node(call));
-    assert(is_node(arg));
-    assert(call->type == AST_FN_CALL);
+    0;
+    0;
+    0;
 
     extra_call* e = call->extra;
 
@@ -90,8 +586,8 @@ void node_call_enq(node* call, node* arg) {
 }
 
 bool node_call_empty(node* call) {
-    assert(is_node(call));
-    assert(call->type == AST_FN_CALL);
+    0;
+    0;
 
     extra_call* e = call->extra;
 
@@ -99,9 +595,9 @@ bool node_call_empty(node* call) {
 }
 
 node* node_call_deq(node* call) {
-    assert(is_node(call));
-    assert(call->type == AST_FN_CALL);
-    assert(!node_call_empty(call));
+    0;
+    0;
+    0;
 
     extra_call* e = call->extra;
 
@@ -116,12 +612,12 @@ node* new_node_sizeof(var_type* type) {
     n->extra = (void*) e;
     n->type = AST_SIZEOF;
 
-    assert(is_node(n));
+    0;
     return n;
 }
 
 node* new_node_cast(var_type* type, node* inner) {
-    assert(is_node(inner));
+    0;
 
     node* n = malloc(sizeof(node));
     extra_cast* e = malloc(sizeof(extra_cast));
@@ -130,13 +626,13 @@ node* new_node_cast(var_type* type, node* inner) {
     n->extra = (void*) e;
     n->type = AST_CAST;
 
-    assert(is_node(n));
+    0;
     return n;
 }
 
 node* new_node_arrow(node* inner, char* field) {
-    assert(is_node(inner));
-    assert(field != NULL);
+    0;
+    0;
 
     node* n = malloc(sizeof(node));
     extra_arrow* e = malloc(sizeof(extra_arrow));
@@ -145,14 +641,14 @@ node* new_node_arrow(node* inner, char* field) {
     n->extra = (void*) e;
     n->type = AST_ARROW;
 
-    assert(is_node(n));
+    0;
     return n;
 }
 
 
 node* new_node_binop(node_type type, node* left, node* right) {
-    assert(is_node(left));
-    assert(is_node(right));
+    0;
+    0;
 
     node* n = malloc(sizeof(node));
     extra_binop* e = malloc(sizeof(extra_binop));
@@ -161,12 +657,12 @@ node* new_node_binop(node_type type, node* left, node* right) {
     n->extra = (void*)e;
     n->type = type;
 
-    assert(is_node(n));
+    0;
     return n;
 }
 
 node* new_node_unop(node_type type, node* inner) {
-    assert(is_node(inner));
+    0;
 
     node* n = malloc(sizeof(node));
     extra_unop* e = malloc(sizeof(extra_unop));
@@ -174,28 +670,28 @@ node* new_node_unop(node_type type, node* inner) {
     n->extra = (void*) e;
     n->type = type;
 
-    assert(is_node(n));
+    0;
     return n;
 }
 
-node* new_node_declaration(node_type scope, var_type*  t, char* name, node* init) {
-    assert(name != NULL);
+node* new_node_declaration(node_type scope, var_type* t, char* name, node* init) {
+    0;
 
     node* n = malloc(sizeof(node));
     extra_declaration* e = malloc(sizeof(extra_declaration));
     e->type = t;
-    e->name = strndup(name, MAX_TOKEN_LENGTH);
+    e->name = strndup(name, 80);
     e->init = init;
 
     n->type = scope;
     n->extra = (void*) e;
 
-    assert(is_node(n));
+    0;
     return n;
 }
 
 node* new_node_statement(node* expr) {
-    assert(is_node(expr));
+    0;
 
     node* n = malloc(sizeof(node));
     extra_statement* e = malloc(sizeof(extra_statement));
@@ -203,13 +699,13 @@ node* new_node_statement(node* expr) {
     n->extra = (void*) e;
     n->type = AST_STATEMENT;
 
-    assert(is_node(n));
+    0;
     return n;
 }
 
 node* new_node_if(node* cond, node* body, node* else_body) {
-    assert(is_node(cond));
-    assert(is_node(body));
+    0;
+    0;
 
     node* n = malloc(sizeof(node));
     extra_if* e = malloc(sizeof(extra_if));
@@ -219,13 +715,13 @@ node* new_node_if(node* cond, node* body, node* else_body) {
     n->extra = (void*) e;
     n->type = AST_IF;
 
-    assert(is_node(n));
+    0;
     return n;
 }
 
 node* new_node_while(node* cond, node* body) {
-    assert(is_node(cond));
-    assert(is_node(body));
+    0;
+    0;
 
     node* n = malloc(sizeof(node));
     extra_while* e = malloc(sizeof(extra_while));
@@ -234,15 +730,15 @@ node* new_node_while(node* cond, node* body) {
     n->extra = (void*) e;
     n->type = AST_WHILE;
 
-    assert(is_node(n));
+    0;
     return n;
 }
 
 node* new_node_for(node* init, node* cond, node* end, node* body) {
-    assert(is_node(init));
-    assert(is_node(cond));
-    assert(is_node(end));
-    assert(is_node(body));
+    0;
+    0;
+    0;
+    0;
 
     node* n = malloc(sizeof(node));
     extra_for* e = malloc(sizeof(extra_for));
@@ -253,16 +749,16 @@ node* new_node_for(node* init, node* cond, node* end, node* body) {
     n->extra = (void*) e;
     n->type = AST_FOR;
 
-    assert(is_node(n));
+    0;
     return n;
 }
 
 node* new_node_break() {
     node* n = malloc(sizeof(node));
     n->type = AST_BREAK;
-    n->extra = NULL;
+    n->extra = 0;
 
-    assert(is_node(n));
+    0;
     return n;
 }
 
@@ -297,7 +793,7 @@ node* new_node_switch(node* cond, queue* cases, node* n_default) {
     n->type = AST_SWITCH;
     n->extra = e;
 
-    assert(is_node(n));
+    0;
     return n;
 }
 
@@ -309,13 +805,13 @@ node* new_node_sequence() {
     n->extra = (void*) e;
     n->type = AST_SEQUENCE;
 
-    assert(is_node(n));
+    0;
     return n;
 }
 
 bool sequence_empty(node* seq) {
-    assert(is_node(seq));
-    assert(seq->type == AST_SEQUENCE);
+    0;
+    0;
 
     extra_sequence* e = seq->extra;
 
@@ -323,9 +819,9 @@ bool sequence_empty(node* seq) {
 }
 
 void sequence_enq(node* seq, node* n) {
-    assert(is_node(seq));
-    assert(is_node(n));
-    assert(seq->type == AST_SEQUENCE);
+    0;
+    0;
+    0;
 
     extra_sequence* e = seq->extra;
 
@@ -333,9 +829,9 @@ void sequence_enq(node* seq, node* n) {
 }
 
 node* sequence_deq(node* seq) {
-    assert(is_node(seq));
-    assert(seq->type == AST_SEQUENCE);
-    assert(!sequence_empty(seq));
+    0;
+    0;
+    0;
 
     extra_sequence* e = seq->extra;
 
@@ -343,23 +839,23 @@ node* sequence_deq(node* seq) {
 }
 
 node* sequence_peek(node* seq) {
-    assert(is_node(seq));
-    assert(seq->type == AST_SEQUENCE);
-    assert(!sequence_empty(seq));
+    0;
+    0;
+    0;
 
     extra_sequence* e = seq->extra;
 
     return (node*) peek(e->Q);
 }
 
-extra_fn_arg* new_node_fn_arg(var_type*  type, char* name) {
+extra_fn_arg* new_node_fn_arg(var_type* type, char* name) {
     extra_fn_arg* e = malloc(sizeof(extra_fn_arg));
     e->type = type;
     e->name = strdup(name);
     return e;
 }
 
-node* new_node_function(var_type*  ret, char* name, queue* args, node* body) {
+node* new_node_function(var_type* ret, char* name, queue* args, node* body) {
     node* n = malloc(sizeof(node));
     extra_function* e = malloc(sizeof(extra_function));
     e->ret = ret;
@@ -432,8 +928,8 @@ void _print_n_tabs(int depth) {
 }
 
 void _print_node(node* n, int depth) {
-    assert(is_node(n));
-    assert(0 <= depth);
+    0;
+    0;
 
     _print_n_tabs(depth);
     switch (n->type) {
@@ -546,7 +1042,7 @@ void _print_node(node* n, int depth) {
             extra_if* exif = (extra_if*) n->extra;
             _print_node(exif->cond, depth+1);
             _print_node(exif->body, depth+1);
-            if (exif->else_body != NULL) {
+            if (exif->else_body != 0) {
                 _print_node(exif->else_body, depth+1);
             }
             break;
@@ -582,7 +1078,7 @@ void _print_node(node* n, int depth) {
                 type_print(ex->args[i]->type);
                 printf(" %s\n", ex->args[i]->name);
             }
-            if (ex->body != NULL) _print_node(ex->body, depth+1);
+            if (ex->body != 0) _print_node(ex->body, depth+1);
             break;
         default:
             printf("AST_UNKNOWN\n");
@@ -591,7 +1087,7 @@ void _print_node(node* n, int depth) {
 }
 
 void _ast_locals(queue* locals, node* n) {
-    if (n == NULL) return;
+    if (n == 0) return;
 
     if (n->type == AST_SEQUENCE) {
         queue* Q = queue_readonly(((extra_sequence*)(n->extra))->Q);
@@ -615,7 +1111,7 @@ void _ast_locals(queue* locals, node* n) {
     } else if (n->type == AST_SWITCH) {
         extra_switch* e_switch = n->extra;
         for (int i = 0; i < e_switch->length; i++) {
-            if (e_switch->cases[i] != NULL) 
+            if (e_switch->cases[i] != 0)
                 _ast_locals(locals, (e_switch->cases[i])->body);
         }
         _ast_locals(locals, e_switch->n_default);

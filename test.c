@@ -1,8 +1,10 @@
-int strncmp();
-int printf();
-
+typedef struct test_s test;
+struct test_s {
+    int a;
+    char** b;
+};
 
 int main() {
-    char** q;
-    (*q)[1];
+    test* q;
+    q->b;
 }

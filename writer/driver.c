@@ -105,6 +105,7 @@ void ast_arrow_write(FILE* f, node* n, env* E) {
         printf("Attempted to dereference non-pointer\n");
         exit(1);
     }
+
     var_type* s = (var_type*) t->extra;
     while (s->base == LANG_UNDET || s->base == LANG_UNDET_STRUCT) {
         s = env_get_type(E, s->extra);
@@ -113,7 +114,11 @@ void ast_arrow_write(FILE* f, node* n, env* E) {
         printf("Attempted to arrow non-struct-pointer %i\n", s->base);
         exit(1);
     }
-    int index = type_get_field(s, e->field)->index;
+    t_struct_field* field = type_get_field(s, e->field);
+    if (field == NULL) {
+        printf("Field %s not found in struct %s\n", e->field, ((t_struct_extra*)(s->extra))->name);
+    }
+    int index = field->index;
 
     ast_write(f, e->inner, E);
     fprintf(f, "\tmov rax, [rax+%i]\n", index*8);

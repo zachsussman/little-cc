@@ -17,10 +17,9 @@ int hash_str(char *str)
 int key_index(hash* H, char* key) {
     assert(H != NULL);
 
-    int i;
-    i = hash_str(key) % H->capacity;
-
-    return i < 0 ? -(i+1) : i;
+    int h = hash_str(key);
+    if (h < 0) h = -h;
+    return h - (h / H->capacity) * H->capacity;
 }
 
 
@@ -111,6 +110,7 @@ void* hash_get(hash* H, char* key) {
     return NULL;
 }
 
+#ifndef MY_CC
 typedef void foo(void*, void*, void*);
 
 void hash_do_over(hash* H, void* info, void* f) {
@@ -126,3 +126,5 @@ void hash_do_over(hash* H, void* info, void* f) {
 
     assert(is_hash(H));
 }
+
+#endif

@@ -231,8 +231,8 @@ section .data
 	_string_1: db 78, 65, 77, 69, 0
 global _token_delete
 extern _getline
-extern _calloc
 extern _printf
+extern _calloc
 extern _strncmp
 global _str_token_type
 extern _exit

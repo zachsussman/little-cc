@@ -310,7 +310,7 @@ var_type* env_ast_type(env* E, node* n) {
         type = type_new_base(LANG_INT);
     } else if (t == AST_ARROW) {
         extra_arrow* e = (extra_arrow*)n->extra;
-        var_type* st_t = env_ast_type(E, e->inner)->extra;
+        var_type* st_t = env_dereference_type(E, env_ast_type(E, e->inner));
         while (st_t != NULL && (st_t->base == LANG_UNDET_STRUCT || st_t->base == LANG_UNDET)) 
             st_t = env_get_type(E, st_t->extra);
         if (st_t->base != LANG_STRUCT) {

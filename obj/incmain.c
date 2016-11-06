@@ -685,8 +685,8 @@ int main(int argc, char** argv) {
     }
 
     while (!queue_empty(token_queue)) {
-        token* t = token_deq(token_queue);
-        printf("%s %i\n", t->repr, t->type);
+        node* n = parse(token_queue);
+        print_node(n);
     }
 
 

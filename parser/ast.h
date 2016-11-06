@@ -197,8 +197,6 @@ struct extra_switch_s {
     node* n_default;
 };
 
-
-
 typedef struct extra_fn_arg_s extra_fn_arg;
 struct extra_fn_arg_s {
     var_type*  type;

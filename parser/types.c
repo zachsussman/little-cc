@@ -44,13 +44,14 @@ var_type* type_pointer_inner(var_type* p) {
 
 var_type* type_new_fn(var_type* ret);
 
-var_type* type_new_struct() {
+var_type* type_new_struct(char* name) {
     var_type* v = malloc(sizeof(var_type));
     v->base = LANG_STRUCT;
     t_struct_extra* e = malloc(sizeof(t_struct_extra));
     e->nfields = 0;
     e->size = 0;
     e->fields = hash_new(5);
+    e->name = name;
     v->extra = (void*) e;
     return v;
 }

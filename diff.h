@@ -35,4 +35,4 @@ FILE* fopen();
 
 #endif
 
-#define DEBUGGING false
+#define DEBUGGING true

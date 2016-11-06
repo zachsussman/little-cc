@@ -350,9 +350,9 @@ extern _token_delete
 global _queue_length
 extern _queue_test
 extern _getline
-extern _calloc
 extern _printf
 global _queue_readonly
+extern _calloc
 global _queue_empty
 extern _strncmp
 global _queue_new
@@ -363,10 +363,10 @@ extern _fopen
 extern _free
 extern _malloc
 global _deq
-extern _queue_free
 global _is_segment_q
+extern _queue_free
 extern _is_segment
-global _is_queue
 global _peek
+global _is_queue
 global _enq
 extern _token_new
