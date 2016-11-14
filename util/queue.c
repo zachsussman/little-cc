@@ -13,10 +13,12 @@ bool is_queue(queue* Q) {
 }
 
 queue* queue_new() {
+    // mark("Entered queue_new");
     queue* Q = malloc(sizeof(queue));
     Q->front = malloc(sizeof(list));
     Q->back = Q->front;
     Q->front->next = NULL;
+
 
     assert(is_queue(Q));
     return Q;

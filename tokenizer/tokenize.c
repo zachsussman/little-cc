@@ -77,6 +77,7 @@ void parse_number(queue* Q, char** pline) {
     enq(Q, tok);
 }
 
+
 void parse_name(queue* Q, char** pline) {
     int len = 0;
     // Find the length of the token by scanning 
@@ -86,6 +87,7 @@ void parse_name(queue* Q, char** pline) {
         len++;
     }
 
+
     char* repr = calloc(len+1, sizeof(char));
     for (int i = 0; i < len && **pline != 0 && is_name_char(**pline); i++) {
         repr[i] = **pline;
@@ -93,12 +95,14 @@ void parse_name(queue* Q, char** pline) {
     }
     repr[len] = 0;
 
+
     if (!strncmp(repr, "int", 4)) {
         free(repr);
         enq(Q, token_new(KW_INT, "int"));
         return;
     } 
-    else if (!strcmp(repr, "if")) {
+
+    if (!strcmp(repr, "if")) {
         free(repr);
         enq(Q, token_new(KW_IF, "if"));
     } else if (!strcmp(repr, "while")) {
@@ -172,14 +176,18 @@ char parse_string_advance(char** pline) {
 
 void parse_string(queue* Q, char** pline) {
     int len = 0;
+
     char* temp_p = *pline;
 
     parse_string_advance(&temp_p);
     // Find the length of the token by scanning 
     while(*temp_p != 0 && *temp_p != '"') {
+
         len++;
         parse_string_advance(&temp_p);
     }
+
+
 
     parse_string_advance(pline);
 
@@ -262,6 +270,10 @@ void parse_symbol(queue* Q, char** pline) {
         case ':':
             type = OP_COLON;
             repr = ":";
+            break;
+        case '?':  
+            type = OP_QUESTION;
+            repr = "?";
             break;
         case '+':
             if ((*pline)[1] == '+') {
@@ -379,7 +391,6 @@ bool next_token(queue* Q, char** pline) {
     if (**pline == '/' && *(*pline+1) == '/') return true;
     if (**pline == '#') return true;
 
-
     char c = **pline;
     if (is_beginning_name_char(c)) parse_name(Q, pline);
     else if (is_number_char(c)) parse_number(Q, pline);
@@ -397,7 +408,8 @@ int parse_line(queue* Q, FILE* f) {
 
 
     char* line = buf;
-    while (!next_token(Q, &line)) {}
+    while (!next_token(Q, &line)) {
+    }
     free(buf); line = NULL; buf = NULL;
 
     return 0;

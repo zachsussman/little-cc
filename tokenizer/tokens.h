@@ -36,6 +36,7 @@ enum token_type_e {
     OP_DEC,
 
     OP_COLON,
+    OP_QUESTION,
 
     OP_COMMA,
 

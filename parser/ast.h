@@ -4,6 +4,7 @@
 
 #include "../util/queue.h"
 #include "types.h"
+#include "scope.h"
 
 
 //Using the precedence table from http://en.cppreference.com/w/c/language/operator_precedence:
@@ -57,6 +58,9 @@ enum node_type_e {
 
     // Precedence 12
     AST_LOGICAL_OR,
+
+    // Precedence 13
+    AST_TERNARY,
 
     // Precedence 14
     AST_ASSIGN,
@@ -139,6 +143,13 @@ struct extra_binop_s {
     node* right;
 };
 
+typedef struct extra_ternary_s extra_ternary;
+struct extra_ternary_s {
+    node* left;
+    node* middle;
+    node* right;
+};
+
 typedef struct extra_unop_s extra_unop;
 struct extra_unop_s {
     node* inner;
@@ -152,6 +163,7 @@ struct extra_statement_s {
 typedef struct extra_sequence_s extra_sequence;
 struct extra_sequence_s {
     queue* Q;
+    scope* sc;
 };
 
 typedef struct extra_declaration_s extra_declaration;
@@ -180,6 +192,7 @@ struct extra_for_s {
     node* cond;
     node* end;
     node* body;
+    scope* sc;
 };
 
 
@@ -195,6 +208,7 @@ struct extra_switch_s {
     int length;
     extra_case** cases;
     node* n_default;
+    scope* sc;
 };
 
 typedef struct extra_fn_arg_s extra_fn_arg;
@@ -210,6 +224,7 @@ struct extra_function_s {
     int argc;
     extra_fn_arg** args;
     node* body;
+    scope* sc;
 };
 
 typedef struct extra_struct_s extra_struct;
@@ -244,6 +259,7 @@ node* new_node_sizeof(var_type* type);
 node* new_node_cast(var_type* type, node* inner);
 node* new_node_arrow(node* inner, char* field);
 node* new_node_binop(node_type n, node* left, node* right);
+node* new_node_ternary(node_type n, node* left, node* middle, node* right);
 node* new_node_unop(node_type n, node* inner);
 node* new_node_statement(node* expr);
 node* new_node_declaration(node_type scope, var_type*  type, char* name, node* init);
@@ -267,5 +283,6 @@ node* new_node_typedef(var_type* type, char* name);
 node* new_node_enum(char* name);
 void enum_add_val(node* n, char* val);
 
-queue* ast_locals(node* n);
+void ast_construct_scope(node* n);
+// queue* ast_locals(node* n);
 void print_node(node* n);

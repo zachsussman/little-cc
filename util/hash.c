@@ -3,13 +3,16 @@
 #include "hash.h"
 
 
-int hash_str(char *str)
+long hash_str(char *str)
 {
-    int h = 5381;
+    long h = 5381;
     int c;
+    int i = 0;
 
-    while ((c = *(str++)))
+    for (int i = 0; str[i] != 0; i++) {
+        c = str[i];
         h = h * 33 + c; /* hash * 33 + c */
+    }
 
     return h;
 }
@@ -17,7 +20,7 @@ int hash_str(char *str)
 int key_index(hash* H, char* key) {
     assert(H != NULL);
 
-    int h = hash_str(key);
+    long h = hash_str(key);
     if (h < 0) h = -h;
     return h - (h / H->capacity) * H->capacity;
 }

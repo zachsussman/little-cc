@@ -13,21 +13,31 @@ node* new_node_var(char* name) {
 
     node* n = malloc(sizeof(node));
     extra_var* e = malloc(sizeof(extra_var));
-    e->name = strndup(name, MAX_TOKEN_LENGTH);
+    e->name = strdup(name);
     n->extra = (void*)e;
     n->type = AST_VARIABLE;
+
+    assert(e != NULL);
+    assert(e->name != NULL);
 
     assert(is_node(n));
     return n;
 }
 
+int my_strtol(char* repr) {
+    int n = 0;
+    for (int i = 0; repr[i] != '\0'; i++) {
+        n = n*10 + (repr[i] - '0');
+    }
+    return n;
+}
 
 node* new_node_int(char* repr) {
     assert(repr != NULL);
 
-    char* end;
-    int val = strtol(repr, &end, 10);
-    assert(*end == 0);
+    mark("Before strtol");
+    int val = my_strtol(repr);
+    mark("After strtol");
 
     node* n = malloc(sizeof(node));
     extra_int* e = malloc(sizeof(extra_int));
@@ -165,6 +175,24 @@ node* new_node_binop(node_type type, node* left, node* right) {
     return n;
 }
 
+
+node* new_node_ternary(node_type type, node* left, node* middle, node* right) {
+    assert(is_node(left));
+    assert(is_node(middle));
+    assert(is_node(right));
+
+    node* n = malloc(sizeof(node));
+    extra_ternary* e = malloc(sizeof(extra_ternary));
+    e->left = left;
+    e->middle = middle;
+    e->right = right;
+    n->extra = (void*)e;
+    n->type = type;
+
+    assert(is_node(n));
+    return n;
+}
+
 node* new_node_unop(node_type type, node* inner) {
     assert(is_node(inner));
 
@@ -280,19 +308,19 @@ node* new_node_switch(node* cond, queue* cases, node* n_default) {
     int maxn = 0;
     queue* q = queue_readonly(cases);
     while(!queue_empty(q)) {
-        extra_case* c = deq(q);
-        if (c->val > maxn) maxn = c->val;
+        deq(q);
+        maxn++;
     }
 
     e->cond = cond;
-    e->cases = calloc((maxn+1), sizeof(extra_case*));
+    e->cases = calloc(maxn, sizeof(extra_case*));
     q = queue_readonly(cases);
-    while (!queue_empty(q)) {
+    for (int i = 0; i < maxn && !queue_empty(q); i++) {
         extra_case* ca = deq(q);
-        e->cases[ca->val] = ca;
+        e->cases[i] = ca;
     }
     e->n_default = n_default;
-    e->length = maxn+1;
+    e->length = maxn;
 
     n->type = AST_SWITCH;
     n->extra = e;
@@ -590,43 +618,96 @@ void _print_node(node* n, int depth) {
     }
 }
 
-void _ast_locals(queue* locals, node* n) {
+void _ast_construct_scope(scope* parent, node* n) {
+    // if (parent != NULL && !is_scope(parent)) {
+    //     printf("Problem with node scope:\n");
+    //     print_node(n);
+    //     printf("Scope: %i %i %i %i %i\n", parent, parent->locals, parent->locals->size, parent->nown, parent->nall);
+    //     assert(false);
+    // }
+    // assert(parent == NULL || is_scope(parent));
+
     if (n == NULL) return;
 
     if (n->type == AST_SEQUENCE) {
-        queue* Q = queue_readonly(((extra_sequence*)(n->extra))->Q);
-        while (!queue_empty(Q)) _ast_locals(locals, deq(Q));
+        scope* sc = scope_new(parent);
+        extra_sequence* e = n->extra;
+        queue* Q = queue_readonly(e->Q);
+        while (!queue_empty(Q)) _ast_construct_scope(sc, deq(Q));
+        e->sc = sc;
     } else if (n->type == AST_LOCAL_DECLARATION) {
-        enq(locals, n->extra);
+        extra_declaration* e = n->extra;
+        scope_add_local(parent, e->name, e->type);
     } else if (n->type == AST_FUNCTION) {
-        struct extra_function_s* e_fn = n->extra;
-        node* body = e_fn->body;
-        _ast_locals(locals, body);
+        extra_function* e = n->extra;
+        node* body = e->body;
+        _ast_construct_scope(parent, body);
+        e->sc = ((extra_sequence*)(body->extra))->sc;
     } else if (n->type == AST_IF) {
         extra_if* e_if = n->extra;
-        _ast_locals(locals, e_if->body);
-        _ast_locals(locals, e_if->else_body);
+        _ast_construct_scope(parent, e_if->body);
+        _ast_construct_scope(parent, e_if->else_body);
     } else if (n->type == AST_WHILE) {
-        _ast_locals(locals, ((extra_while*)(n->extra))->body);
+        _ast_construct_scope(parent, ((extra_while*)(n->extra))->body);
     } else if (n->type == AST_FOR) {
-        extra_for* e_for = n->extra;
-        _ast_locals(locals, e_for->init);
-        _ast_locals(locals, e_for->body);
+        scope* sc = scope_new(parent);
+        extra_for* e = n->extra;
+        _ast_construct_scope(sc, e->init);
+        _ast_construct_scope(sc, e->body);
+        e->sc = sc;
     } else if (n->type == AST_SWITCH) {
-        extra_switch* e_switch = n->extra;
-        for (int i = 0; i < e_switch->length; i++) {
-            if (e_switch->cases[i] != NULL) 
-                _ast_locals(locals, (e_switch->cases[i])->body);
+        scope* sc = scope_new(parent);
+        extra_switch* e = n->extra;
+        for (int i = 0; i < e->length; i++) {
+            if (e->cases[i] != NULL) 
+                _ast_construct_scope(sc, e->cases[i]->body);
         }
-        _ast_locals(locals, e_switch->n_default);
+        _ast_construct_scope(sc, e->n_default);
+        e->sc = sc;
     }
 }
 
-queue* ast_locals(node* n) {
-    queue* locals = queue_new();
-    _ast_locals(locals, n);
-    return locals;
+void ast_construct_scope(node* n) {
+    _ast_construct_scope(NULL, n);
 }
+
+// void _ast_locals(queue* locals, node* n) {
+//     if (n == NULL) return;
+
+//     if (n->type == AST_SEQUENCE) {
+
+//         while (!queue_empty(Q)) _ast_locals(locals, deq(Q));
+//     } else if (n->type == AST_LOCAL_DECLARATION) {
+//         enq(locals, n->extra);
+//     } else if (n->type == AST_FUNCTION) {
+//         struct extra_function_s* e_fn = n->extra;
+//         node* body = e_fn->body;
+//         _ast_locals(locals, body);
+//     } else if (n->type == AST_IF) {
+//         extra_if* e_if = n->extra;
+//         _ast_locals(locals, e_if->body);
+//         _ast_locals(locals, e_if->else_body);
+//     } else if (n->type == AST_WHILE) {
+//         _ast_locals(locals, ((extra_while*)(n->extra))->body);
+//     } else if (n->type == AST_FOR) {
+//         extra_for* e_for = n->extra;
+//         _ast_locals(locals, e_for->init);
+//         _ast_locals(locals, e_for->body);
+//     } else if (n->type == AST_SWITCH) {
+//         extra_switch* e_switch = n->extra;
+//         for (int i = 0; i < e_switch->length; i++) {
+//             if (e_switch->cases[i] != NULL) 
+//                 _ast_locals(locals, (e_switch->cases[i])->body);
+//         }
+//         _ast_locals(locals, e_switch->n_default);
+//     }
+// }
+
+// queue* ast_locals(node* n) {
+//     queue* locals = queue_new();
+//     _ast_locals(locals, n);
+//     return locals;
+// }
 
 void print_node(node* n) {
     _print_node(n, 0);

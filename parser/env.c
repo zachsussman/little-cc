@@ -22,7 +22,7 @@ var_info* new_arg_var(env* E, fn_info* f, var_type* t) {
     v->lang_t = t;
     v->type = VAR_ARG;
     v->index = f->argc;
-    f->argc += max(type_get_size(E, t), 8);
+    f->argc = f->argc + max(type_get_size(E, t), 8);
     return v;
 }
 
@@ -31,7 +31,7 @@ var_info* new_local_var(env* E, fn_info* f, var_type* t) {
     v->lang_t = t;
     v->type = VAR_LOCAL;
     v->index = f->local_size;
-    f->local_size += max(type_get_size(E, t), 8);
+    f->local_size = f->local_size + max(type_get_size(E, t), 8);
     return v;
 }
 
@@ -43,13 +43,14 @@ var_info* new_const_var(env* E, int val) {
     return v;
 }
 
-fn_info* new_fn_info(var_type* ret) {
+fn_info* new_fn_info(var_type* ret, scope* s) {
     fn_info* v = malloc(sizeof(fn_info));
     v->ret = ret;
     v->args = hash_new(5); // Guess?
-    v->locals = hash_new(5);
+    v->locals = s;
     v->argc = 0;
     v->local_size = 0;
+
     return v;
 }
 
@@ -58,7 +59,7 @@ fn_info* new_fn_reg_info (var_type* ret) {
     fn_info* v = malloc(sizeof(fn_info));
     v->ret = ret;
     v->args = hash_new(5); // Guess?
-    v->locals = hash_new(5);
+    v->locals = scope_new(NULL);
     v->argc = 0;
     v->local_size = -1;
     return v;
@@ -82,6 +83,7 @@ env* env_new() {
     E->global_count = 1;
     E->string_count = 1; // A terrible bug: returning NULL from hash_get is the same as returning 0
     E->curr_fn = NULL;
+    E->sc = NULL;
 
     assert(is_env(E));
     return E;
@@ -92,7 +94,7 @@ int env_get_string(env* E, char* s) {
 
     if (hash_get(E->strings, s) == NULL) {
         char* new_s = strdup(s);
-        hash_insert(E->strings, new_s, (void*)(E->string_count)++);
+        hash_insert(E->strings, new_s, (void*)(long)(E->string_count)++);
     }
 
     return (int)hash_get(E->strings, s);
@@ -110,10 +112,11 @@ void env_add_global(env* E, var_type* t, char* name) {
 
 var_info* env_get_info(env* E, char* name) {
     assert(is_env(E));
+
     if (E->curr_fn && hash_get(E->curr_fn->args, name)) {
         return (var_info*) hash_get(E->curr_fn->args, name);
-    } else if (E->curr_fn && hash_get(E->curr_fn->locals, name)) {
-        return (var_info*) hash_get(E->curr_fn->locals, name);
+    } else if (E->sc != NULL && scope_find_local(E->sc, name)) {
+        return scope_find_local(E->sc, name);
     } else if (hash_get(E->vars, name)) {
         return (var_info*) hash_get(E->vars, name);
     } else {
@@ -133,6 +136,9 @@ void env_set_fn(env* E, char* name) {
     else {
         E->curr_fn = f;
     }
+
+
+    assert(f->locals != NULL);
 }
 
 void env_clear_fn(env* E) {
@@ -154,17 +160,19 @@ void env_reg_fn(env* E, char* name, var_type* ret) {
     hash_insert(E->fns, new_name, f);
 }
 
-void env_add_fn(env* E, char* name, var_type* ret) {
+void env_add_fn(env* E, char* name, var_type* ret, scope* s) {
     assert(is_env(E));
+    assert(s != NULL);
 
     if (hash_get(E->fns, name) == NULL) {
-           char* new_name = strdup(name);
-        fn_info* f = new_fn_info(ret);
+        char* new_name = strdup(name);
+        fn_info* f = new_fn_info(ret, s);
         hash_insert(E->fns, new_name, f); 
     }
     else {
         fn_info* fn = hash_get(E->fns, name);
         fn->local_size = 0;
+        fn->locals = s;
     }
 
 }
@@ -177,20 +185,17 @@ void env_add_fn_arg(env* E, char* name, var_type* t, char* arg) {
     hash_insert(f->args, new_arg, new_arg_var(E, f, t));
 }
 
-void env_add_fn_locals(env* E, char* name, queue* locals) {
+void env_register_scope(env* E, scope* s) {
     assert(is_env(E));
-    assert(locals != NULL);
 
-    fn_info* f = hash_get(E->fns, name);
-    queue* Q = queue_readonly(locals);
+    E->sc = s;
+}
 
-    int index = 0;
-    while (!queue_empty(Q)) {
-        extra_declaration* e = deq(Q);
-        char* new_name = strdup(e->name);
-        var_info* v = new_local_var(E, f, e->type);
-        hash_insert(f->locals, new_name, v);
-    }
+void env_deregister_scope(env* E) {
+    assert(is_env(E));
+    assert(E->sc != NULL);
+
+    E->sc = E->sc->parent;
 }
 
 var_type* env_get_return_type(env* E, char* fn) {
@@ -201,15 +206,18 @@ var_type* env_get_return_type(env* E, char* fn) {
 }
 
 int env_align(int s) {
-    if (s % 16 == 0) return s;
+    if (s / 16 * 16 == s) return s;
     else return (s/16 + 1) * 16;
 }
 
 int env_get_local_size(env* E) {
     assert(is_env(E));
 
-    if (E->curr_fn) return env_align(E->curr_fn->local_size);
-    else assert(false);
+    if (E->curr_fn != NULL && E->curr_fn->locals != NULL) 
+        return env_align(E->curr_fn->locals->nall);
+    else {
+        assert(false);
+    }
 }
 
 int env_get_args_size(env* E) {
@@ -344,6 +352,8 @@ var_type* env_ast_type(env* E, node* n) {
     return type;
 }
 
+#ifndef MY_CC
+
 void env_do_over_vars(env* E, void* info, void* f) {
     assert(is_env(E));
     hash_do_over(E->vars, info, (void (*)(void*, char *, void*))f);
@@ -359,17 +369,21 @@ void env_do_over_fns(env* E, void* info, void* f) {
     hash_do_over(E->fns, info, (void (*)(void*, char *, void*))f);
 }
 
+#endif
+
 int env_get_label(env* E) {
     return (E->label_count)++;
 }
 
+
+
 void env_register_end(env* E, int end) {
-    push(E->ends, (void*) end);
+    push(E->ends, (void*)(long) end);
 }
 
 int env_last_end(env* E) {
-    int x = pop(E->ends);
-    push(E->ends, x);
+    int x = (int)pop(E->ends);
+    push(E->ends, (void*)(long) x);
     return x;
 }
 
@@ -386,15 +400,14 @@ int env_register_switch(env* E, int max, extra_case** cases) {
     return s->switchn;
 }
 
-typedef void foo(void*, void*, void*);
-void env_do_over_switches(env* E, FILE* file, void* f) {
-    queue* q = queue_readonly(E->switches);
-    int i = 0;
-    while (!queue_empty(q)) {
-        (*((foo*)f))(file, deq(q), i);
-        i++;
-    }
-}
+// void env_do_over_switches(env* E, FILE* file, void* f) {
+//     queue* q = queue_readonly(E->switches);
+//     int i = 0;
+//     while (!queue_empty(q)) {
+//         (*((foo*)f))(file, deq(q), (void*)(long)i);
+//         i++;
+//     }
+// }
 
 void env_add_enum_value(env* E, char* name, int val) {
     assert(is_env(E));
@@ -405,7 +418,7 @@ void env_add_enum_value(env* E, char* name, int val) {
 
 int type_get_size(env* E, var_type* t) {
     assert(t != NULL);
-
+    mark("type of type %d",t->base);
     switch (t->base) {
         case LANG_VOID:
         case LANG_INT:

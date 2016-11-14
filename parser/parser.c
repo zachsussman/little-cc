@@ -7,10 +7,15 @@
 #include "../util/stack.h"
 #include "types.h"
 
+void err(char* s) {
+    printf("%s", s);
+    exit(1);
+}
+
 // This is a terrible, kludgy workaround, and I apologize to myself and others.
-hash* h_type_names = NULL;
-hash* h_struct_names = NULL;
-hash* h_enum_vals = NULL;
+hash* h_type_names;
+hash* h_struct_names;
+hash* h_enum_vals;
 
 token* safe_deq(queue* Q) {
     if (queue_empty(Q)) {
@@ -79,8 +84,10 @@ node* check_is_lvalue(node* n) {
  */
 
 bool can_parse_type(queue* Q) {
+
     token_type t = safe_peek_type(Q);
     token* tok = safe_peek(Q);
+    mark("Can I parse this type? %s", tok->repr);
     return t == KW_INT || t == KW_VOID || t == KW_STRUCT || t == KW_CHAR || t == KW_ENUM ||
            (t == NAME && hash_get(h_type_names, tok->repr) != NULL);
 }
@@ -114,15 +121,20 @@ var_type* parse_type(queue* Q) {
 node* parse_unary_prefix(queue* Q);
 
 node* parse_parens(queue* Q) {
+    mark("Parens");
     if (!safe_peek(Q)) {
         printf("Uh oh! ran out of input");
         exit(1);
     }
 
+
     token* t = safe_deq(Q);
     node* n = NULL;
 
+    mark("Dequeued");
+
     if (t->type == NAME) {
+        mark("Found name: %s", t->repr);
         // Is this a variable or a function call?
         if (safe_peek_type(Q) == OPEN_PAREN) {
             n = new_node_call(t->repr);
@@ -134,18 +146,25 @@ node* parse_parens(queue* Q) {
             }
             expect(Q, CLOSED_PAREN, ")");
         } else {
+            mark("Creating variable...");
             n = new_node_var(t->repr);
+            mark("Created variable");
         }
     }
     else if (t->type == NUMBER) {
+        mark("Found number: %s", t->repr);
         n = new_node_int(t->repr);
+        mark("Created new_node_int");
     } 
     else if (t->type == CHARACTER) {
+        mark("Found character %c", t->repr[0]);
         n = new_node_char(t->repr[0]);
     }
     else if (t->type == OPEN_PAREN) {
+        mark("Found parenthesized");
         // Is this a cast or an expression?
         if (can_parse_type(Q)) {
+            mark("This is a cast");
             var_type* t = parse_type(Q);
             expect(Q, CLOSED_PAREN, ")");
             node* inner = parse_unary_prefix(Q); // Since cast has precedence 2
@@ -157,23 +176,28 @@ node* parse_parens(queue* Q) {
         }
     } 
     else if (t->type == STRING) {
+        mark("Found string: \"%s\"", t->repr);
         n = new_node_string(t->repr);
     } 
     else if (t->type == KW_SIZEOF) {
+        mark("Found sizeof");
         expect(Q, OPEN_PAREN, "(");
         n = new_node_sizeof(parse_type(Q));
         expect(Q, CLOSED_PAREN, ")");
     }
     else {
-        printf("Ay no! expected a name or number");
+        printf("Ay no! expected a name or number, found %s\n", t->repr);
         exit(1);
     }
+    mark("Deleting token...");
     token_delete(t);
+    mark("Token deleted");
     return n;
 }
 
 // Level 1
 node* parse_unary_postfix(queue* Q) {
+    mark("postfix");
     node* inner = parse_parens(Q);
 
     token_type type = safe_peek_type(Q);
@@ -205,6 +229,7 @@ node* parse_unary_postfix(queue* Q) {
 
 // Level 2
 node* parse_unary_prefix(queue* Q) {
+    mark("prefix");
     token_type type = safe_peek_type(Q);
     if (type == OP_SINGLE_AND) {
         expect(Q, OP_SINGLE_AND, "&");
@@ -226,6 +251,7 @@ node* parse_unary_prefix(queue* Q) {
 
 // Level 3
 node* parse_mul(queue* Q) {
+    mark("mul");
     node* left = parse_unary_prefix(Q);
 
     token_type type = safe_peek_type(Q);
@@ -240,6 +266,7 @@ node* parse_mul(queue* Q) {
 
 // Level 4
 node* parse_add(queue* Q) {
+    mark("add");
     node* left = parse_mul(Q);
 
     token_type type = safe_peek_type(Q);
@@ -254,6 +281,7 @@ node* parse_add(queue* Q) {
 
 // Level 6
 node* parse_comparisons(queue* Q) {
+    mark("compare");
     node* left = parse_add(Q);
 
     token_type type = safe_peek_type(Q);
@@ -278,6 +306,7 @@ node* parse_comparisons(queue* Q) {
 
 // Level 7
 node* parse_eqs(queue* Q) {
+    mark("equality");
     node* left = parse_comparisons(Q);
 
     token_type type = safe_peek_type(Q);
@@ -300,6 +329,7 @@ node* parse_eqs(queue* Q) {
 
 // Level 11
 node* parse_logical_and(queue* Q) {
+    mark("Land");
     node* left = parse_eqs(Q);
 
     token_type type = safe_peek_type(Q);
@@ -317,6 +347,7 @@ node* parse_logical_and(queue* Q) {
 
 // Level 12
 node* parse_logical_or(queue* Q) {
+    mark("LOr");
     node* left = parse_logical_and(Q);
 
     token_type type = safe_peek_type(Q);
@@ -332,9 +363,25 @@ node* parse_logical_or(queue* Q) {
     return left;
 }
 
+// Level 13
+node* parse_ternary(queue* Q) {
+    mark("Ternary");
+    node* left = parse_logical_or(Q);
+    token_type type = safe_peek_type(Q);
+    if (type == OP_QUESTION) {
+        expect(Q, OP_QUESTION, "?");
+        node* middle = parse_expr(Q);
+        expect(Q, OP_COLON, ":");
+        node* right = parse_expr(Q);
+        left = new_node_ternary(AST_TERNARY, left, middle, right);
+    }
+    return left;
+}
+
 // Level 14
 node* parse_assign(queue* Q) {
-    node* left = parse_logical_or(Q);
+    mark("Assignment");
+    node* left = parse_ternary(Q);
 
     token_type type = safe_peek_type(Q);
     if (type == OP_ASSIGN) {
@@ -352,10 +399,12 @@ node* parse_assign(queue* Q) {
 node* parse_statement(queue* Q);
 
 node* parse_declaration(queue* Q) {
+    mark("Parsing declaration...");
     var_type* type = parse_type(Q);
     token* t = safe_deq(Q);
     char* name = strdup(t->repr);
     token_delete(t);
+    mark("Parsed the first part!");
     node* init = NULL;
     if (safe_peek_type(Q) == SEMICOLON)
         expect_semicolon(Q);
@@ -364,6 +413,7 @@ node* parse_declaration(queue* Q) {
         init = parse_expr(Q);
         expect_semicolon(Q);
     }
+    mark("Parsed the second part!");
     return new_node_declaration(AST_LOCAL_DECLARATION, type, name, init);
 }
 
@@ -372,13 +422,16 @@ node* parse_expr(queue* Q) {
 }
 
 node* parse_sequence(queue* Q) {
+    mark("Parsing sequence...");
     expect(Q, OPEN_BRACE, "{");
     node* seq = new_node_sequence();
     while (safe_peek_type(Q) != CLOSED_BRACE) {
+        mark("Parsing inner statement...");
         node* n = parse_statement(Q);
         sequence_enq(seq, n);
     }
     expect(Q, CLOSED_BRACE, "}");
+    mark("End sequence");
     return seq;
 }
 
@@ -485,6 +538,7 @@ node* parse_switch(queue* Q) {
 }
 
 node* parse_statement(queue* Q) {
+    mark("Parsing statement...");
     token_type t = safe_peek_type(Q);
 
     if (can_parse_type(Q)) {
@@ -506,6 +560,7 @@ node* parse_statement(queue* Q) {
         return parse_switch(Q);
     }
     else {
+        mark("Parsing expression...");
         node* n = parse_expr(Q);
         expect_semicolon(Q);
         return new_node_statement(n);
@@ -539,10 +594,12 @@ node* parse_top_declaration(queue* Q) {
 
     if (safe_peek_type(Q) == OPEN_PAREN) {
         // Function time! Oh baby
+        mark("Parsing function...");
         queue* args = parse_args(Q);
         node* body = NULL;
         if (safe_peek_type(Q) != SEMICOLON) body = parse_sequence(Q);
         else expect_semicolon(Q);
+        mark("Parsed function!");
         return new_node_function(type, name, args, body);
     }
 
@@ -606,7 +663,7 @@ node* parse_enum(queue* Q) {
         char* val = get_name(Q, "Enum val must be a name");
         enum_add_val(n, val);
         if (safe_peek_type(Q) == OP_COMMA) expect(Q, OP_COMMA, ",");
-        hash_insert(h_enum_vals, strdup(val), (void*)i);
+        hash_insert(h_enum_vals, strdup(val), (void*)(long)i);
         i++;
     }
 

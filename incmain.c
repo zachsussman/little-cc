@@ -11,7 +11,24 @@
 
 int main(int argc, char** argv);
 
+void test_hashes() {
+    mark("Let's run regression tests");
+    hash* test_hash = hash_new(30);
+    mark("Hash initialized");
+    hash_insert(test_hash, "a", "apples");
+    mark("Inserted apples");
+    hash_insert(test_hash, "b", "baseballs");
+    printf("%s\n", hash_get(test_hash, "apples"));
+    mark("Apples searched");
+    printf("%s\n", hash_get(test_hash, "baseballs"));
+    printf("%d\n", hash_get(test_hash, "candy"));
+    mark("Candy searched");
+}
+
 int main(int argc, char** argv) {
+    // test_hashes();
+    mark("Let's begin.");
+    test_hashes();
 
     queue* token_queue = queue_new();
 
@@ -22,12 +39,25 @@ int main(int argc, char** argv) {
     // FILE* f = fopen(filename, "w");
     // write_header(f);
     // env* E = env_new();
-    printf("Allocated e'rything\n");
 
     char* filename;
     if (argc > 1) filename = argv[1];
-    else filename = "main.c";
+    else filename = "obj/main.c";
+    char* outfilename;
+    if (argc > 2) outfilename = argv[2];
+    else outfilename = "test.asm";
+
     FILE* f = fopen(filename, "r");
+    if (f == NULL) {
+        printf("File not found\n");
+        exit(1);
+    }
+
+    FILE* out = fopen(outfilename, "w");
+    write_header(out);
+    env* E = env_new();
+
+
 
 
 
@@ -35,11 +65,18 @@ int main(int argc, char** argv) {
         ok = parse_line(token_queue, f);
     }
 
+    mark("All tokens parsed");
+
     while (!queue_empty(token_queue)) {
-        node* n = parse(token_queue);
-        print_node(n);
+            node* n = parse(token_queue);
+            print_node(n);
+            ast_write(out, n, E);
     }
-    // write_footer(f, E);
-    // fclose(f);
+
+
+    write_footer(out, E);
+    fclose(out);
+
+    mark("End of incmain\n");
     return 0;
 }

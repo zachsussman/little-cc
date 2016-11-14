@@ -2,9 +2,10 @@
 
 #include "types.h"
  
-var_type* VAR_INT = NULL;
-var_type* VAR_VOID = NULL;
-var_type* VAR_CHAR = NULL;
+var_type* VAR_INT;
+var_type* VAR_VOID;
+var_type* VAR_CHAR;
+
 var_type* type_new_base(lang_type t) {
     if (VAR_INT == NULL) {
         VAR_INT = malloc(sizeof(var_type));
@@ -65,7 +66,7 @@ void type_add_field(var_type* s, char* name, var_type* type) {
     f->type = type;
     f->index = e->nfields;
     (e->nfields)++;
-    (e->size) += 8;
+    e->size = e->size + 8;
 
     hash_insert(e->fields, strdup(name), f);
 }

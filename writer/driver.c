@@ -35,8 +35,11 @@ void ast_var_write(FILE* f, node* n, env* E) {
     extra_var* e = (extra_var*) n->extra;
     var_info* v = env_get_info(E, e->name);
 
+    char* s = e->name;
+
     char* mov_str;
     int var_size = type_get_size(E, v->lang_t);
+    mark("size of var %s is %d", s, var_size);
     if (var_size == 1) {
         mov_str = "movzx rax, byte";
     } else {
@@ -391,6 +394,24 @@ void ast_logical_or_write(FILE* f, node* n, env* E) {
     fprintf(f, "label_%i:\n", end_label);
 }
 
+void ast_ternary_write(FILE* f, node* n, env* E) {
+    assert(n != NULL);
+    assert(n->type == AST_TERNARY);
+
+    int else_label = env_get_label(E);
+    int end_label = env_get_label(E);
+
+    extra_ternary* e = (extra_ternary*) n->extra;
+    ast_write(f, e->left, E);
+    emit(f, "test rax, rax");
+    fprintf(f, "\tjz label_%i\n", else_label);
+    ast_write(f, e->middle, E);
+    fprintf(f, "\tjmp label_%i\n", end_label);
+    fprintf(f, "label_%i:\n", else_label);
+    ast_write(f, e->right, E);
+    fprintf(f, "label_%i:\n", end_label);
+}
+
 void ast_assign_write(FILE* f, node* n, env* E) {
     assert(n != NULL);
     assert(n->type == AST_ASSIGN);
@@ -470,6 +491,9 @@ void ast_for_write(FILE* f, node* n, env* E) {
     env_register_end(E, end_label);
 
     extra_for* e = n->extra;
+
+    env_register_scope(E, e->sc);
+
     ast_write(f, e->init, E);
     fprintf(f, "label_%i:\n", cond_label);
     ast_write(f, e->cond, E);
@@ -481,6 +505,7 @@ void ast_for_write(FILE* f, node* n, env* E) {
     fprintf(f, "label_%i:\n", end_label);
 
     env_deregister_end(E);
+    env_deregister_scope(E);
 }
 
 void ast_return_write(FILE* f, node* n, env* E) {
@@ -490,8 +515,7 @@ void ast_return_write(FILE* f, node* n, env* E) {
     extra_unop* e = (extra_unop*) n->extra;
     ast_write(f, e->inner, E);
 
-
-    fprintf(f, "\tadd rsp, %i\n", env_get_local_size(E));
+    emit(f, "mov rsp, rbp");
     emit(f, "pop rbp");
     fprintf(f, "\tadd rsp, %i\n", env_get_args_size(E));
 
@@ -522,9 +546,15 @@ void ast_sequence_write(FILE* f, node* n, env* E) {
     assert(n != NULL);
     assert(n->type == AST_SEQUENCE);
 
+    extra_sequence* e = n->extra;
+
+    env_register_scope(E, e->sc);
+
     while (!sequence_empty(n)) {
         ast_write(f, sequence_deq(n), E);
     }
+
+    env_deregister_scope(E);
 }
 
 void ast_switch_write(FILE* f, node* n, env* E) {
@@ -539,6 +569,8 @@ void ast_switch_write(FILE* f, node* n, env* E) {
     int endl = env_get_label(E);
     env_register_end(E, endl);
 
+    env_register_scope(E, e->sc);
+
     // emit(f, "cmp rax, 0");
     // fprintf(f, "\tjl switch_%i_default\n", switchn);
     // fprintf(f, "\tcmp rax, %i\n", e->length);
@@ -551,7 +583,7 @@ void ast_switch_write(FILE* f, node* n, env* E) {
     // fprintf(f, "switch_%i_base:\n", switchn);
     for (int i = 0; i < e->length; i++) {
         if (e->cases[i] != NULL) {
-            fprintf(f, "\tcmp rax, %i\n", i);
+            fprintf(f, "\tcmp rax, %i\n", e->cases[i]->val);
             fprintf(f, "\tje switch_%i_case_%i\n", switchn, i);
         }
     }
@@ -569,6 +601,7 @@ void ast_switch_write(FILE* f, node* n, env* E) {
 
     fprintf(f, "label_%i:\n", endl);
     env_deregister_end(E);
+    env_deregister_scope(E);
 }
 
 void ast_function_write(FILE* f, node* n, env* E) {
@@ -582,17 +615,22 @@ void ast_function_write(FILE* f, node* n, env* E) {
         // fprintf(f, "extern _%s\n", e->name);
         return;
     }
-    env_add_fn(E, e->name, e->ret);
+
+    ast_construct_scope(n);
+
+    env_add_fn(E, e->name, e->ret, e->sc);
     for (int i = 0; i < e->argc; i++) {
         env_add_fn_arg(E, e->name, e->args[i]->type, e->args[i]->name);
     }
 
-    env_add_fn_locals(E, e->name, ast_locals(n));
+
+
+    // env_add_fn_locals(E, e->name, ast_locals(n));
 
     env_set_fn(E, e->name);
 
     fprintf(f, "_%s:\n", e->name);
-    if (e->argc % 2 != 0) 
+    if ((e->argc / 2) * 2 != e->argc) 
         fprintf(f, "\tsub rsp, %i\n", 8);
     for (int i = e->argc-1; i >= 0; i--) {
         fprintf(f, "\tpush %s\n", arg_registers[i]);
@@ -601,18 +639,28 @@ void ast_function_write(FILE* f, node* n, env* E) {
     emit(f, "push rbp");
     emit(f, "mov rbp, rsp");
 
+    env_register_scope(E, e->sc);
 
-
-    fprintf(f, "\tsub rsp, %i\n", env_get_local_size(E));
+    int local_size = env_get_local_size(E);
+    fprintf(f, "\tsub rsp, %i\n", local_size);
+    emit(f, "and rsp, -16");
     ast_write(f, e->body, E);
 
-    fprintf(f, "\tadd rsp, %i\n", env_get_local_size(E));
+    emit(f, "mov rsp, rbp");
     emit(f, "pop rbp");
     fprintf(f, "\tadd rsp, %i\n", env_get_args_size(E));
 
     emit(f, "ret");
 
     env_clear_fn(E);
+}
+
+void ast_global_write(FILE* f, node* n, env* E) {
+    assert(n != NULL);
+    assert(n->type == AST_GLOBAL_DECLARATION);
+
+    extra_declaration* e = (extra_declaration*) n->extra;
+    env_add_global(E, e->type, e->name);
 }
 
 void ast_struct_write(FILE* f, node* n, env* E) {
@@ -731,6 +779,9 @@ void ast_write(FILE* f, node* n, env* E) {
         case AST_LOGICAL_OR:
             ast_logical_or_write(f, n, E);
             break;
+        case AST_TERNARY:
+            ast_ternary_write(f, n, E);
+            break;
         case AST_ASSIGN:
             ast_assign_write(f, n, E);
             break;
@@ -763,6 +814,9 @@ void ast_write(FILE* f, node* n, env* E) {
             break;
         case AST_FUNCTION:
             ast_function_write(f, n, E);
+            break;
+        case AST_GLOBAL_DECLARATION:
+            ast_global_write(f, n, E);
             break;
         case AST_STRUCT_DECLARATION:
             ast_struct_write(f, n, E);
@@ -820,12 +874,55 @@ void write_switch(FILE* f, switch_info* s, int switchn) {
     }
 }
 
+// Note that the next 3 functions simply iterate over the hash table.  This is due
+// to us not doing function pointers.
+void write_env_vars(env* E, FILE* f) {
+    hash* H = E->vars;
+    assert(H != NULL);
+
+    for (int i = 0; i < H->capacity; i++) {
+        hash_chain* c = H->chains[i];
+        while (c != NULL) {
+            write_var(f, c->key, c->value);
+            c = c->next;
+        }
+    }
+}
+
+void write_env_strings(env* E, FILE* f) {
+    hash* H = E->strings;
+    assert(H != NULL);
+
+    for (int i = 0; i < H->capacity; i++) {
+        hash_chain* c = H->chains[i];
+        while (c != NULL) {
+            write_string(f, c->key, (int)c->value);
+            c = c->next;
+        }
+    }
+}
+
+void write_env_fns(env* E, FILE* f) {
+    hash* H = E->fns;
+    assert(H != NULL);
+
+    for (int i = 0; i < H->capacity; i++) {
+        hash_chain* c = H->chains[i];
+        while (c != NULL) {
+            write_fn_info(f, c->key, c->value);
+            c = c->next;
+        }
+    }
+
+}
+
+
 void write_footer(FILE* f, env* E) {
     emit(f, "");
     fprintf(f, "section .data\n");
     emit(f, "dummy: dw 16"); 
-    env_do_over_vars(E, (void*) f, &write_var);
-    env_do_over_strings(E, (void*) f, &write_string);
-    env_do_over_fns(E, f, &write_fn_info);
+    write_env_vars(E, f);
+    write_env_strings(E, f);
+    write_env_fns(E, f);
     // env_do_over_switches(E, f, &write_switch);
 }

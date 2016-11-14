@@ -16,7 +16,7 @@ struct hash_s {
 };
 
 
-int hash_str(char *str);
+long hash_str(char *str);
 hash* hash_new(int capacity);
 bool hash_in(hash* H, char* k);
 void hash_insert(hash* H, char* k, void* v);
