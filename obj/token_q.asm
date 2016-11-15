@@ -33,7 +33,7 @@ _token_deq:
 	mov al, 0
 	call _deq
 	mov [rbp-8], rax
-	mov rax, 1
+	mov rax, 0
 	cmp rax, 0
 	je label_1
 	mov rax, _string_1

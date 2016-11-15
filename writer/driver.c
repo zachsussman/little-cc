@@ -418,7 +418,7 @@ void ast_assign_write(FILE* f, node* n, env* E) {
 
     extra_binop* e = (extra_binop*) n->extra;
     ast_write(f, e->right, E);
-
+    
     emit(f, "push rax");
     ast_lvalue_write(f, e->left, E);
     emit(f, "pop rcx");

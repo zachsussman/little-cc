@@ -1191,10 +1191,7 @@ _parse_string_advance:
 	cmp rax, 0
 	je label_56
 	mov rax, 10
-	push rax
-	lea rax, [rbp-8]
-	pop rcx
-	mov [rax], cl
+	mov [rbp-8], al
 	jmp label_57
 label_56:
 	mov rax, 116
@@ -1211,10 +1208,7 @@ label_56:
 	cmp rax, 0
 	je label_58
 	mov rax, 9
-	push rax
-	lea rax, [rbp-8]
-	pop rcx
-	mov [rax], cl
+	mov [rbp-8], al
 	jmp label_59
 label_58:
 	mov rax, 48
@@ -1231,10 +1225,7 @@ label_58:
 	cmp rax, 0
 	je label_60
 	mov rax, 0
-	push rax
-	lea rax, [rbp-8]
-	pop rcx
-	mov [rax], cl
+	mov [rbp-8], al
 	jmp label_61
 label_60:
 	mov rax, qword [rbp+8]
@@ -1242,10 +1233,7 @@ label_60:
 	xor rcx, rcx
 	mov cl, [rax]
 	mov rax, rcx
-	push rax
-	lea rax, [rbp-8]
-	pop rcx
-	mov [rax], cl
+	mov [rbp-8], al
 label_61:
 label_59:
 label_57:
@@ -1256,10 +1244,7 @@ label_55:
 	xor rcx, rcx
 	mov cl, [rax]
 	mov rax, rcx
-	push rax
-	lea rax, [rbp-8]
-	pop rcx
-	mov [rax], cl
+	mov [rbp-8], al
 label_62:
 	mov rax, qword [rbp+8]
 	mov rcx, [rax]
@@ -1573,159 +1558,81 @@ _parse_symbol:
 	jmp switch_0_default
 switch_0_case_0:
 	mov rax, 9
-	push rax
-	lea rax, [rbp-8]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-8], rax
 	mov rax, _string_19
-	push rax
-	lea rax, [rbp-16]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-16], rax
 	jmp label_70
 switch_0_case_1:
 	mov rax, 10
-	push rax
-	lea rax, [rbp-8]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-8], rax
 	mov rax, _string_20
-	push rax
-	lea rax, [rbp-16]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-16], rax
 	jmp label_70
 switch_0_case_2:
 	mov rax, 4
-	push rax
-	lea rax, [rbp-8]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-8], rax
 	mov rax, _string_21
-	push rax
-	lea rax, [rbp-16]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-16], rax
 	jmp label_70
 switch_0_case_3:
 	mov rax, 5
-	push rax
-	lea rax, [rbp-8]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-8], rax
 	mov rax, _string_22
-	push rax
-	lea rax, [rbp-16]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-16], rax
 	jmp label_70
 switch_0_case_4:
 	mov rax, 6
-	push rax
-	lea rax, [rbp-8]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-8], rax
 	mov rax, _string_23
-	push rax
-	lea rax, [rbp-16]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-16], rax
 	jmp label_70
 switch_0_case_5:
 	mov rax, 25
-	push rax
-	lea rax, [rbp-8]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-8], rax
 	mov rax, _string_24
-	push rax
-	lea rax, [rbp-16]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-16], rax
 	jmp label_70
 switch_0_case_6:
 	mov rax, 31
-	push rax
-	lea rax, [rbp-8]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-8], rax
 	mov rax, _string_25
-	push rax
-	lea rax, [rbp-16]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-16], rax
 	jmp label_70
 switch_0_case_7:
 	mov rax, 32
-	push rax
-	lea rax, [rbp-8]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-8], rax
 	mov rax, _string_26
-	push rax
-	lea rax, [rbp-16]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-16], rax
 	jmp label_70
 switch_0_case_8:
 	mov rax, 30
-	push rax
-	lea rax, [rbp-8]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-8], rax
 	mov rax, _string_27
-	push rax
-	lea rax, [rbp-16]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-16], rax
 	jmp label_70
 switch_0_case_9:
 	mov rax, 33
-	push rax
-	lea rax, [rbp-8]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-8], rax
 	mov rax, _string_28
-	push rax
-	lea rax, [rbp-16]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-16], rax
 	jmp label_70
 switch_0_case_10:
 	mov rax, 34
-	push rax
-	lea rax, [rbp-8]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-8], rax
 	mov rax, _string_29
-	push rax
-	lea rax, [rbp-16]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-16], rax
 	jmp label_70
 switch_0_case_11:
 	mov rax, 28
-	push rax
-	lea rax, [rbp-8]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-8], rax
 	mov rax, _string_30
-	push rax
-	lea rax, [rbp-16]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-16], rax
 	jmp label_70
 switch_0_case_12:
 	mov rax, 29
-	push rax
-	lea rax, [rbp-8]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-8], rax
 	mov rax, _string_31
-	push rax
-	lea rax, [rbp-16]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-16], rax
 	jmp label_70
 switch_0_case_13:
 	mov rax, 43
@@ -1747,15 +1654,9 @@ switch_0_case_13:
 	cmp rax, 0
 	je label_71
 	mov rax, 26
-	push rax
-	lea rax, [rbp-8]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-8], rax
 	mov rax, _string_32
-	push rax
-	lea rax, [rbp-16]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-16], rax
 	mov rax, qword [rbp+16]
 	mov rcx, [rax]
 	add qword [rax], 1
@@ -1763,15 +1664,9 @@ switch_0_case_13:
 	jmp label_72
 label_71:
 	mov rax, 7
-	push rax
-	lea rax, [rbp-8]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-8], rax
 	mov rax, _string_33
-	push rax
-	lea rax, [rbp-16]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-16], rax
 label_72:
 	jmp label_70
 switch_0_case_14:
@@ -1794,15 +1689,9 @@ switch_0_case_14:
 	cmp rax, 0
 	je label_73
 	mov rax, 24
-	push rax
-	lea rax, [rbp-8]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-8], rax
 	mov rax, _string_34
-	push rax
-	lea rax, [rbp-16]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-16], rax
 	mov rax, qword [rbp+16]
 	mov rcx, [rax]
 	add qword [rax], 1
@@ -1828,15 +1717,9 @@ label_73:
 	cmp rax, 0
 	je label_75
 	mov rax, 27
-	push rax
-	lea rax, [rbp-8]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-8], rax
 	mov rax, _string_35
-	push rax
-	lea rax, [rbp-16]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-16], rax
 	mov rax, qword [rbp+16]
 	mov rcx, [rax]
 	add qword [rax], 1
@@ -1844,15 +1727,9 @@ label_73:
 	jmp label_76
 label_75:
 	mov rax, 8
-	push rax
-	lea rax, [rbp-8]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-8], rax
 	mov rax, _string_36
-	push rax
-	lea rax, [rbp-16]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-16], rax
 label_76:
 label_74:
 	jmp label_70
@@ -1876,15 +1753,9 @@ switch_0_case_15:
 	cmp rax, 0
 	je label_77
 	mov rax, 13
-	push rax
-	lea rax, [rbp-8]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-8], rax
 	mov rax, _string_37
-	push rax
-	lea rax, [rbp-16]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-16], rax
 	mov rax, qword [rbp+16]
 	mov rcx, [rax]
 	add qword [rax], 1
@@ -1892,15 +1763,9 @@ switch_0_case_15:
 	jmp label_78
 label_77:
 	mov rax, 11
-	push rax
-	lea rax, [rbp-8]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-8], rax
 	mov rax, _string_38
-	push rax
-	lea rax, [rbp-16]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-16], rax
 label_78:
 	jmp label_70
 switch_0_case_16:
@@ -1923,15 +1788,9 @@ switch_0_case_16:
 	cmp rax, 0
 	je label_79
 	mov rax, 14
-	push rax
-	lea rax, [rbp-8]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-8], rax
 	mov rax, _string_39
-	push rax
-	lea rax, [rbp-16]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-16], rax
 	mov rax, qword [rbp+16]
 	mov rcx, [rax]
 	add qword [rax], 1
@@ -1939,15 +1798,9 @@ switch_0_case_16:
 	jmp label_80
 label_79:
 	mov rax, 12
-	push rax
-	lea rax, [rbp-8]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-8], rax
 	mov rax, _string_40
-	push rax
-	lea rax, [rbp-16]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-16], rax
 label_80:
 	jmp label_70
 switch_0_case_17:
@@ -1970,15 +1823,9 @@ switch_0_case_17:
 	cmp rax, 0
 	je label_81
 	mov rax, 16
-	push rax
-	lea rax, [rbp-8]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-8], rax
 	mov rax, _string_41
-	push rax
-	lea rax, [rbp-16]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-16], rax
 	mov rax, qword [rbp+16]
 	mov rcx, [rax]
 	add qword [rax], 1
@@ -1986,15 +1833,9 @@ switch_0_case_17:
 	jmp label_82
 label_81:
 	mov rax, 15
-	push rax
-	lea rax, [rbp-8]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-8], rax
 	mov rax, _string_42
-	push rax
-	lea rax, [rbp-16]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-16], rax
 label_82:
 	jmp label_70
 switch_0_case_18:
@@ -2017,15 +1858,9 @@ switch_0_case_18:
 	cmp rax, 0
 	je label_83
 	mov rax, 23
-	push rax
-	lea rax, [rbp-8]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-8], rax
 	mov rax, _string_43
-	push rax
-	lea rax, [rbp-16]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-16], rax
 	mov rax, qword [rbp+16]
 	mov rcx, [rax]
 	add qword [rax], 1
@@ -2033,15 +1868,9 @@ switch_0_case_18:
 	jmp label_84
 label_83:
 	mov rax, 21
-	push rax
-	lea rax, [rbp-8]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-8], rax
 	mov rax, _string_44
-	push rax
-	lea rax, [rbp-16]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-16], rax
 label_84:
 	jmp label_70
 switch_0_case_19:
@@ -2064,15 +1893,9 @@ switch_0_case_19:
 	cmp rax, 0
 	je label_85
 	mov rax, 22
-	push rax
-	lea rax, [rbp-8]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-8], rax
 	mov rax, _string_45
-	push rax
-	lea rax, [rbp-16]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-16], rax
 	mov rax, qword [rbp+16]
 	mov rcx, [rax]
 	add qword [rax], 1
@@ -2080,15 +1903,9 @@ switch_0_case_19:
 	jmp label_86
 label_85:
 	mov rax, 20
-	push rax
-	lea rax, [rbp-8]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-8], rax
 	mov rax, _string_46
-	push rax
-	lea rax, [rbp-16]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-16], rax
 label_86:
 	jmp label_70
 switch_0_case_20:
@@ -2111,15 +1928,9 @@ switch_0_case_20:
 	cmp rax, 0
 	je label_87
 	mov rax, 19
-	push rax
-	lea rax, [rbp-8]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-8], rax
 	mov rax, _string_47
-	push rax
-	lea rax, [rbp-16]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-16], rax
 	mov rax, qword [rbp+16]
 	mov rcx, [rax]
 	add qword [rax], 1
@@ -2127,15 +1938,9 @@ switch_0_case_20:
 	jmp label_88
 label_87:
 	mov rax, 17
-	push rax
-	lea rax, [rbp-8]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-8], rax
 	mov rax, _string_48
-	push rax
-	lea rax, [rbp-16]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-16], rax
 label_88:
 	jmp label_70
 switch_0_default:
@@ -2147,10 +1952,7 @@ switch_0_default:
 	pop rdi
 	mov al, 0
 	call _calloc
-	push rax
-	lea rax, [rbp-16]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-16], rax
 	mov rax, qword [rbp+16]
 	mov rax, [rax]
 	xor rcx, rcx
@@ -2161,10 +1963,7 @@ switch_0_default:
 	pop rcx
 	mov [rax], cl
 	mov rax, 51
-	push rax
-	lea rax, [rbp-8]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-8], rax
 label_70:
 	mov rax, qword [rbp+16]
 	mov rcx, [rax]
@@ -2468,15 +2267,9 @@ label_105:
 	mov al, 0
 	call _free
 	mov rax, 0
-	push rax
-	lea rax, [rbp-32]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-32], rax
 	mov rax, 0
-	push rax
-	lea rax, [rbp-16]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-16], rax
 	mov rax, 0
 	mov rsp, rbp
 	pop rbp

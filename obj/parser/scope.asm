@@ -214,10 +214,7 @@ label_7:
 	mov [rax], rcx
 	mov rax, qword [rbp+8]
 	mov rax, [rax+8]
-	push rax
-	lea rax, [rbp+8]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp+8], rax
 	jmp label_7
 label_8:
 	mov rsp, rbp

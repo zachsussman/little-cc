@@ -713,7 +713,7 @@ void ast_var_write(void* f, node* n, env* E) {
 
     char* mov_str;
     int var_size = type_get_size(E, v->lang_t);
-    (printf("%s:%d \t", "writer/driver.c", 42) && (printf("size of var %s is %d", s, var_size)+1) && printf("\n"));
+    0;
     if (var_size == 1) {
         mov_str = "movzx rax, byte";
     } else {

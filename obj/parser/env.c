@@ -1055,7 +1055,7 @@ void env_add_enum_value(env* E, char* name, int val) {
 
 int type_get_size(env* E, var_type* t) {
     my_assert("parser/env.c", 420, "t != NULL", t != 0);
-    (printf("%s:%d \t", "parser/env.c", 421) && (printf("type of type %d",t->base)+1) && printf("\n"));
+    0;
     switch (t->base) {
         case LANG_VOID:
         case LANG_INT:

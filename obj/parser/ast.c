@@ -590,9 +590,9 @@ int my_strtol(char* repr) {
 node* new_node_int(char* repr) {
     my_assert("parser/ast.c", 36, "repr != NULL", repr != 0);
 
-    (printf("%s:%d \t", "parser/ast.c", 38) && (printf("Before strtol")+1) && printf("\n"));
+    0;
     int val = my_strtol(repr);
-    (printf("%s:%d \t", "parser/ast.c", 40) && (printf("After strtol")+1) && printf("\n"));
+    0;
 
     node* n = malloc(sizeof(node));
     extra_int* e = malloc(sizeof(extra_int));

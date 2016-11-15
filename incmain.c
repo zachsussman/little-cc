@@ -69,7 +69,6 @@ int main(int argc, char** argv) {
 
     while (!queue_empty(token_queue)) {
             node* n = parse(token_queue);
-            print_node(n);
             ast_write(out, n, E);
     }
 

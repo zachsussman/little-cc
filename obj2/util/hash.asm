@@ -41,10 +41,7 @@ label_1:
 	xor rcx, rcx
 	mov cl, [rax]
 	mov rax, rcx
-	push rax
-	lea rax, [rbp-16]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-16], rax
 	mov rax, qword [rbp-16]
 	push rax
 	mov rax, 33
@@ -54,10 +51,7 @@ label_1:
 	mul rcx
 	pop rcx
 	add rax, rcx
-	push rax
-	lea rax, [rbp-8]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-8], rax
 	lea rax, [rbp-32]
 	mov rcx, [rax]
 	add qword [rax], 1
@@ -117,10 +111,7 @@ _key_index:
 	je label_3
 	mov rax, qword [rbp-8]
 	neg rax
-	push rax
-	lea rax, [rbp-8]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-8], rax
 label_3:
 	mov rax, qword [rbp+8]
 	mov rax, [rax+8]
@@ -212,10 +203,7 @@ label_6:
 label_8:
 	mov rax, qword [rbp-24]
 	mov rax, [rax+16]
-	push rax
-	lea rax, [rbp-24]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-24], rax
 	lea rax, [rbp-8]
 	mov rcx, [rax]
 	add qword [rax], 1
@@ -495,10 +483,7 @@ label_12:
 label_14:
 	mov rax, qword [rbp-16]
 	mov rax, [rax+16]
-	push rax
-	lea rax, [rbp-16]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-16], rax
 	jmp label_12
 label_13:
 	mov rax, 24
@@ -666,10 +651,7 @@ label_15:
 label_17:
 	mov rax, qword [rbp-16]
 	mov rax, [rax+16]
-	push rax
-	lea rax, [rbp-16]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-16], rax
 	jmp label_15
 label_16:
 	mov rax, _string_1
@@ -796,10 +778,7 @@ label_18:
 label_20:
 	mov rax, qword [rbp-16]
 	mov rax, [rax+16]
-	push rax
-	lea rax, [rbp-16]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-16], rax
 	jmp label_18
 label_19:
 	mov rax, _string_1

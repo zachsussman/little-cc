@@ -713,22 +713,22 @@ void write_footer(void* f, env* E);
 int main(int argc, char** argv);
 
 void test_hashes() {
-    (printf("%s:%d \t", "incmain.c", 15) && (printf("Let's run regression tests")+1) && printf("\n"));
+    0;
     hash* test_hash = hash_new(30);
-    (printf("%s:%d \t", "incmain.c", 17) && (printf("Hash initialized")+1) && printf("\n"));
+    0;
     hash_insert(test_hash, "a", "apples");
-    (printf("%s:%d \t", "incmain.c", 19) && (printf("Inserted apples")+1) && printf("\n"));
+    0;
     hash_insert(test_hash, "b", "baseballs");
     printf("%s\n", hash_get(test_hash, "apples"));
-    (printf("%s:%d \t", "incmain.c", 22) && (printf("Apples searched")+1) && printf("\n"));
+    0;
     printf("%s\n", hash_get(test_hash, "baseballs"));
     printf("%d\n", hash_get(test_hash, "candy"));
-    (printf("%s:%d \t", "incmain.c", 25) && (printf("Candy searched")+1) && printf("\n"));
+    0;
 }
 
 int main(int argc, char** argv) {
 
-    (printf("%s:%d \t", "incmain.c", 30) && (printf("Let's begin.")+1) && printf("\n"));
+    0;
     test_hashes();
 
     queue* token_queue = queue_new();
@@ -766,11 +766,10 @@ int main(int argc, char** argv) {
         ok = parse_line(token_queue, f);
     }
 
-    (printf("%s:%d \t", "incmain.c", 68) && (printf("All tokens parsed")+1) && printf("\n"));
+    0;
 
     while (!queue_empty(token_queue)) {
             node* n = parse(token_queue);
-            print_node(n);
             ast_write(out, n, E);
     }
 
@@ -778,6 +777,6 @@ int main(int argc, char** argv) {
     write_footer(out, E);
     fclose(out);
 
-    (printf("%s:%d \t", "incmain.c", 80) && (printf("End of incmain\n")+1) && printf("\n"));
+    0;
     return 0;
 }

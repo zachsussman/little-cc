@@ -6,129 +6,70 @@ _test_hashes:
 	mov rbp, rsp
 	sub rsp, 16
 	and rsp, -16
-	mov rax, _string_1
-	push rax
-	mov rax, _string_2
-	push rax
-	mov rax, 15
-	push rax
-	pop rdx
-	pop rsi
-	pop rdi
-	mov al, 0
-	call _printf
-	test rax, rax
-	jz label_2
-	mov rax, 1
-	push rax
-	mov rax, _string_3
-	push rax
-	pop rdi
-	mov al, 0
-	call _printf
-	pop rcx
-	add rax, rcx
-label_2:
-	test rax, rax
-	jz label_1
-	mov rax, _string_4
-	push rax
-	pop rdi
-	mov al, 0
-	call _printf
-label_1:
+	mov rax, 0
 	mov rax, 30
 	push rax
 	pop rdi
 	mov al, 0
 	call _hash_new
 	mov [rbp-8], rax
+	mov rax, 0
+	mov rax, qword [rbp-8]
+	push rax
 	mov rax, _string_1
 	push rax
 	mov rax, _string_2
-	push rax
-	mov rax, 17
 	push rax
 	pop rdx
 	pop rsi
 	pop rdi
 	mov al, 0
-	call _printf
-	test rax, rax
-	jz label_4
-	mov rax, 1
+	call _hash_insert
+	mov rax, 0
+	mov rax, qword [rbp-8]
 	push rax
+	mov rax, _string_3
+	push rax
+	mov rax, _string_4
+	push rax
+	pop rdx
+	pop rsi
+	pop rdi
+	mov al, 0
+	call _hash_insert
 	mov rax, _string_5
 	push rax
-	pop rdi
-	mov al, 0
-	call _printf
-	pop rcx
-	add rax, rcx
-label_4:
-	test rax, rax
-	jz label_3
-	mov rax, _string_4
-	push rax
-	pop rdi
-	mov al, 0
-	call _printf
-label_3:
 	mov rax, qword [rbp-8]
 	push rax
+	mov rax, _string_2
+	push rax
+	pop rsi
+	pop rdi
+	mov al, 0
+	call _hash_get
+	push rax
+	pop rsi
+	pop rdi
+	mov al, 0
+	call _printf
+	mov rax, 0
+	mov rax, _string_5
+	push rax
+	mov rax, qword [rbp-8]
+	push rax
+	mov rax, _string_4
+	push rax
+	pop rsi
+	pop rdi
+	mov al, 0
+	call _hash_get
+	push rax
+	pop rsi
+	pop rdi
+	mov al, 0
+	call _printf
 	mov rax, _string_6
 	push rax
-	mov rax, _string_7
-	push rax
-	pop rdx
-	pop rsi
-	pop rdi
-	mov al, 0
-	call _hash_insert
-	mov rax, _string_1
-	push rax
-	mov rax, _string_2
-	push rax
-	mov rax, 19
-	push rax
-	pop rdx
-	pop rsi
-	pop rdi
-	mov al, 0
-	call _printf
-	test rax, rax
-	jz label_6
-	mov rax, 1
-	push rax
-	mov rax, _string_8
-	push rax
-	pop rdi
-	mov al, 0
-	call _printf
-	pop rcx
-	add rax, rcx
-label_6:
-	test rax, rax
-	jz label_5
-	mov rax, _string_4
-	push rax
-	pop rdi
-	mov al, 0
-	call _printf
-label_5:
-	mov rax, qword [rbp-8]
-	push rax
-	mov rax, _string_9
-	push rax
-	mov rax, _string_10
-	push rax
-	pop rdx
-	pop rsi
-	pop rdi
-	mov al, 0
-	call _hash_insert
-	mov rax, _string_11
-	push rax
 	mov rax, qword [rbp-8]
 	push rax
 	mov rax, _string_7
@@ -142,98 +83,7 @@ label_5:
 	pop rdi
 	mov al, 0
 	call _printf
-	mov rax, _string_1
-	push rax
-	mov rax, _string_2
-	push rax
-	mov rax, 22
-	push rax
-	pop rdx
-	pop rsi
-	pop rdi
-	mov al, 0
-	call _printf
-	test rax, rax
-	jz label_8
-	mov rax, 1
-	push rax
-	mov rax, _string_12
-	push rax
-	pop rdi
-	mov al, 0
-	call _printf
-	pop rcx
-	add rax, rcx
-label_8:
-	test rax, rax
-	jz label_7
-	mov rax, _string_4
-	push rax
-	pop rdi
-	mov al, 0
-	call _printf
-label_7:
-	mov rax, _string_11
-	push rax
-	mov rax, qword [rbp-8]
-	push rax
-	mov rax, _string_10
-	push rax
-	pop rsi
-	pop rdi
-	mov al, 0
-	call _hash_get
-	push rax
-	pop rsi
-	pop rdi
-	mov al, 0
-	call _printf
-	mov rax, _string_13
-	push rax
-	mov rax, qword [rbp-8]
-	push rax
-	mov rax, _string_14
-	push rax
-	pop rsi
-	pop rdi
-	mov al, 0
-	call _hash_get
-	push rax
-	pop rsi
-	pop rdi
-	mov al, 0
-	call _printf
-	mov rax, _string_1
-	push rax
-	mov rax, _string_2
-	push rax
-	mov rax, 25
-	push rax
-	pop rdx
-	pop rsi
-	pop rdi
-	mov al, 0
-	call _printf
-	test rax, rax
-	jz label_10
-	mov rax, 1
-	push rax
-	mov rax, _string_15
-	push rax
-	pop rdi
-	mov al, 0
-	call _printf
-	pop rcx
-	add rax, rcx
-label_10:
-	test rax, rax
-	jz label_9
-	mov rax, _string_4
-	push rax
-	pop rdi
-	mov al, 0
-	call _printf
-label_9:
+	mov rax, 0
 	mov rsp, rbp
 	pop rbp
 	add rsp, 0
@@ -245,37 +95,7 @@ _main:
 	mov rbp, rsp
 	sub rsp, 64
 	and rsp, -16
-	mov rax, _string_1
-	push rax
-	mov rax, _string_2
-	push rax
-	mov rax, 30
-	push rax
-	pop rdx
-	pop rsi
-	pop rdi
-	mov al, 0
-	call _printf
-	test rax, rax
-	jz label_12
-	mov rax, 1
-	push rax
-	mov rax, _string_16
-	push rax
-	pop rdi
-	mov al, 0
-	call _printf
-	pop rcx
-	add rax, rcx
-label_12:
-	test rax, rax
-	jz label_11
-	mov rax, _string_4
-	push rax
-	pop rdi
-	mov al, 0
-	call _printf
-label_11:
+	mov rax, 0
 	mov al, 0
 	call _test_hashes
 	mov al, 0
@@ -291,7 +111,7 @@ label_11:
 	setg al
 	movzx rax, al
 	cmp rax, 0
-	je label_13
+	je label_1
 	mov rax, 1
 	imul rax, 8
 	push rax
@@ -299,18 +119,12 @@ label_11:
 	pop rcx
 	add rax, rcx
 	mov rax, [rax]
-	push rax
-	lea rax, [rbp-24]
-	pop rcx
-	mov [rax], rcx
-	jmp label_14
-label_13:
-	mov rax, _string_17
-	push rax
-	lea rax, [rbp-24]
-	pop rcx
-	mov [rax], rcx
-label_14:
+	mov [rbp-24], rax
+	jmp label_2
+label_1:
+	mov rax, _string_8
+	mov [rbp-24], rax
+label_2:
 	mov rax, 2
 	push rax
 	mov rax, qword [rbp+8]
@@ -319,7 +133,7 @@ label_14:
 	setg al
 	movzx rax, al
 	cmp rax, 0
-	je label_15
+	je label_3
 	mov rax, 2
 	imul rax, 8
 	push rax
@@ -327,21 +141,15 @@ label_14:
 	pop rcx
 	add rax, rcx
 	mov rax, [rax]
-	push rax
-	lea rax, [rbp-32]
-	pop rcx
-	mov [rax], rcx
-	jmp label_16
-label_15:
-	mov rax, _string_18
-	push rax
-	lea rax, [rbp-32]
-	pop rcx
-	mov [rax], rcx
-label_16:
+	mov [rbp-32], rax
+	jmp label_4
+label_3:
+	mov rax, _string_9
+	mov [rbp-32], rax
+label_4:
 	mov rax, qword [rbp-24]
 	push rax
-	mov rax, _string_19
+	mov rax, _string_10
 	push rax
 	pop rsi
 	pop rdi
@@ -356,8 +164,8 @@ label_16:
 	sete al
 	movzx rax, al
 	cmp rax, 0
-	je label_17
-	mov rax, _string_20
+	je label_5
+	mov rax, _string_11
 	push rax
 	pop rdi
 	mov al, 0
@@ -367,10 +175,10 @@ label_16:
 	pop rdi
 	mov al, 0
 	call _exit
-label_17:
+label_5:
 	mov rax, qword [rbp-32]
 	push rax
-	mov rax, _string_21
+	mov rax, _string_12
 	push rax
 	pop rsi
 	pop rdi
@@ -385,7 +193,7 @@ label_17:
 	mov al, 0
 	call _env_new
 	mov [rbp-56], rax
-label_18:
+label_6:
 	mov rax, 0
 	push rax
 	mov rax, qword [rbp-16]
@@ -394,7 +202,7 @@ label_18:
 	sete al
 	movzx rax, al
 	cmp rax, 0
-	je label_19
+	je label_7
 	mov rax, qword [rbp-8]
 	push rax
 	mov rax, qword [rbp-40]
@@ -403,44 +211,11 @@ label_18:
 	pop rdi
 	mov al, 0
 	call _parse_line
-	push rax
-	lea rax, [rbp-16]
-	pop rcx
-	mov [rax], rcx
-	jmp label_18
-label_19:
-	mov rax, _string_1
-	push rax
-	mov rax, _string_2
-	push rax
-	mov rax, 68
-	push rax
-	pop rdx
-	pop rsi
-	pop rdi
-	mov al, 0
-	call _printf
-	test rax, rax
-	jz label_21
-	mov rax, 1
-	push rax
-	mov rax, _string_22
-	push rax
-	pop rdi
-	mov al, 0
-	call _printf
-	pop rcx
-	add rax, rcx
-label_21:
-	test rax, rax
-	jz label_20
-	mov rax, _string_4
-	push rax
-	pop rdi
-	mov al, 0
-	call _printf
-label_20:
-label_22:
+	mov [rbp-16], rax
+	jmp label_6
+label_7:
+	mov rax, 0
+label_8:
 	mov rax, qword [rbp-8]
 	push rax
 	pop rdi
@@ -450,18 +225,13 @@ label_22:
 	setz cl
 	movzx rax, cl
 	cmp rax, 0
-	je label_23
+	je label_9
 	mov rax, qword [rbp-8]
 	push rax
 	pop rdi
 	mov al, 0
 	call _parse
 	mov [rbp-64], rax
-	mov rax, qword [rbp-64]
-	push rax
-	pop rdi
-	mov al, 0
-	call _print_node
 	mov rax, qword [rbp-48]
 	push rax
 	mov rax, qword [rbp-64]
@@ -473,8 +243,8 @@ label_22:
 	pop rdi
 	mov al, 0
 	call _ast_write
-	jmp label_22
-label_23:
+	jmp label_8
+label_9:
 	mov rax, qword [rbp-48]
 	push rax
 	mov rax, qword [rbp-56]
@@ -488,37 +258,7 @@ label_23:
 	pop rdi
 	mov al, 0
 	call _fclose
-	mov rax, _string_1
-	push rax
-	mov rax, _string_2
-	push rax
-	mov rax, 80
-	push rax
-	pop rdx
-	pop rsi
-	pop rdi
-	mov al, 0
-	call _printf
-	test rax, rax
-	jz label_25
-	mov rax, 1
-	push rax
-	mov rax, _string_23
-	push rax
-	pop rdi
-	mov al, 0
-	call _printf
-	pop rcx
-	add rax, rcx
-label_25:
-	test rax, rax
-	jz label_24
-	mov rax, _string_4
-	push rax
-	pop rdi
-	mov al, 0
-	call _printf
-label_24:
+	mov rax, 0
 	mov rax, 0
 	mov rsp, rbp
 	pop rbp
@@ -531,29 +271,18 @@ label_24:
 	
 section .data
 	dummy: dw 16
-	_string_21: db 119, 0
-	_string_16: db 76, 101, 116, 39, 115, 32, 98, 101, 103, 105, 110, 46, 0
-	_string_20: db 70, 105, 108, 101, 32, 110, 111, 116, 32, 102, 111, 117, 110, 100, 10, 0
-	_string_13: db 37, 100, 10, 0
-	_string_6: db 97, 0
-	_string_9: db 98, 0
-	_string_23: db 69, 110, 100, 32, 111, 102, 32, 105, 110, 99, 109, 97, 105, 110, 10, 0
-	_string_8: db 73, 110, 115, 101, 114, 116, 101, 100, 32, 97, 112, 112, 108, 101, 115, 0
-	_string_12: db 65, 112, 112, 108, 101, 115, 32, 115, 101, 97, 114, 99, 104, 101, 100, 0
-	_string_4: db 10, 0
-	_string_22: db 65, 108, 108, 32, 116, 111, 107, 101, 110, 115, 32, 112, 97, 114, 115, 101, 100, 0
-	_string_2: db 105, 110, 99, 109, 97, 105, 110, 46, 99, 0
-	_string_10: db 98, 97, 115, 101, 98, 97, 108, 108, 115, 0
-	_string_7: db 97, 112, 112, 108, 101, 115, 0
-	_string_5: db 72, 97, 115, 104, 32, 105, 110, 105, 116, 105, 97, 108, 105, 122, 101, 100, 0
-	_string_17: db 111, 98, 106, 47, 109, 97, 105, 110, 46, 99, 0
-	_string_18: db 116, 101, 115, 116, 46, 97, 115, 109, 0
-	_string_14: db 99, 97, 110, 100, 121, 0
-	_string_11: db 37, 115, 10, 0
-	_string_3: db 76, 101, 116, 39, 115, 32, 114, 117, 110, 32, 114, 101, 103, 114, 101, 115, 115, 105, 111, 110, 32, 116, 101, 115, 116, 115, 0
-	_string_19: db 114, 0
-	_string_15: db 67, 97, 110, 100, 121, 32, 115, 101, 97, 114, 99, 104, 101, 100, 0
-	_string_1: db 37, 115, 58, 37, 100, 32, 9, 0
+	_string_12: db 119, 0
+	_string_11: db 70, 105, 108, 101, 32, 110, 111, 116, 32, 102, 111, 117, 110, 100, 10, 0
+	_string_6: db 37, 100, 10, 0
+	_string_1: db 97, 0
+	_string_3: db 98, 0
+	_string_4: db 98, 97, 115, 101, 98, 97, 108, 108, 115, 0
+	_string_2: db 97, 112, 112, 108, 101, 115, 0
+	_string_8: db 111, 98, 106, 47, 109, 97, 105, 110, 46, 99, 0
+	_string_9: db 116, 101, 115, 116, 46, 97, 115, 109, 0
+	_string_7: db 99, 97, 110, 100, 121, 0
+	_string_5: db 37, 115, 10, 0
+	_string_10: db 114, 0
 extern _env_get_label
 extern _parse_expr
 extern _new_node_typedef

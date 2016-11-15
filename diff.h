@@ -41,7 +41,8 @@ char* strdup();
 void fprintf(FILE* f, char* b);
 void fclose(FILE* f);
 
-#define mark(...) (printf("%s:%d \t", __FILE__, __LINE__) && (printf(__VA_ARGS__)+1) && printf("\n"))
-#define DEBUGGING true
+// #define mark(...) (printf("%s:%d \t", __FILE__, __LINE__) && (printf(__VA_ARGS__)+1) && printf("\n"))
+#define mark(...) 0
+#define DEBUGGING false
 #endif
 

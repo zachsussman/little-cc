@@ -22,10 +22,7 @@ _type_new_base:
 	pop rdi
 	mov al, 0
 	call _malloc
-	push rax
-	mov rax, g1
-	pop rcx
-	mov [rax], rcx
+	mov [g1], rax
 	mov rax, 0
 	push rax
 	mov rax, qword [g1]
@@ -53,10 +50,7 @@ label_1:
 	pop rdi
 	mov al, 0
 	call _malloc
-	push rax
-	mov rax, g2
-	pop rcx
-	mov [rax], rcx
+	mov [g2], rax
 	mov rax, 1
 	push rax
 	mov rax, qword [g2]
@@ -84,10 +78,7 @@ label_2:
 	pop rdi
 	mov al, 0
 	call _malloc
-	push rax
-	mov rax, g3
-	pop rcx
-	mov [rax], rcx
+	mov [g3], rax
 	mov rax, 2
 	push rax
 	mov rax, qword [g3]

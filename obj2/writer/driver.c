@@ -713,7 +713,7 @@ void ast_var_write(void* f, node* n, env* E) {
 
     char* mov_str;
     int var_size = type_get_size(E, v->lang_t);
-    (printf("%s:%d \t", "writer/driver.c", 42) && (printf("size of var %s is %d", s, var_size)+1) && printf("\n"));
+    0;
     if (var_size == 1) {
         mov_str = "movzx rax, byte";
     } else {
@@ -1093,27 +1093,43 @@ void ast_assign_write(void* f, node* n, env* E) {
     extra_binop* e = (extra_binop*) n->extra;
     ast_write(f, e->right, E);
 
-    emit(f, "push rax");
-    ast_lvalue_write(f, e->left, E);
-    emit(f, "pop rcx");
+    if (e->left->type == AST_VARIABLE) {
+        extra_var* ev = (extra_var*) (e->left->extra);
+        var_info* v = env_get_info(E, ev->name);
+        if (v->type == VAR_GLOBAL) {
+            fprintf(f, "\tmov [g%i], ", v->index);
+        } else if (v->type == VAR_ARG) {
+            fprintf(f, "\tmov [rbp+%i], ", v->index + 8);
+        } else if (v->type == VAR_LOCAL) {
+            fprintf(f, "\tmov [rbp-%i], ", v->index + 8);
+        }
+        int type_size = type_get_size(E, v->lang_t);
+        if (type_size == 1) fprintf(f, "al\n");
+        else fprintf(f, "rax\n");
+    }
+    else {
+        emit(f, "push rax");
+        ast_lvalue_write(f, e->left, E);
+        emit(f, "pop rcx");
 
-    int type_size = type_get_size(E, env_ast_type(E, e->left));
-    if (type_size == 1) emit(f, "mov [rax], cl");
-    else emit(f, "mov [rax], rcx");
+        int type_size = type_get_size(E, env_ast_type(E, e->left));
+        if (type_size == 1) emit(f, "mov [rax], cl");
+        else emit(f, "mov [rax], rcx");
+    }
 }
 
 
 void ast_statement_write(void* f, node* n, env* E) {
-    my_assert("writer/driver.c", 433, "n != NULL", n != 0);
-    my_assert("writer/driver.c", 434, "n->type == AST_STATEMENT", n->type == AST_STATEMENT);
+    my_assert("writer/driver.c", 449, "n != NULL", n != 0);
+    my_assert("writer/driver.c", 450, "n->type == AST_STATEMENT", n->type == AST_STATEMENT);
 
     extra_statement* e = (extra_statement*) n->extra;
     ast_write(f, e->expr, E);
 }
 
 void ast_if_write(void* f, node* n, env* E) {
-    my_assert("writer/driver.c", 441, "n != NULL", n != 0);
-    my_assert("writer/driver.c", 442, "n->type == AST_IF", n->type == AST_IF);
+    my_assert("writer/driver.c", 457, "n != NULL", n != 0);
+    my_assert("writer/driver.c", 458, "n->type == AST_IF", n->type == AST_IF);
 
     int end_label = env_get_label(E);
 
@@ -1135,8 +1151,8 @@ void ast_if_write(void* f, node* n, env* E) {
 }
 
 void ast_while_write(void* f, node* n, env* E) {
-    my_assert("writer/driver.c", 464, "n != NULL", n != 0);
-    my_assert("writer/driver.c", 465, "n->type == AST_WHILE", n->type == AST_WHILE);
+    my_assert("writer/driver.c", 480, "n != NULL", n != 0);
+    my_assert("writer/driver.c", 481, "n->type == AST_WHILE", n->type == AST_WHILE);
 
     int cond_label = env_get_label(E);
     int end_label = env_get_label(E);
@@ -1156,8 +1172,8 @@ void ast_while_write(void* f, node* n, env* E) {
 }
 
 void ast_for_write(void* f, node* n, env* E) {
-    my_assert("writer/driver.c", 485, "n != NULL", n != 0);
-    my_assert("writer/driver.c", 486, "n->type == AST_FOR", n->type == AST_FOR);
+    my_assert("writer/driver.c", 501, "n != NULL", n != 0);
+    my_assert("writer/driver.c", 502, "n->type == AST_FOR", n->type == AST_FOR);
 
     int cond_label = env_get_label(E);
     int end_label = env_get_label(E);
@@ -1183,8 +1199,8 @@ void ast_for_write(void* f, node* n, env* E) {
 }
 
 void ast_return_write(void* f, node* n, env* E) {
-    my_assert("writer/driver.c", 512, "n != NULL", n != 0);
-    my_assert("writer/driver.c", 513, "n->type == AST_RETURN", n->type == AST_RETURN);
+    my_assert("writer/driver.c", 528, "n != NULL", n != 0);
+    my_assert("writer/driver.c", 529, "n->type == AST_RETURN", n->type == AST_RETURN);
 
     extra_unop* e = (extra_unop*) n->extra;
     ast_write(f, e->inner, E);
@@ -1197,16 +1213,16 @@ void ast_return_write(void* f, node* n, env* E) {
 }
 
 void ast_break_write(void* f, node* n, env* E) {
-    my_assert("writer/driver.c", 526, "n != NULL", n != 0);
-    my_assert("writer/driver.c", 527, "n->type == AST_BREAK", n->type == AST_BREAK);
+    my_assert("writer/driver.c", 542, "n != NULL", n != 0);
+    my_assert("writer/driver.c", 543, "n->type == AST_BREAK", n->type == AST_BREAK);
 
     int end_label = env_last_end(E);
     fprintf(f, "\tjmp label_%i\n", end_label);
 }
 
 void ast_declaration_write(void* f, node* n, env* E) {
-    my_assert("writer/driver.c", 534, "n != NULL", n != 0);
-    my_assert("writer/driver.c", 535, "n->type == AST_LOCAL_DECLARATION", n->type == AST_LOCAL_DECLARATION);
+    my_assert("writer/driver.c", 550, "n != NULL", n != 0);
+    my_assert("writer/driver.c", 551, "n->type == AST_LOCAL_DECLARATION", n->type == AST_LOCAL_DECLARATION);
 
     extra_declaration* e = (extra_declaration*) n->extra;
 
@@ -1217,8 +1233,8 @@ void ast_declaration_write(void* f, node* n, env* E) {
 }
 
 void ast_sequence_write(void* f, node* n, env* E) {
-    my_assert("writer/driver.c", 546, "n != NULL", n != 0);
-    my_assert("writer/driver.c", 547, "n->type == AST_SEQUENCE", n->type == AST_SEQUENCE);
+    my_assert("writer/driver.c", 562, "n != NULL", n != 0);
+    my_assert("writer/driver.c", 563, "n->type == AST_SEQUENCE", n->type == AST_SEQUENCE);
 
     extra_sequence* e = n->extra;
 
@@ -1232,8 +1248,8 @@ void ast_sequence_write(void* f, node* n, env* E) {
 }
 
 void ast_switch_write(void* f, node* n, env* E) {
-    my_assert("writer/driver.c", 561, "n != NULL", n != 0);
-    my_assert("writer/driver.c", 562, "n->type == AST_SWITCH", n->type == AST_SWITCH);
+    my_assert("writer/driver.c", 577, "n != NULL", n != 0);
+    my_assert("writer/driver.c", 578, "n->type == AST_SWITCH", n->type == AST_SWITCH);
 
     extra_switch* e = n->extra;
 
@@ -1244,7 +1260,7 @@ void ast_switch_write(void* f, node* n, env* E) {
     env_register_end(E, endl);
 
     env_register_scope(E, e->sc);
-# 584 "writer/driver.c"
+# 600 "writer/driver.c"
     for (int i = 0; i < e->length; i++) {
         if (e->cases[i] != 0) {
             fprintf(f, "\tcmp rax, %i\n", e->cases[i]->val);
@@ -1269,8 +1285,8 @@ void ast_switch_write(void* f, node* n, env* E) {
 }
 
 void ast_function_write(void* f, node* n, env* E) {
-    my_assert("writer/driver.c", 608, "n != NULL", n != 0);
-    my_assert("writer/driver.c", 609, "n->type == AST_FUNCTION", n->type == AST_FUNCTION);
+    my_assert("writer/driver.c", 624, "n != NULL", n != 0);
+    my_assert("writer/driver.c", 625, "n->type == AST_FUNCTION", n->type == AST_FUNCTION);
 
     extra_function* e = (extra_function*) n->extra;
     if (e->body == 0) {
@@ -1320,32 +1336,32 @@ void ast_function_write(void* f, node* n, env* E) {
 }
 
 void ast_global_write(void* f, node* n, env* E) {
-    my_assert("writer/driver.c", 659, "n != NULL", n != 0);
-    my_assert("writer/driver.c", 660, "n->type == AST_GLOBAL_DECLARATION", n->type == AST_GLOBAL_DECLARATION);
+    my_assert("writer/driver.c", 675, "n != NULL", n != 0);
+    my_assert("writer/driver.c", 676, "n->type == AST_GLOBAL_DECLARATION", n->type == AST_GLOBAL_DECLARATION);
 
     extra_declaration* e = (extra_declaration*) n->extra;
     env_add_global(E, e->type, e->name);
 }
 
 void ast_struct_write(void* f, node* n, env* E) {
-    my_assert("writer/driver.c", 667, "n != NULL", n != 0);
-    my_assert("writer/driver.c", 668, "n->type == AST_STRUCT_DECLARATION", n->type == AST_STRUCT_DECLARATION);
+    my_assert("writer/driver.c", 683, "n != NULL", n != 0);
+    my_assert("writer/driver.c", 684, "n->type == AST_STRUCT_DECLARATION", n->type == AST_STRUCT_DECLARATION);
 
     extra_struct* e = (extra_struct*) n->extra;
     env_register_struct(E, e->name, e->decl);
 }
 
 void ast_typedef_write(void* f, node* n, env* E) {
-    my_assert("writer/driver.c", 675, "n != NULL", n != 0);
-    my_assert("writer/driver.c", 676, "n->type == AST_TYPEDEF", n->type == AST_TYPEDEF);
+    my_assert("writer/driver.c", 691, "n != NULL", n != 0);
+    my_assert("writer/driver.c", 692, "n->type == AST_TYPEDEF", n->type == AST_TYPEDEF);
 
     extra_typedef* e = (extra_typedef*) n->extra;
     env_register_typedef(E, e->name, e->type);
 }
 
 void ast_enum_write(void* f, node* n, env* E) {
-    my_assert("writer/driver.c", 683, "n != NULL", n != 0);
-    my_assert("writer/driver.c", 684, "n->type == AST_ENUM", n->type == AST_ENUM);
+    my_assert("writer/driver.c", 699, "n != NULL", n != 0);
+    my_assert("writer/driver.c", 700, "n->type == AST_ENUM", n->type == AST_ENUM);
 
     extra_enum* e = n->extra;
 
@@ -1359,7 +1375,7 @@ void ast_enum_write(void* f, node* n, env* E) {
 }
 
 void ast_write(void* f, node* n, env* E) {
-    my_assert("writer/driver.c", 698, "n != NULL", n != 0);
+    my_assert("writer/driver.c", 714, "n != NULL", n != 0);
 
     switch(n->type) {
         case AST_INTEGER:
@@ -1542,7 +1558,7 @@ void write_switch(void* f, switch_info* s, int switchn) {
 
 void write_env_vars(env* E, void* f) {
     hash* H = E->vars;
-    my_assert("writer/driver.c", 881, "H != NULL", H != 0);
+    my_assert("writer/driver.c", 897, "H != NULL", H != 0);
 
     for (int i = 0; i < H->capacity; i++) {
         hash_chain* c = H->chains[i];
@@ -1555,7 +1571,7 @@ void write_env_vars(env* E, void* f) {
 
 void write_env_strings(env* E, void* f) {
     hash* H = E->strings;
-    my_assert("writer/driver.c", 894, "H != NULL", H != 0);
+    my_assert("writer/driver.c", 910, "H != NULL", H != 0);
 
     for (int i = 0; i < H->capacity; i++) {
         hash_chain* c = H->chains[i];
@@ -1568,7 +1584,7 @@ void write_env_strings(env* E, void* f) {
 
 void write_env_fns(env* E, void* f) {
     hash* H = E->fns;
-    my_assert("writer/driver.c", 907, "H != NULL", H != 0);
+    my_assert("writer/driver.c", 923, "H != NULL", H != 0);
 
     for (int i = 0; i < H->capacity; i++) {
         hash_chain* c = H->chains[i];

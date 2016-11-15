@@ -237,43 +237,7 @@ _ast_var_write:
 	mov al, 0
 	call _type_get_size
 	mov [rbp-40], rax
-	mov rax, _string_8
-	push rax
-	mov rax, _string_2
-	push rax
-	mov rax, 42
-	push rax
-	pop rdx
-	pop rsi
-	pop rdi
-	mov al, 0
-	call _printf
-	test rax, rax
-	jz label_2
-	mov rax, 1
-	push rax
-	mov rax, _string_9
-	push rax
-	mov rax, qword [rbp-24]
-	push rax
-	mov rax, qword [rbp-40]
-	push rax
-	pop rdx
-	pop rsi
-	pop rdi
-	mov al, 0
-	call _printf
-	pop rcx
-	add rax, rcx
-label_2:
-	test rax, rax
-	jz label_1
-	mov rax, _string_10
-	push rax
-	pop rdi
-	mov al, 0
-	call _printf
-label_1:
+	mov rax, 0
 	mov rax, 1
 	push rax
 	mov rax, qword [rbp-40]
@@ -282,20 +246,14 @@ label_1:
 	sete al
 	movzx rax, al
 	cmp rax, 0
-	je label_3
-	mov rax, _string_11
-	push rax
-	lea rax, [rbp-32]
-	pop rcx
-	mov [rax], rcx
-	jmp label_4
-label_3:
-	mov rax, _string_12
-	push rax
-	lea rax, [rbp-32]
-	pop rcx
-	mov [rax], rcx
-label_4:
+	je label_1
+	mov rax, _string_8
+	mov [rbp-32], rax
+	jmp label_2
+label_1:
+	mov rax, _string_9
+	mov [rbp-32], rax
+label_2:
 	mov rax, 0
 	push rax
 	mov rax, qword [rbp-16]
@@ -305,10 +263,10 @@ label_4:
 	sete al
 	movzx rax, al
 	cmp rax, 0
-	je label_5
+	je label_3
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_13
+	mov rax, _string_10
 	push rax
 	mov rax, qword [rbp-32]
 	push rax
@@ -321,9 +279,40 @@ label_4:
 	pop rdi
 	mov al, 0
 	call _fprintf
+	jmp label_4
+label_3:
+	mov rax, 1
+	push rax
+	mov rax, qword [rbp-16]
+	mov rax, [rax+8]
+	pop rcx
+	cmp rax, rcx
+	sete al
+	movzx rax, al
+	cmp rax, 0
+	je label_5
+	mov rax, qword [rbp+8]
+	push rax
+	mov rax, _string_11
+	push rax
+	mov rax, qword [rbp-32]
+	push rax
+	mov rax, 8
+	push rax
+	mov rax, qword [rbp-16]
+	mov rax, [rax+16]
+	pop rcx
+	add rax, rcx
+	push rax
+	pop rcx
+	pop rdx
+	pop rsi
+	pop rdi
+	mov al, 0
+	call _fprintf
 	jmp label_6
 label_5:
-	mov rax, 1
+	mov rax, 2
 	push rax
 	mov rax, qword [rbp-16]
 	mov rax, [rax+8]
@@ -335,7 +324,7 @@ label_5:
 	je label_7
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_14
+	mov rax, _string_12
 	push rax
 	mov rax, qword [rbp-32]
 	push rax
@@ -354,37 +343,6 @@ label_5:
 	call _fprintf
 	jmp label_8
 label_7:
-	mov rax, 2
-	push rax
-	mov rax, qword [rbp-16]
-	mov rax, [rax+8]
-	pop rcx
-	cmp rax, rcx
-	sete al
-	movzx rax, al
-	cmp rax, 0
-	je label_9
-	mov rax, qword [rbp+8]
-	push rax
-	mov rax, _string_15
-	push rax
-	mov rax, qword [rbp-32]
-	push rax
-	mov rax, 8
-	push rax
-	mov rax, qword [rbp-16]
-	mov rax, [rax+16]
-	pop rcx
-	add rax, rcx
-	push rax
-	pop rcx
-	pop rdx
-	pop rsi
-	pop rdi
-	mov al, 0
-	call _fprintf
-	jmp label_10
-label_9:
 	mov rax, 3
 	push rax
 	mov rax, qword [rbp-16]
@@ -394,7 +352,7 @@ label_9:
 	sete al
 	movzx rax, al
 	cmp rax, 0
-	je label_11
+	je label_9
 	mov rax, qword [rbp+8]
 	push rax
 	mov rax, _string_5
@@ -407,10 +365,10 @@ label_9:
 	pop rdi
 	mov al, 0
 	call _fprintf
-label_11:
-label_10:
+label_9:
 label_8:
 label_6:
+label_4:
 	mov rsp, rbp
 	pop rbp
 	add rsp, 32
@@ -448,7 +406,7 @@ _ast_string_write:
 	push rax
 	mov rax, 62
 	push rax
-	mov rax, _string_16
+	mov rax, _string_13
 	push rax
 	mov rax, 5
 	push rax
@@ -480,7 +438,7 @@ _ast_string_write:
 	mov [rbp-16], rax
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_17
+	mov rax, _string_14
 	push rax
 	mov rax, qword [rbp-16]
 	push rax
@@ -526,7 +484,7 @@ _ast_call_write:
 	push rax
 	mov rax, 71
 	push rax
-	mov rax, _string_18
+	mov rax, _string_15
 	push rax
 	mov rax, 4
 	push rax
@@ -548,7 +506,7 @@ _ast_call_write:
 	mov [rbp-8], rax
 	mov rax, 0
 	mov [rbp-16], rax
-label_12:
+label_10:
 	mov rax, qword [rbp+16]
 	push rax
 	pop rdi
@@ -558,7 +516,7 @@ label_12:
 	setz cl
 	movzx rax, cl
 	cmp rax, 0
-	je label_13
+	je label_11
 	mov rax, qword [rbp+8]
 	push rax
 	mov rax, qword [rbp+16]
@@ -576,7 +534,7 @@ label_12:
 	call _ast_write
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_19
+	mov rax, _string_16
 	push rax
 	pop rsi
 	pop rdi
@@ -586,15 +544,15 @@ label_12:
 	mov rcx, [rax]
 	add qword [rax], 1
 	mov rax, rcx
-	jmp label_12
-label_13:
+	jmp label_10
+label_11:
 	mov rax, 1
 	push rax
 	mov rax, qword [rbp-16]
 	pop rcx
 	sub rax, rcx
 	mov [rbp-24], rax
-label_14:
+label_12:
 	mov rax, 0
 	push rax
 	mov rax, qword [rbp-24]
@@ -603,10 +561,10 @@ label_14:
 	setge al
 	movzx rax, al
 	cmp rax, 0
-	je label_15
+	je label_13
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_20
+	mov rax, _string_17
 	push rax
 	mov rax, qword [rbp-24]
 	imul rax, 8
@@ -625,11 +583,11 @@ label_14:
 	mov rcx, [rax]
 	sub qword [rax], 1
 	mov rax, rcx
-	jmp label_14
-label_15:
+	jmp label_12
+label_13:
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_21
+	mov rax, _string_18
 	push rax
 	pop rsi
 	pop rdi
@@ -637,7 +595,7 @@ label_15:
 	call _emit
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_22
+	mov rax, _string_19
 	push rax
 	mov rax, qword [rbp-8]
 	mov rax, [rax+0]
@@ -684,7 +642,7 @@ _ast_sizeof_write:
 	push rax
 	mov rax, 91
 	push rax
-	mov rax, _string_23
+	mov rax, _string_20
 	push rax
 	mov rax, 7
 	push rax
@@ -707,7 +665,7 @@ _ast_sizeof_write:
 	mov rax, qword [rbp-8]
 	mov rax, [rax+0]
 	mov [rbp-16], rax
-label_16:
+label_14:
 	mov rax, 7
 	push rax
 	mov rax, qword [rbp-16]
@@ -717,7 +675,7 @@ label_16:
 	sete al
 	movzx rax, al
 	test rax, rax
-	jnz label_18
+	jnz label_16
 	mov rax, 6
 	push rax
 	mov rax, qword [rbp-16]
@@ -726,9 +684,9 @@ label_16:
 	cmp rax, rcx
 	sete al
 	movzx rax, al
-label_18:
+label_16:
 	cmp rax, 0
-	je label_17
+	je label_15
 	mov rax, qword [rbp+24]
 	push rax
 	mov rax, qword [rbp-16]
@@ -738,12 +696,9 @@ label_18:
 	pop rdi
 	mov al, 0
 	call _env_get_type
-	push rax
-	lea rax, [rbp-16]
-	pop rcx
-	mov [rax], rcx
-	jmp label_16
-label_17:
+	mov [rbp-16], rax
+	jmp label_14
+label_15:
 	mov rax, qword [rbp+24]
 	push rax
 	mov rax, qword [rbp-16]
@@ -755,7 +710,7 @@ label_17:
 	mov [rbp-24], rax
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_24
+	mov rax, _string_21
 	push rax
 	mov rax, qword [rbp-24]
 	push rax
@@ -801,7 +756,7 @@ _ast_arrow_write:
 	push rax
 	mov rax, 103
 	push rax
-	mov rax, _string_25
+	mov rax, _string_22
 	push rax
 	mov rax, 8
 	push rax
@@ -840,8 +795,8 @@ _ast_arrow_write:
 	setne al
 	movzx rax, al
 	cmp rax, 0
-	je label_19
-	mov rax, _string_26
+	je label_17
+	mov rax, _string_23
 	push rax
 	pop rdi
 	mov al, 0
@@ -851,11 +806,11 @@ _ast_arrow_write:
 	pop rdi
 	mov al, 0
 	call _exit
-label_19:
+label_17:
 	mov rax, qword [rbp-16]
 	mov rax, [rax+8]
 	mov [rbp-24], rax
-label_20:
+label_18:
 	mov rax, 7
 	push rax
 	mov rax, qword [rbp-24]
@@ -865,7 +820,7 @@ label_20:
 	sete al
 	movzx rax, al
 	test rax, rax
-	jnz label_22
+	jnz label_20
 	mov rax, 6
 	push rax
 	mov rax, qword [rbp-24]
@@ -874,9 +829,9 @@ label_20:
 	cmp rax, rcx
 	sete al
 	movzx rax, al
-label_22:
+label_20:
 	cmp rax, 0
-	je label_21
+	je label_19
 	mov rax, qword [rbp+24]
 	push rax
 	mov rax, qword [rbp-24]
@@ -886,12 +841,9 @@ label_22:
 	pop rdi
 	mov al, 0
 	call _env_get_type
-	push rax
-	lea rax, [rbp-24]
-	pop rcx
-	mov [rax], rcx
-	jmp label_20
-label_21:
+	mov [rbp-24], rax
+	jmp label_18
+label_19:
 	mov rax, 5
 	push rax
 	mov rax, qword [rbp-24]
@@ -901,8 +853,8 @@ label_21:
 	setne al
 	movzx rax, al
 	cmp rax, 0
-	je label_23
-	mov rax, _string_27
+	je label_21
+	mov rax, _string_24
 	push rax
 	mov rax, qword [rbp-24]
 	mov rax, [rax+0]
@@ -916,7 +868,7 @@ label_21:
 	pop rdi
 	mov al, 0
 	call _exit
-label_23:
+label_21:
 	mov rax, qword [rbp-24]
 	push rax
 	mov rax, qword [rbp-8]
@@ -935,8 +887,8 @@ label_23:
 	sete al
 	movzx rax, al
 	cmp rax, 0
-	je label_24
-	mov rax, _string_28
+	je label_22
+	mov rax, _string_25
 	push rax
 	mov rax, qword [rbp-8]
 	mov rax, [rax+8]
@@ -950,7 +902,7 @@ label_23:
 	pop rdi
 	mov al, 0
 	call _printf
-label_24:
+label_22:
 	mov rax, qword [rbp-32]
 	mov rax, [rax+8]
 	mov [rbp-40], rax
@@ -968,7 +920,7 @@ label_24:
 	call _ast_write
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_29
+	mov rax, _string_26
 	push rax
 	mov rax, 8
 	push rax
@@ -1018,7 +970,7 @@ _ast_array_sub_write:
 	push rax
 	mov rax, 132
 	push rax
-	mov rax, _string_30
+	mov rax, _string_27
 	push rax
 	mov rax, 9
 	push rax
@@ -1057,8 +1009,8 @@ _ast_array_sub_write:
 	setne al
 	movzx rax, al
 	cmp rax, 0
-	je label_25
-	mov rax, _string_26
+	je label_23
+	mov rax, _string_23
 	push rax
 	pop rdi
 	mov al, 0
@@ -1068,11 +1020,11 @@ _ast_array_sub_write:
 	pop rdi
 	mov al, 0
 	call _exit
-label_25:
+label_23:
 	mov rax, qword [rbp-16]
 	mov rax, [rax+8]
 	mov [rbp-24], rax
-label_26:
+label_24:
 	mov rax, 7
 	push rax
 	mov rax, qword [rbp-24]
@@ -1082,7 +1034,7 @@ label_26:
 	sete al
 	movzx rax, al
 	test rax, rax
-	jnz label_28
+	jnz label_26
 	mov rax, 6
 	push rax
 	mov rax, qword [rbp-24]
@@ -1091,9 +1043,9 @@ label_26:
 	cmp rax, rcx
 	sete al
 	movzx rax, al
-label_28:
+label_26:
 	cmp rax, 0
-	je label_27
+	je label_25
 	mov rax, qword [rbp+24]
 	push rax
 	mov rax, qword [rbp-24]
@@ -1103,12 +1055,9 @@ label_28:
 	pop rdi
 	mov al, 0
 	call _env_get_type
-	push rax
-	lea rax, [rbp-24]
-	pop rcx
-	mov [rax], rcx
-	jmp label_26
-label_27:
+	mov [rbp-24], rax
+	jmp label_24
+label_25:
 	mov rax, qword [rbp+8]
 	push rax
 	mov rax, qword [rbp-8]
@@ -1123,7 +1072,7 @@ label_27:
 	call _ast_write
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_31
+	mov rax, _string_28
 	push rax
 	mov rax, qword [rbp+24]
 	push rax
@@ -1141,7 +1090,7 @@ label_27:
 	call _fprintf
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_19
+	mov rax, _string_16
 	push rax
 	pop rsi
 	pop rdi
@@ -1161,7 +1110,7 @@ label_27:
 	call _ast_write
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_32
+	mov rax, _string_29
 	push rax
 	pop rsi
 	pop rdi
@@ -1169,7 +1118,7 @@ label_27:
 	call _emit
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_33
+	mov rax, _string_30
 	push rax
 	pop rsi
 	pop rdi
@@ -1190,7 +1139,33 @@ label_27:
 	sete al
 	movzx rax, al
 	cmp rax, 0
-	je label_29
+	je label_27
+	mov rax, qword [rbp+8]
+	push rax
+	mov rax, _string_31
+	push rax
+	pop rsi
+	pop rdi
+	mov al, 0
+	call _emit
+	mov rax, qword [rbp+8]
+	push rax
+	mov rax, _string_32
+	push rax
+	pop rsi
+	pop rdi
+	mov al, 0
+	call _emit
+	mov rax, qword [rbp+8]
+	push rax
+	mov rax, _string_33
+	push rax
+	pop rsi
+	pop rdi
+	mov al, 0
+	call _emit
+	jmp label_28
+label_27:
 	mov rax, qword [rbp+8]
 	push rax
 	mov rax, _string_34
@@ -1199,33 +1174,7 @@ label_27:
 	pop rdi
 	mov al, 0
 	call _emit
-	mov rax, qword [rbp+8]
-	push rax
-	mov rax, _string_35
-	push rax
-	pop rsi
-	pop rdi
-	mov al, 0
-	call _emit
-	mov rax, qword [rbp+8]
-	push rax
-	mov rax, _string_36
-	push rax
-	pop rsi
-	pop rdi
-	mov al, 0
-	call _emit
-	jmp label_30
-label_29:
-	mov rax, qword [rbp+8]
-	push rax
-	mov rax, _string_37
-	push rax
-	pop rsi
-	pop rdi
-	mov al, 0
-	call _emit
-label_30:
+label_28:
 	mov rsp, rbp
 	pop rbp
 	add rsp, 32
@@ -1263,7 +1212,7 @@ _ast_cast_write:
 	push rax
 	mov rax, 161
 	push rax
-	mov rax, _string_38
+	mov rax, _string_35
 	push rax
 	mov rax, 6
 	push rax
@@ -1332,7 +1281,7 @@ _ast_increment_write:
 	push rax
 	mov rax, 169
 	push rax
-	mov rax, _string_39
+	mov rax, _string_36
 	push rax
 	mov rax, 10
 	push rax
@@ -1366,7 +1315,7 @@ _ast_increment_write:
 	call _ast_lvalue_write
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_40
+	mov rax, _string_37
 	push rax
 	pop rsi
 	pop rdi
@@ -1374,7 +1323,7 @@ _ast_increment_write:
 	call _emit
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_41
+	mov rax, _string_38
 	push rax
 	pop rsi
 	pop rdi
@@ -1382,7 +1331,7 @@ _ast_increment_write:
 	call _emit
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_36
+	mov rax, _string_33
 	push rax
 	pop rsi
 	pop rdi
@@ -1425,7 +1374,7 @@ _ast_decrement_write:
 	push rax
 	mov rax, 181
 	push rax
-	mov rax, _string_42
+	mov rax, _string_39
 	push rax
 	mov rax, 11
 	push rax
@@ -1459,6 +1408,14 @@ _ast_decrement_write:
 	call _ast_lvalue_write
 	mov rax, qword [rbp+8]
 	push rax
+	mov rax, _string_37
+	push rax
+	pop rsi
+	pop rdi
+	mov al, 0
+	call _emit
+	mov rax, qword [rbp+8]
+	push rax
 	mov rax, _string_40
 	push rax
 	pop rsi
@@ -1467,15 +1424,7 @@ _ast_decrement_write:
 	call _emit
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_43
-	push rax
-	pop rsi
-	pop rdi
-	mov al, 0
-	call _emit
-	mov rax, qword [rbp+8]
-	push rax
-	mov rax, _string_36
+	mov rax, _string_33
 	push rax
 	pop rsi
 	pop rdi
@@ -1518,7 +1467,7 @@ _ast_negative_write:
 	push rax
 	mov rax, 193
 	push rax
-	mov rax, _string_44
+	mov rax, _string_41
 	push rax
 	mov rax, 12
 	push rax
@@ -1552,7 +1501,7 @@ _ast_negative_write:
 	call _ast_write
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_45
+	mov rax, _string_42
 	push rax
 	pop rsi
 	pop rdi
@@ -1595,7 +1544,7 @@ _ast_address_write:
 	push rax
 	mov rax, 203
 	push rax
-	mov rax, _string_46
+	mov rax, _string_43
 	push rax
 	mov rax, 13
 	push rax
@@ -1664,7 +1613,7 @@ _ast_dereference_write:
 	push rax
 	mov rax, 212
 	push rax
-	mov rax, _string_47
+	mov rax, _string_44
 	push rax
 	mov rax, 14
 	push rax
@@ -1720,7 +1669,33 @@ _ast_dereference_write:
 	sete al
 	movzx rax, al
 	cmp rax, 0
-	je label_31
+	je label_29
+	mov rax, qword [rbp+8]
+	push rax
+	mov rax, _string_31
+	push rax
+	pop rsi
+	pop rdi
+	mov al, 0
+	call _emit
+	mov rax, qword [rbp+8]
+	push rax
+	mov rax, _string_32
+	push rax
+	pop rsi
+	pop rdi
+	mov al, 0
+	call _emit
+	mov rax, qword [rbp+8]
+	push rax
+	mov rax, _string_33
+	push rax
+	pop rsi
+	pop rdi
+	mov al, 0
+	call _emit
+	jmp label_30
+label_29:
 	mov rax, qword [rbp+8]
 	push rax
 	mov rax, _string_34
@@ -1729,33 +1704,7 @@ _ast_dereference_write:
 	pop rdi
 	mov al, 0
 	call _emit
-	mov rax, qword [rbp+8]
-	push rax
-	mov rax, _string_35
-	push rax
-	pop rsi
-	pop rdi
-	mov al, 0
-	call _emit
-	mov rax, qword [rbp+8]
-	push rax
-	mov rax, _string_36
-	push rax
-	pop rsi
-	pop rdi
-	mov al, 0
-	call _emit
-	jmp label_32
-label_31:
-	mov rax, qword [rbp+8]
-	push rax
-	mov rax, _string_37
-	push rax
-	pop rsi
-	pop rdi
-	mov al, 0
-	call _emit
-label_32:
+label_30:
 	mov rsp, rbp
 	pop rbp
 	add rsp, 32
@@ -1793,7 +1742,7 @@ _ast_logical_not_write:
 	push rax
 	mov rax, 230
 	push rax
-	mov rax, _string_48
+	mov rax, _string_45
 	push rax
 	mov rax, 15
 	push rax
@@ -1827,7 +1776,7 @@ _ast_logical_not_write:
 	call _ast_write
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_49
+	mov rax, _string_46
 	push rax
 	pop rsi
 	pop rdi
@@ -1835,7 +1784,7 @@ _ast_logical_not_write:
 	call _emit
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_50
+	mov rax, _string_47
 	push rax
 	pop rsi
 	pop rdi
@@ -1843,7 +1792,7 @@ _ast_logical_not_write:
 	call _emit
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_51
+	mov rax, _string_48
 	push rax
 	pop rsi
 	pop rdi
@@ -1899,7 +1848,7 @@ _ast_binop_write:
 	call _ast_write
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_19
+	mov rax, _string_16
 	push rax
 	pop rsi
 	pop rdi
@@ -1919,7 +1868,7 @@ _ast_binop_write:
 	call _ast_write
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_32
+	mov rax, _string_29
 	push rax
 	pop rsi
 	pop rdi
@@ -1970,7 +1919,7 @@ _ast_add_write:
 	push rax
 	mov rax, 253
 	push rax
-	mov rax, _string_52
+	mov rax, _string_49
 	push rax
 	mov rax, 18
 	push rax
@@ -1993,7 +1942,7 @@ _ast_add_write:
 	push rax
 	mov rax, qword [rbp+24]
 	push rax
-	mov rax, _string_33
+	mov rax, _string_30
 	push rax
 	pop rcx
 	pop rdx
@@ -2038,7 +1987,7 @@ _ast_sub_write:
 	push rax
 	mov rax, 260
 	push rax
-	mov rax, _string_53
+	mov rax, _string_50
 	push rax
 	mov rax, 19
 	push rax
@@ -2061,7 +2010,7 @@ _ast_sub_write:
 	push rax
 	mov rax, qword [rbp+24]
 	push rax
-	mov rax, _string_54
+	mov rax, _string_51
 	push rax
 	pop rcx
 	pop rdx
@@ -2106,7 +2055,7 @@ _ast_mul_write:
 	push rax
 	mov rax, 267
 	push rax
-	mov rax, _string_55
+	mov rax, _string_52
 	push rax
 	mov rax, 16
 	push rax
@@ -2129,7 +2078,7 @@ _ast_mul_write:
 	push rax
 	mov rax, qword [rbp+24]
 	push rax
-	mov rax, _string_56
+	mov rax, _string_53
 	push rax
 	pop rcx
 	pop rdx
@@ -2174,7 +2123,7 @@ _ast_div_write:
 	push rax
 	mov rax, 274
 	push rax
-	mov rax, _string_57
+	mov rax, _string_54
 	push rax
 	mov rax, 17
 	push rax
@@ -2197,7 +2146,7 @@ _ast_div_write:
 	push rax
 	mov rax, qword [rbp+24]
 	push rax
-	mov rax, _string_58
+	mov rax, _string_55
 	push rax
 	pop rcx
 	pop rdx
@@ -2242,7 +2191,7 @@ _ast_lt_write:
 	push rax
 	mov rax, 281
 	push rax
-	mov rax, _string_59
+	mov rax, _string_56
 	push rax
 	mov rax, 20
 	push rax
@@ -2265,7 +2214,7 @@ _ast_lt_write:
 	push rax
 	mov rax, qword [rbp+24]
 	push rax
-	mov rax, _string_60
+	mov rax, _string_57
 	push rax
 	pop rcx
 	pop rdx
@@ -2310,7 +2259,7 @@ _ast_lte_write:
 	push rax
 	mov rax, 288
 	push rax
-	mov rax, _string_61
+	mov rax, _string_58
 	push rax
 	mov rax, 21
 	push rax
@@ -2333,7 +2282,7 @@ _ast_lte_write:
 	push rax
 	mov rax, qword [rbp+24]
 	push rax
-	mov rax, _string_62
+	mov rax, _string_59
 	push rax
 	pop rcx
 	pop rdx
@@ -2378,7 +2327,7 @@ _ast_gt_write:
 	push rax
 	mov rax, 295
 	push rax
-	mov rax, _string_63
+	mov rax, _string_60
 	push rax
 	mov rax, 22
 	push rax
@@ -2401,7 +2350,7 @@ _ast_gt_write:
 	push rax
 	mov rax, qword [rbp+24]
 	push rax
-	mov rax, _string_64
+	mov rax, _string_61
 	push rax
 	pop rcx
 	pop rdx
@@ -2446,7 +2395,7 @@ _ast_gte_write:
 	push rax
 	mov rax, 302
 	push rax
-	mov rax, _string_65
+	mov rax, _string_62
 	push rax
 	mov rax, 23
 	push rax
@@ -2469,7 +2418,7 @@ _ast_gte_write:
 	push rax
 	mov rax, qword [rbp+24]
 	push rax
-	mov rax, _string_66
+	mov rax, _string_63
 	push rax
 	pop rcx
 	pop rdx
@@ -2514,7 +2463,7 @@ _ast_eq_write:
 	push rax
 	mov rax, 309
 	push rax
-	mov rax, _string_67
+	mov rax, _string_64
 	push rax
 	mov rax, 24
 	push rax
@@ -2537,7 +2486,7 @@ _ast_eq_write:
 	push rax
 	mov rax, qword [rbp+24]
 	push rax
-	mov rax, _string_68
+	mov rax, _string_65
 	push rax
 	pop rcx
 	pop rdx
@@ -2582,7 +2531,7 @@ _ast_neq_write:
 	push rax
 	mov rax, 316
 	push rax
-	mov rax, _string_69
+	mov rax, _string_66
 	push rax
 	mov rax, 25
 	push rax
@@ -2605,7 +2554,7 @@ _ast_neq_write:
 	push rax
 	mov rax, qword [rbp+24]
 	push rax
-	mov rax, _string_70
+	mov rax, _string_67
 	push rax
 	pop rcx
 	pop rdx
@@ -2655,7 +2604,7 @@ _ast_lvalue_write:
 	sete al
 	movzx rax, al
 	cmp rax, 0
-	je label_33
+	je label_31
 	mov rax, qword [rbp+16]
 	mov rax, [rax+8]
 	mov [rbp-8], rax
@@ -2678,10 +2627,10 @@ _ast_lvalue_write:
 	sete al
 	movzx rax, al
 	cmp rax, 0
-	je label_34
+	je label_32
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_71
+	mov rax, _string_68
 	push rax
 	mov rax, qword [rbp-16]
 	mov rax, [rax+16]
@@ -2691,9 +2640,37 @@ _ast_lvalue_write:
 	pop rdi
 	mov al, 0
 	call _fprintf
+	jmp label_33
+label_32:
+	mov rax, 1
+	push rax
+	mov rax, qword [rbp-16]
+	mov rax, [rax+8]
+	pop rcx
+	cmp rax, rcx
+	sete al
+	movzx rax, al
+	cmp rax, 0
+	je label_34
+	mov rax, qword [rbp+8]
+	push rax
+	mov rax, _string_69
+	push rax
+	mov rax, 8
+	push rax
+	mov rax, qword [rbp-16]
+	mov rax, [rax+16]
+	pop rcx
+	add rax, rcx
+	push rax
+	pop rdx
+	pop rsi
+	pop rdi
+	mov al, 0
+	call _fprintf
 	jmp label_35
 label_34:
-	mov rax, 1
+	mov rax, 2
 	push rax
 	mov rax, qword [rbp-16]
 	mov rax, [rax+8]
@@ -2705,7 +2682,7 @@ label_34:
 	je label_36
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_72
+	mov rax, _string_70
 	push rax
 	mov rax, 8
 	push rax
@@ -2719,39 +2696,11 @@ label_34:
 	pop rdi
 	mov al, 0
 	call _fprintf
-	jmp label_37
 label_36:
-	mov rax, 2
-	push rax
-	mov rax, qword [rbp-16]
-	mov rax, [rax+8]
-	pop rcx
-	cmp rax, rcx
-	sete al
-	movzx rax, al
-	cmp rax, 0
-	je label_38
-	mov rax, qword [rbp+8]
-	push rax
-	mov rax, _string_73
-	push rax
-	mov rax, 8
-	push rax
-	mov rax, qword [rbp-16]
-	mov rax, [rax+16]
-	pop rcx
-	add rax, rcx
-	push rax
-	pop rdx
-	pop rsi
-	pop rdi
-	mov al, 0
-	call _fprintf
-label_38:
-label_37:
 label_35:
-	jmp label_39
 label_33:
+	jmp label_37
+label_31:
 	mov rax, 14
 	push rax
 	mov rax, qword [rbp+16]
@@ -2761,7 +2710,7 @@ label_33:
 	sete al
 	movzx rax, al
 	cmp rax, 0
-	je label_40
+	je label_38
 	mov rax, qword [rbp+8]
 	push rax
 	mov rax, qword [rbp+16]
@@ -2775,8 +2724,8 @@ label_33:
 	pop rdi
 	mov al, 0
 	call _ast_write
-	jmp label_41
-label_40:
+	jmp label_39
+label_38:
 	mov rax, 8
 	push rax
 	mov rax, qword [rbp+16]
@@ -2786,7 +2735,7 @@ label_40:
 	sete al
 	movzx rax, al
 	cmp rax, 0
-	je label_42
+	je label_40
 	mov rax, qword [rbp+16]
 	mov rax, [rax+8]
 	mov [rbp-8], rax
@@ -2821,8 +2770,8 @@ label_40:
 	setne al
 	movzx rax, al
 	cmp rax, 0
-	je label_43
-	mov rax, _string_74
+	je label_41
+	mov rax, _string_71
 	push rax
 	mov rax, qword [rbp-16]
 	mov rax, [rax+0]
@@ -2836,13 +2785,10 @@ label_40:
 	pop rdi
 	mov al, 0
 	call _exit
-label_43:
+label_41:
 	mov rax, qword [rbp-16]
 	mov rax, [rax+8]
-	push rax
-	lea rax, [rbp-16]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-16], rax
 	mov rax, qword [rbp+24]
 	push rax
 	mov rax, qword [rbp-16]
@@ -2859,7 +2805,7 @@ label_43:
 	mov [rbp-24], rax
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_75
+	mov rax, _string_72
 	push rax
 	mov rax, 8
 	push rax
@@ -2872,8 +2818,8 @@ label_43:
 	pop rdi
 	mov al, 0
 	call _fprintf
-	jmp label_44
-label_42:
+	jmp label_42
+label_40:
 	mov rax, 9
 	push rax
 	mov rax, qword [rbp+16]
@@ -2883,7 +2829,7 @@ label_42:
 	sete al
 	movzx rax, al
 	cmp rax, 0
-	je label_45
+	je label_43
 	mov rax, qword [rbp+16]
 	mov rax, [rax+8]
 	mov [rbp-8], rax
@@ -2906,8 +2852,8 @@ label_42:
 	setne al
 	movzx rax, al
 	cmp rax, 0
-	je label_46
-	mov rax, _string_26
+	je label_44
+	mov rax, _string_23
 	push rax
 	pop rdi
 	mov al, 0
@@ -2917,11 +2863,11 @@ label_42:
 	pop rdi
 	mov al, 0
 	call _exit
-label_46:
+label_44:
 	mov rax, qword [rbp-16]
 	mov rax, [rax+8]
 	mov [rbp-24], rax
-label_47:
+label_45:
 	mov rax, 7
 	push rax
 	mov rax, qword [rbp-24]
@@ -2931,7 +2877,7 @@ label_47:
 	sete al
 	movzx rax, al
 	test rax, rax
-	jnz label_49
+	jnz label_47
 	mov rax, 6
 	push rax
 	mov rax, qword [rbp-24]
@@ -2940,9 +2886,9 @@ label_47:
 	cmp rax, rcx
 	sete al
 	movzx rax, al
-label_49:
+label_47:
 	cmp rax, 0
-	je label_48
+	je label_46
 	mov rax, qword [rbp+24]
 	push rax
 	mov rax, qword [rbp-24]
@@ -2952,12 +2898,9 @@ label_49:
 	pop rdi
 	mov al, 0
 	call _env_get_type
-	push rax
-	lea rax, [rbp-24]
-	pop rcx
-	mov [rax], rcx
-	jmp label_47
-label_48:
+	mov [rbp-24], rax
+	jmp label_45
+label_46:
 	mov rax, qword [rbp+8]
 	push rax
 	mov rax, qword [rbp-8]
@@ -2972,7 +2915,7 @@ label_48:
 	call _ast_write
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_31
+	mov rax, _string_28
 	push rax
 	mov rax, qword [rbp+24]
 	push rax
@@ -2990,7 +2933,7 @@ label_48:
 	call _fprintf
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_19
+	mov rax, _string_16
 	push rax
 	pop rsi
 	pop rdi
@@ -3010,7 +2953,7 @@ label_48:
 	call _ast_write
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_32
+	mov rax, _string_29
 	push rax
 	pop rsi
 	pop rdi
@@ -3018,16 +2961,16 @@ label_48:
 	call _emit
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_33
+	mov rax, _string_30
 	push rax
 	pop rsi
 	pop rdi
 	mov al, 0
 	call _emit
-label_45:
-label_44:
-label_41:
+label_43:
+label_42:
 label_39:
+label_37:
 	mov rsp, rbp
 	pop rbp
 	add rsp, 32
@@ -3065,7 +3008,7 @@ _ast_logical_and_write:
 	push rax
 	mov rax, 371
 	push rax
-	mov rax, _string_76
+	mov rax, _string_73
 	push rax
 	mov rax, 26
 	push rax
@@ -3105,7 +3048,7 @@ _ast_logical_and_write:
 	call _ast_write
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_49
+	mov rax, _string_46
 	push rax
 	pop rsi
 	pop rdi
@@ -3113,7 +3056,7 @@ _ast_logical_and_write:
 	call _emit
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_77
+	mov rax, _string_74
 	push rax
 	mov rax, qword [rbp-8]
 	push rax
@@ -3136,7 +3079,7 @@ _ast_logical_and_write:
 	call _ast_write
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_78
+	mov rax, _string_75
 	push rax
 	mov rax, qword [rbp-8]
 	push rax
@@ -3182,7 +3125,7 @@ _ast_logical_or_write:
 	push rax
 	mov rax, 385
 	push rax
-	mov rax, _string_79
+	mov rax, _string_76
 	push rax
 	mov rax, 27
 	push rax
@@ -3222,7 +3165,7 @@ _ast_logical_or_write:
 	call _ast_write
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_49
+	mov rax, _string_46
 	push rax
 	pop rsi
 	pop rdi
@@ -3230,7 +3173,7 @@ _ast_logical_or_write:
 	call _emit
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_80
+	mov rax, _string_77
 	push rax
 	mov rax, qword [rbp-8]
 	push rax
@@ -3253,7 +3196,7 @@ _ast_logical_or_write:
 	call _ast_write
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_78
+	mov rax, _string_75
 	push rax
 	mov rax, qword [rbp-8]
 	push rax
@@ -3299,7 +3242,7 @@ _ast_ternary_write:
 	push rax
 	mov rax, 399
 	push rax
-	mov rax, _string_81
+	mov rax, _string_78
 	push rax
 	mov rax, 28
 	push rax
@@ -3345,7 +3288,7 @@ _ast_ternary_write:
 	call _ast_write
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_49
+	mov rax, _string_46
 	push rax
 	pop rsi
 	pop rdi
@@ -3353,7 +3296,7 @@ _ast_ternary_write:
 	call _emit
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_77
+	mov rax, _string_74
 	push rax
 	mov rax, qword [rbp-8]
 	push rax
@@ -3376,7 +3319,7 @@ _ast_ternary_write:
 	call _ast_write
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_82
+	mov rax, _string_79
 	push rax
 	mov rax, qword [rbp-16]
 	push rax
@@ -3387,7 +3330,7 @@ _ast_ternary_write:
 	call _fprintf
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_78
+	mov rax, _string_75
 	push rax
 	mov rax, qword [rbp-8]
 	push rax
@@ -3410,7 +3353,7 @@ _ast_ternary_write:
 	call _ast_write
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_78
+	mov rax, _string_75
 	push rax
 	mov rax, qword [rbp-16]
 	push rax
@@ -3430,7 +3373,7 @@ _ast_assign_write:
 	push rdi
 	push rbp
 	mov rbp, rsp
-	sub rsp, 16
+	sub rsp, 48
 	and rsp, -16
 	mov rax, _string_2
 	push rax
@@ -3456,7 +3399,7 @@ _ast_assign_write:
 	push rax
 	mov rax, 417
 	push rax
-	mov rax, _string_83
+	mov rax, _string_80
 	push rax
 	mov rax, 29
 	push rax
@@ -3488,9 +3431,155 @@ _ast_assign_write:
 	pop rdi
 	mov al, 0
 	call _ast_write
+	mov rax, 1
+	push rax
+	mov rax, qword [rbp-8]
+	mov rax, [rax+0]
+	mov rax, [rax+0]
+	pop rcx
+	cmp rax, rcx
+	sete al
+	movzx rax, al
+	cmp rax, 0
+	je label_48
+	mov rax, qword [rbp-8]
+	mov rax, [rax+0]
+	mov rax, [rax+8]
+	mov [rbp-16], rax
+	mov rax, qword [rbp+24]
+	push rax
+	mov rax, qword [rbp-16]
+	mov rax, [rax+0]
+	push rax
+	pop rsi
+	pop rdi
+	mov al, 0
+	call _env_get_info
+	mov [rbp-24], rax
+	mov rax, 0
+	push rax
+	mov rax, qword [rbp-24]
+	mov rax, [rax+8]
+	pop rcx
+	cmp rax, rcx
+	sete al
+	movzx rax, al
+	cmp rax, 0
+	je label_49
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_19
+	mov rax, _string_81
+	push rax
+	mov rax, qword [rbp-24]
+	mov rax, [rax+16]
+	push rax
+	pop rdx
+	pop rsi
+	pop rdi
+	mov al, 0
+	call _fprintf
+	jmp label_50
+label_49:
+	mov rax, 1
+	push rax
+	mov rax, qword [rbp-24]
+	mov rax, [rax+8]
+	pop rcx
+	cmp rax, rcx
+	sete al
+	movzx rax, al
+	cmp rax, 0
+	je label_51
+	mov rax, qword [rbp+8]
+	push rax
+	mov rax, _string_82
+	push rax
+	mov rax, 8
+	push rax
+	mov rax, qword [rbp-24]
+	mov rax, [rax+16]
+	pop rcx
+	add rax, rcx
+	push rax
+	pop rdx
+	pop rsi
+	pop rdi
+	mov al, 0
+	call _fprintf
+	jmp label_52
+label_51:
+	mov rax, 2
+	push rax
+	mov rax, qword [rbp-24]
+	mov rax, [rax+8]
+	pop rcx
+	cmp rax, rcx
+	sete al
+	movzx rax, al
+	cmp rax, 0
+	je label_53
+	mov rax, qword [rbp+8]
+	push rax
+	mov rax, _string_83
+	push rax
+	mov rax, 8
+	push rax
+	mov rax, qword [rbp-24]
+	mov rax, [rax+16]
+	pop rcx
+	add rax, rcx
+	push rax
+	pop rdx
+	pop rsi
+	pop rdi
+	mov al, 0
+	call _fprintf
+label_53:
+label_52:
+label_50:
+	mov rax, qword [rbp+24]
+	push rax
+	mov rax, qword [rbp-24]
+	mov rax, [rax+0]
+	push rax
+	pop rsi
+	pop rdi
+	mov al, 0
+	call _type_get_size
+	mov [rbp-32], rax
+	mov rax, 1
+	push rax
+	mov rax, qword [rbp-32]
+	pop rcx
+	cmp rax, rcx
+	sete al
+	movzx rax, al
+	cmp rax, 0
+	je label_54
+	mov rax, qword [rbp+8]
+	push rax
+	mov rax, _string_84
+	push rax
+	pop rsi
+	pop rdi
+	mov al, 0
+	call _fprintf
+	jmp label_55
+label_54:
+	mov rax, qword [rbp+8]
+	push rax
+	mov rax, _string_85
+	push rax
+	pop rsi
+	pop rdi
+	mov al, 0
+	call _fprintf
+label_55:
+	jmp label_56
+label_48:
+	mov rax, qword [rbp+8]
+	push rax
+	mov rax, _string_16
 	push rax
 	pop rsi
 	pop rdi
@@ -3510,7 +3599,7 @@ _ast_assign_write:
 	call _ast_lvalue_write
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_32
+	mov rax, _string_29
 	push rax
 	pop rsi
 	pop rdi
@@ -3541,26 +3630,27 @@ _ast_assign_write:
 	sete al
 	movzx rax, al
 	cmp rax, 0
-	je label_50
+	je label_57
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_84
+	mov rax, _string_86
 	push rax
 	pop rsi
 	pop rdi
 	mov al, 0
 	call _emit
-	jmp label_51
-label_50:
+	jmp label_58
+label_57:
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_85
+	mov rax, _string_87
 	push rax
 	pop rsi
 	pop rdi
 	mov al, 0
 	call _emit
-label_51:
+label_58:
+label_56:
 	mov rsp, rbp
 	pop rbp
 	add rsp, 32
@@ -3576,7 +3666,7 @@ _ast_statement_write:
 	and rsp, -16
 	mov rax, _string_2
 	push rax
-	mov rax, 433
+	mov rax, 449
 	push rax
 	mov rax, _string_3
 	push rax
@@ -3596,9 +3686,9 @@ _ast_statement_write:
 	call _my_assert
 	mov rax, _string_2
 	push rax
-	mov rax, 434
+	mov rax, 450
 	push rax
-	mov rax, _string_86
+	mov rax, _string_88
 	push rax
 	mov rax, 31
 	push rax
@@ -3645,7 +3735,7 @@ _ast_if_write:
 	and rsp, -16
 	mov rax, _string_2
 	push rax
-	mov rax, 441
+	mov rax, 457
 	push rax
 	mov rax, _string_3
 	push rax
@@ -3665,9 +3755,9 @@ _ast_if_write:
 	call _my_assert
 	mov rax, _string_2
 	push rax
-	mov rax, 442
+	mov rax, 458
 	push rax
-	mov rax, _string_87
+	mov rax, _string_89
 	push rax
 	mov rax, 32
 	push rax
@@ -3707,7 +3797,7 @@ _ast_if_write:
 	call _ast_write
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_88
+	mov rax, _string_90
 	push rax
 	pop rsi
 	pop rdi
@@ -3715,7 +3805,7 @@ _ast_if_write:
 	call _emit
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_89
+	mov rax, _string_91
 	push rax
 	mov rax, qword [rbp-8]
 	push rax
@@ -3745,10 +3835,10 @@ _ast_if_write:
 	sete al
 	movzx rax, al
 	cmp rax, 0
-	je label_52
+	je label_59
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_78
+	mov rax, _string_75
 	push rax
 	mov rax, qword [rbp-8]
 	push rax
@@ -3757,8 +3847,8 @@ _ast_if_write:
 	pop rdi
 	mov al, 0
 	call _fprintf
-	jmp label_53
-label_52:
+	jmp label_60
+label_59:
 	mov rax, qword [rbp+24]
 	push rax
 	pop rdi
@@ -3767,7 +3857,7 @@ label_52:
 	mov [rbp-24], rax
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_82
+	mov rax, _string_79
 	push rax
 	mov rax, qword [rbp-24]
 	push rax
@@ -3778,7 +3868,7 @@ label_52:
 	call _fprintf
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_78
+	mov rax, _string_75
 	push rax
 	mov rax, qword [rbp-8]
 	push rax
@@ -3801,7 +3891,7 @@ label_52:
 	call _ast_write
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_78
+	mov rax, _string_75
 	push rax
 	mov rax, qword [rbp-24]
 	push rax
@@ -3810,7 +3900,7 @@ label_52:
 	pop rdi
 	mov al, 0
 	call _fprintf
-label_53:
+label_60:
 	mov rsp, rbp
 	pop rbp
 	add rsp, 32
@@ -3826,7 +3916,7 @@ _ast_while_write:
 	and rsp, -16
 	mov rax, _string_2
 	push rax
-	mov rax, 464
+	mov rax, 480
 	push rax
 	mov rax, _string_3
 	push rax
@@ -3846,9 +3936,9 @@ _ast_while_write:
 	call _my_assert
 	mov rax, _string_2
 	push rax
-	mov rax, 465
+	mov rax, 481
 	push rax
-	mov rax, _string_90
+	mov rax, _string_92
 	push rax
 	mov rax, 33
 	push rax
@@ -3890,7 +3980,7 @@ _ast_while_write:
 	mov [rbp-24], rax
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_78
+	mov rax, _string_75
 	push rax
 	mov rax, qword [rbp-8]
 	push rax
@@ -3913,7 +4003,7 @@ _ast_while_write:
 	call _ast_write
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_88
+	mov rax, _string_90
 	push rax
 	pop rsi
 	pop rdi
@@ -3921,7 +4011,7 @@ _ast_while_write:
 	call _emit
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_89
+	mov rax, _string_91
 	push rax
 	mov rax, qword [rbp-16]
 	push rax
@@ -3944,7 +4034,7 @@ _ast_while_write:
 	call _ast_write
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_82
+	mov rax, _string_79
 	push rax
 	mov rax, qword [rbp-8]
 	push rax
@@ -3955,7 +4045,7 @@ _ast_while_write:
 	call _fprintf
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_78
+	mov rax, _string_75
 	push rax
 	mov rax, qword [rbp-16]
 	push rax
@@ -3984,7 +4074,7 @@ _ast_for_write:
 	and rsp, -16
 	mov rax, _string_2
 	push rax
-	mov rax, 485
+	mov rax, 501
 	push rax
 	mov rax, _string_3
 	push rax
@@ -4004,9 +4094,9 @@ _ast_for_write:
 	call _my_assert
 	mov rax, _string_2
 	push rax
-	mov rax, 486
+	mov rax, 502
 	push rax
-	mov rax, _string_91
+	mov rax, _string_93
 	push rax
 	mov rax, 35
 	push rax
@@ -4069,7 +4159,7 @@ _ast_for_write:
 	call _ast_write
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_78
+	mov rax, _string_75
 	push rax
 	mov rax, qword [rbp-8]
 	push rax
@@ -4092,7 +4182,7 @@ _ast_for_write:
 	call _ast_write
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_88
+	mov rax, _string_90
 	push rax
 	pop rsi
 	pop rdi
@@ -4100,7 +4190,7 @@ _ast_for_write:
 	call _emit
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_89
+	mov rax, _string_91
 	push rax
 	mov rax, qword [rbp-16]
 	push rax
@@ -4135,7 +4225,7 @@ _ast_for_write:
 	call _ast_write
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_82
+	mov rax, _string_79
 	push rax
 	mov rax, qword [rbp-8]
 	push rax
@@ -4146,7 +4236,7 @@ _ast_for_write:
 	call _fprintf
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_78
+	mov rax, _string_75
 	push rax
 	mov rax, qword [rbp-16]
 	push rax
@@ -4180,7 +4270,7 @@ _ast_return_write:
 	and rsp, -16
 	mov rax, _string_2
 	push rax
-	mov rax, 512
+	mov rax, 528
 	push rax
 	mov rax, _string_3
 	push rax
@@ -4200,9 +4290,9 @@ _ast_return_write:
 	call _my_assert
 	mov rax, _string_2
 	push rax
-	mov rax, 513
+	mov rax, 529
 	push rax
-	mov rax, _string_92
+	mov rax, _string_94
 	push rax
 	mov rax, 34
 	push rax
@@ -4236,23 +4326,23 @@ _ast_return_write:
 	call _ast_write
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_93
-	push rax
-	pop rsi
-	pop rdi
-	mov al, 0
-	call _emit
-	mov rax, qword [rbp+8]
-	push rax
-	mov rax, _string_94
-	push rax
-	pop rsi
-	pop rdi
-	mov al, 0
-	call _emit
-	mov rax, qword [rbp+8]
-	push rax
 	mov rax, _string_95
+	push rax
+	pop rsi
+	pop rdi
+	mov al, 0
+	call _emit
+	mov rax, qword [rbp+8]
+	push rax
+	mov rax, _string_96
+	push rax
+	pop rsi
+	pop rdi
+	mov al, 0
+	call _emit
+	mov rax, qword [rbp+8]
+	push rax
+	mov rax, _string_97
 	push rax
 	mov rax, qword [rbp+24]
 	push rax
@@ -4267,7 +4357,7 @@ _ast_return_write:
 	call _fprintf
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_96
+	mov rax, _string_98
 	push rax
 	pop rsi
 	pop rdi
@@ -4288,7 +4378,7 @@ _ast_break_write:
 	and rsp, -16
 	mov rax, _string_2
 	push rax
-	mov rax, 526
+	mov rax, 542
 	push rax
 	mov rax, _string_3
 	push rax
@@ -4308,9 +4398,9 @@ _ast_break_write:
 	call _my_assert
 	mov rax, _string_2
 	push rax
-	mov rax, 527
+	mov rax, 543
 	push rax
-	mov rax, _string_97
+	mov rax, _string_99
 	push rax
 	mov rax, 36
 	push rax
@@ -4335,7 +4425,7 @@ _ast_break_write:
 	mov [rbp-8], rax
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_82
+	mov rax, _string_79
 	push rax
 	mov rax, qword [rbp-8]
 	push rax
@@ -4359,7 +4449,7 @@ _ast_declaration_write:
 	and rsp, -16
 	mov rax, _string_2
 	push rax
-	mov rax, 534
+	mov rax, 550
 	push rax
 	mov rax, _string_3
 	push rax
@@ -4379,9 +4469,9 @@ _ast_declaration_write:
 	call _my_assert
 	mov rax, _string_2
 	push rax
-	mov rax, 535
+	mov rax, 551
 	push rax
-	mov rax, _string_98
+	mov rax, _string_100
 	push rax
 	mov rax, 30
 	push rax
@@ -4410,13 +4500,13 @@ _ast_declaration_write:
 	sete al
 	movzx rax, al
 	cmp rax, 0
-	je label_54
+	je label_61
 	mov rax, 0
 	mov rsp, rbp
 	pop rbp
 	add rsp, 32
 	ret
-label_54:
+label_61:
 	mov rax, qword [rbp+24]
 	push rax
 	mov rax, qword [rbp-8]
@@ -4441,7 +4531,7 @@ label_54:
 	call _ast_write
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_99
+	mov rax, _string_101
 	push rax
 	mov rax, 8
 	push rax
@@ -4470,7 +4560,7 @@ _ast_sequence_write:
 	and rsp, -16
 	mov rax, _string_2
 	push rax
-	mov rax, 546
+	mov rax, 562
 	push rax
 	mov rax, _string_3
 	push rax
@@ -4490,9 +4580,9 @@ _ast_sequence_write:
 	call _my_assert
 	mov rax, _string_2
 	push rax
-	mov rax, 547
+	mov rax, 563
 	push rax
-	mov rax, _string_100
+	mov rax, _string_102
 	push rax
 	mov rax, 38
 	push rax
@@ -4521,7 +4611,7 @@ _ast_sequence_write:
 	pop rdi
 	mov al, 0
 	call _env_register_scope
-label_55:
+label_62:
 	mov rax, qword [rbp+16]
 	push rax
 	pop rdi
@@ -4531,7 +4621,7 @@ label_55:
 	setz cl
 	movzx rax, cl
 	cmp rax, 0
-	je label_56
+	je label_63
 	mov rax, qword [rbp+8]
 	push rax
 	mov rax, qword [rbp+16]
@@ -4547,8 +4637,8 @@ label_55:
 	pop rdi
 	mov al, 0
 	call _ast_write
-	jmp label_55
-label_56:
+	jmp label_62
+label_63:
 	mov rax, qword [rbp+24]
 	push rax
 	pop rdi
@@ -4569,7 +4659,7 @@ _ast_switch_write:
 	and rsp, -16
 	mov rax, _string_2
 	push rax
-	mov rax, 561
+	mov rax, 577
 	push rax
 	mov rax, _string_3
 	push rax
@@ -4589,9 +4679,9 @@ _ast_switch_write:
 	call _my_assert
 	mov rax, _string_2
 	push rax
-	mov rax, 562
+	mov rax, 578
 	push rax
-	mov rax, _string_101
+	mov rax, _string_103
 	push rax
 	mov rax, 37
 	push rax
@@ -4662,7 +4752,7 @@ _ast_switch_write:
 	call _env_register_scope
 	mov rax, 0
 	mov [rbp-32], rax
-label_57:
+label_64:
 	mov rax, qword [rbp-8]
 	mov rax, [rax+8]
 	push rax
@@ -4672,7 +4762,7 @@ label_57:
 	setl al
 	movzx rax, al
 	cmp rax, 0
-	je label_58
+	je label_65
 	mov rax, 0
 	push rax
 	mov rax, qword [rbp-32]
@@ -4688,10 +4778,10 @@ label_57:
 	setne al
 	movzx rax, al
 	cmp rax, 0
-	je label_59
+	je label_66
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_102
+	mov rax, _string_104
 	push rax
 	mov rax, qword [rbp-32]
 	imul rax, 8
@@ -4710,7 +4800,7 @@ label_57:
 	call _fprintf
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_103
+	mov rax, _string_105
 	push rax
 	mov rax, qword [rbp-16]
 	push rax
@@ -4722,16 +4812,16 @@ label_57:
 	pop rdi
 	mov al, 0
 	call _fprintf
-label_59:
+label_66:
 	lea rax, [rbp-32]
 	mov rcx, [rax]
 	add qword [rax], 1
 	mov rax, rcx
-	jmp label_57
-label_58:
+	jmp label_64
+label_65:
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_104
+	mov rax, _string_106
 	push rax
 	mov rax, qword [rbp-16]
 	push rax
@@ -4742,7 +4832,7 @@ label_58:
 	call _fprintf
 	mov rax, 0
 	mov [rbp-32], rax
-label_60:
+label_67:
 	mov rax, qword [rbp-8]
 	mov rax, [rax+8]
 	push rax
@@ -4752,7 +4842,7 @@ label_60:
 	setl al
 	movzx rax, al
 	cmp rax, 0
-	je label_61
+	je label_68
 	mov rax, qword [rbp-32]
 	imul rax, 8
 	push rax
@@ -4762,10 +4852,10 @@ label_60:
 	add rax, rcx
 	mov rax, [rax]
 	cmp rax, 0
-	je label_62
+	je label_69
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_105
+	mov rax, _string_107
 	push rax
 	mov rax, qword [rbp-16]
 	push rax
@@ -4796,16 +4886,16 @@ label_60:
 	pop rdi
 	mov al, 0
 	call _ast_write
-label_62:
+label_69:
 	lea rax, [rbp-32]
 	mov rcx, [rax]
 	add qword [rax], 1
 	mov rax, rcx
-	jmp label_60
-label_61:
+	jmp label_67
+label_68:
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_106
+	mov rax, _string_108
 	push rax
 	mov rax, qword [rbp-16]
 	push rax
@@ -4828,7 +4918,7 @@ label_61:
 	call _ast_write
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_78
+	mov rax, _string_75
 	push rax
 	mov rax, qword [rbp-24]
 	push rax
@@ -4862,7 +4952,7 @@ _ast_function_write:
 	and rsp, -16
 	mov rax, _string_2
 	push rax
-	mov rax, 608
+	mov rax, 624
 	push rax
 	mov rax, _string_3
 	push rax
@@ -4882,9 +4972,9 @@ _ast_function_write:
 	call _my_assert
 	mov rax, _string_2
 	push rax
-	mov rax, 609
+	mov rax, 625
 	push rax
-	mov rax, _string_107
+	mov rax, _string_109
 	push rax
 	mov rax, 39
 	push rax
@@ -4913,7 +5003,7 @@ _ast_function_write:
 	sete al
 	movzx rax, al
 	cmp rax, 0
-	je label_63
+	je label_70
 	mov rax, qword [rbp+24]
 	push rax
 	mov rax, qword [rbp-8]
@@ -4932,7 +5022,7 @@ _ast_function_write:
 	pop rbp
 	add rsp, 32
 	ret
-label_63:
+label_70:
 	mov rax, qword [rbp+16]
 	push rax
 	pop rdi
@@ -4957,7 +5047,7 @@ label_63:
 	call _env_add_fn
 	mov rax, 0
 	mov [rbp-16], rax
-label_64:
+label_71:
 	mov rax, qword [rbp-8]
 	mov rax, [rax+16]
 	push rax
@@ -4967,7 +5057,7 @@ label_64:
 	setl al
 	movzx rax, al
 	cmp rax, 0
-	je label_65
+	je label_72
 	mov rax, qword [rbp+24]
 	push rax
 	mov rax, qword [rbp-8]
@@ -5003,8 +5093,8 @@ label_64:
 	mov rcx, [rax]
 	add qword [rax], 1
 	mov rax, rcx
-	jmp label_64
-label_65:
+	jmp label_71
+label_72:
 	mov rax, qword [rbp+24]
 	push rax
 	mov rax, qword [rbp-8]
@@ -5016,7 +5106,7 @@ label_65:
 	call _env_set_fn
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_108
+	mov rax, _string_110
 	push rax
 	mov rax, qword [rbp-8]
 	mov rax, [rax+8]
@@ -5045,10 +5135,10 @@ label_65:
 	setne al
 	movzx rax, al
 	cmp rax, 0
-	je label_66
+	je label_73
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_109
+	mov rax, _string_111
 	push rax
 	mov rax, 8
 	push rax
@@ -5057,7 +5147,7 @@ label_65:
 	pop rdi
 	mov al, 0
 	call _fprintf
-label_66:
+label_73:
 	mov rax, 1
 	push rax
 	mov rax, qword [rbp-8]
@@ -5065,7 +5155,7 @@ label_66:
 	pop rcx
 	sub rax, rcx
 	mov [rbp-16], rax
-label_67:
+label_74:
 	mov rax, 0
 	push rax
 	mov rax, qword [rbp-16]
@@ -5074,10 +5164,10 @@ label_67:
 	setge al
 	movzx rax, al
 	cmp rax, 0
-	je label_68
+	je label_75
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_110
+	mov rax, _string_112
 	push rax
 	mov rax, qword [rbp-16]
 	imul rax, 8
@@ -5096,11 +5186,11 @@ label_67:
 	mov rcx, [rax]
 	sub qword [rax], 1
 	mov rax, rcx
-	jmp label_67
-label_68:
+	jmp label_74
+label_75:
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_111
+	mov rax, _string_113
 	push rax
 	pop rsi
 	pop rdi
@@ -5108,7 +5198,7 @@ label_68:
 	call _emit
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_112
+	mov rax, _string_114
 	push rax
 	pop rsi
 	pop rdi
@@ -5131,7 +5221,7 @@ label_68:
 	mov [rbp-16], rax
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_109
+	mov rax, _string_111
 	push rax
 	mov rax, qword [rbp-16]
 	push rax
@@ -5142,7 +5232,7 @@ label_68:
 	call _fprintf
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_113
+	mov rax, _string_115
 	push rax
 	pop rsi
 	pop rdi
@@ -5162,23 +5252,23 @@ label_68:
 	call _ast_write
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_93
-	push rax
-	pop rsi
-	pop rdi
-	mov al, 0
-	call _emit
-	mov rax, qword [rbp+8]
-	push rax
-	mov rax, _string_94
-	push rax
-	pop rsi
-	pop rdi
-	mov al, 0
-	call _emit
-	mov rax, qword [rbp+8]
-	push rax
 	mov rax, _string_95
+	push rax
+	pop rsi
+	pop rdi
+	mov al, 0
+	call _emit
+	mov rax, qword [rbp+8]
+	push rax
+	mov rax, _string_96
+	push rax
+	pop rsi
+	pop rdi
+	mov al, 0
+	call _emit
+	mov rax, qword [rbp+8]
+	push rax
+	mov rax, _string_97
 	push rax
 	mov rax, qword [rbp+24]
 	push rax
@@ -5193,7 +5283,7 @@ label_68:
 	call _fprintf
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_96
+	mov rax, _string_98
 	push rax
 	pop rsi
 	pop rdi
@@ -5219,7 +5309,7 @@ _ast_global_write:
 	and rsp, -16
 	mov rax, _string_2
 	push rax
-	mov rax, 659
+	mov rax, 675
 	push rax
 	mov rax, _string_3
 	push rax
@@ -5239,9 +5329,9 @@ _ast_global_write:
 	call _my_assert
 	mov rax, _string_2
 	push rax
-	mov rax, 660
+	mov rax, 676
 	push rax
-	mov rax, _string_114
+	mov rax, _string_116
 	push rax
 	mov rax, 40
 	push rax
@@ -5289,7 +5379,7 @@ _ast_struct_write:
 	and rsp, -16
 	mov rax, _string_2
 	push rax
-	mov rax, 667
+	mov rax, 683
 	push rax
 	mov rax, _string_3
 	push rax
@@ -5309,9 +5399,9 @@ _ast_struct_write:
 	call _my_assert
 	mov rax, _string_2
 	push rax
-	mov rax, 668
+	mov rax, 684
 	push rax
-	mov rax, _string_115
+	mov rax, _string_117
 	push rax
 	mov rax, 41
 	push rax
@@ -5359,7 +5449,7 @@ _ast_typedef_write:
 	and rsp, -16
 	mov rax, _string_2
 	push rax
-	mov rax, 675
+	mov rax, 691
 	push rax
 	mov rax, _string_3
 	push rax
@@ -5379,9 +5469,9 @@ _ast_typedef_write:
 	call _my_assert
 	mov rax, _string_2
 	push rax
-	mov rax, 676
+	mov rax, 692
 	push rax
-	mov rax, _string_116
+	mov rax, _string_118
 	push rax
 	mov rax, 42
 	push rax
@@ -5429,7 +5519,7 @@ _ast_enum_write:
 	and rsp, -16
 	mov rax, _string_2
 	push rax
-	mov rax, 683
+	mov rax, 699
 	push rax
 	mov rax, _string_3
 	push rax
@@ -5449,9 +5539,9 @@ _ast_enum_write:
 	call _my_assert
 	mov rax, _string_2
 	push rax
-	mov rax, 684
+	mov rax, 700
 	push rax
-	mov rax, _string_117
+	mov rax, _string_119
 	push rax
 	mov rax, 43
 	push rax
@@ -5489,7 +5579,7 @@ _ast_enum_write:
 	call _env_register_typedef
 	mov rax, 0
 	mov [rbp-16], rax
-label_69:
+label_76:
 	mov rax, qword [rbp-8]
 	mov rax, [rax+8]
 	push rax
@@ -5500,7 +5590,7 @@ label_69:
 	setz cl
 	movzx rax, cl
 	cmp rax, 0
-	je label_70
+	je label_77
 	mov rax, qword [rbp+24]
 	push rax
 	mov rax, qword [rbp-8]
@@ -5521,8 +5611,8 @@ label_69:
 	mov rcx, [rax]
 	add qword [rax], 1
 	mov rax, rcx
-	jmp label_69
-label_70:
+	jmp label_76
+label_77:
 	mov rsp, rbp
 	pop rbp
 	add rsp, 32
@@ -5538,7 +5628,7 @@ _ast_write:
 	and rsp, -16
 	mov rax, _string_2
 	push rax
-	mov rax, 698
+	mov rax, 714
 	push rax
 	mov rax, _string_3
 	push rax
@@ -5657,7 +5747,7 @@ switch_0_case_0:
 	pop rdi
 	mov al, 0
 	call _ast_int_write
-	jmp label_71
+	jmp label_78
 switch_0_case_1:
 	mov rax, qword [rbp+8]
 	push rax
@@ -5670,7 +5760,7 @@ switch_0_case_1:
 	pop rdi
 	mov al, 0
 	call _ast_char_write
-	jmp label_71
+	jmp label_78
 switch_0_case_2:
 	mov rax, qword [rbp+8]
 	push rax
@@ -5683,7 +5773,7 @@ switch_0_case_2:
 	pop rdi
 	mov al, 0
 	call _ast_var_write
-	jmp label_71
+	jmp label_78
 switch_0_case_3:
 	mov rax, qword [rbp+8]
 	push rax
@@ -5696,7 +5786,7 @@ switch_0_case_3:
 	pop rdi
 	mov al, 0
 	call _ast_string_write
-	jmp label_71
+	jmp label_78
 switch_0_case_4:
 	mov rax, qword [rbp+8]
 	push rax
@@ -5709,7 +5799,7 @@ switch_0_case_4:
 	pop rdi
 	mov al, 0
 	call _ast_call_write
-	jmp label_71
+	jmp label_78
 switch_0_case_5:
 	mov rax, qword [rbp+8]
 	push rax
@@ -5722,7 +5812,7 @@ switch_0_case_5:
 	pop rdi
 	mov al, 0
 	call _ast_sizeof_write
-	jmp label_71
+	jmp label_78
 switch_0_case_6:
 	mov rax, qword [rbp+8]
 	push rax
@@ -5735,7 +5825,7 @@ switch_0_case_6:
 	pop rdi
 	mov al, 0
 	call _ast_cast_write
-	jmp label_71
+	jmp label_78
 switch_0_case_7:
 	mov rax, qword [rbp+8]
 	push rax
@@ -5748,7 +5838,7 @@ switch_0_case_7:
 	pop rdi
 	mov al, 0
 	call _ast_arrow_write
-	jmp label_71
+	jmp label_78
 switch_0_case_8:
 	mov rax, qword [rbp+8]
 	push rax
@@ -5761,7 +5851,7 @@ switch_0_case_8:
 	pop rdi
 	mov al, 0
 	call _ast_array_sub_write
-	jmp label_71
+	jmp label_78
 switch_0_case_9:
 	mov rax, qword [rbp+8]
 	push rax
@@ -5774,7 +5864,7 @@ switch_0_case_9:
 	pop rdi
 	mov al, 0
 	call _ast_increment_write
-	jmp label_71
+	jmp label_78
 switch_0_case_10:
 	mov rax, qword [rbp+8]
 	push rax
@@ -5787,7 +5877,7 @@ switch_0_case_10:
 	pop rdi
 	mov al, 0
 	call _ast_decrement_write
-	jmp label_71
+	jmp label_78
 switch_0_case_11:
 	mov rax, qword [rbp+8]
 	push rax
@@ -5800,7 +5890,7 @@ switch_0_case_11:
 	pop rdi
 	mov al, 0
 	call _ast_negative_write
-	jmp label_71
+	jmp label_78
 switch_0_case_12:
 	mov rax, qword [rbp+8]
 	push rax
@@ -5813,7 +5903,7 @@ switch_0_case_12:
 	pop rdi
 	mov al, 0
 	call _ast_address_write
-	jmp label_71
+	jmp label_78
 switch_0_case_13:
 	mov rax, qword [rbp+8]
 	push rax
@@ -5826,7 +5916,7 @@ switch_0_case_13:
 	pop rdi
 	mov al, 0
 	call _ast_dereference_write
-	jmp label_71
+	jmp label_78
 switch_0_case_14:
 	mov rax, qword [rbp+8]
 	push rax
@@ -5839,7 +5929,7 @@ switch_0_case_14:
 	pop rdi
 	mov al, 0
 	call _ast_logical_not_write
-	jmp label_71
+	jmp label_78
 switch_0_case_15:
 	mov rax, qword [rbp+8]
 	push rax
@@ -5852,7 +5942,7 @@ switch_0_case_15:
 	pop rdi
 	mov al, 0
 	call _ast_add_write
-	jmp label_71
+	jmp label_78
 switch_0_case_16:
 	mov rax, qword [rbp+8]
 	push rax
@@ -5865,7 +5955,7 @@ switch_0_case_16:
 	pop rdi
 	mov al, 0
 	call _ast_sub_write
-	jmp label_71
+	jmp label_78
 switch_0_case_17:
 	mov rax, qword [rbp+8]
 	push rax
@@ -5878,7 +5968,7 @@ switch_0_case_17:
 	pop rdi
 	mov al, 0
 	call _ast_mul_write
-	jmp label_71
+	jmp label_78
 switch_0_case_18:
 	mov rax, qword [rbp+8]
 	push rax
@@ -5891,7 +5981,7 @@ switch_0_case_18:
 	pop rdi
 	mov al, 0
 	call _ast_div_write
-	jmp label_71
+	jmp label_78
 switch_0_case_19:
 	mov rax, qword [rbp+8]
 	push rax
@@ -5904,7 +5994,7 @@ switch_0_case_19:
 	pop rdi
 	mov al, 0
 	call _ast_lt_write
-	jmp label_71
+	jmp label_78
 switch_0_case_20:
 	mov rax, qword [rbp+8]
 	push rax
@@ -5917,7 +6007,7 @@ switch_0_case_20:
 	pop rdi
 	mov al, 0
 	call _ast_lte_write
-	jmp label_71
+	jmp label_78
 switch_0_case_21:
 	mov rax, qword [rbp+8]
 	push rax
@@ -5930,7 +6020,7 @@ switch_0_case_21:
 	pop rdi
 	mov al, 0
 	call _ast_gt_write
-	jmp label_71
+	jmp label_78
 switch_0_case_22:
 	mov rax, qword [rbp+8]
 	push rax
@@ -5943,7 +6033,7 @@ switch_0_case_22:
 	pop rdi
 	mov al, 0
 	call _ast_gte_write
-	jmp label_71
+	jmp label_78
 switch_0_case_23:
 	mov rax, qword [rbp+8]
 	push rax
@@ -5956,7 +6046,7 @@ switch_0_case_23:
 	pop rdi
 	mov al, 0
 	call _ast_eq_write
-	jmp label_71
+	jmp label_78
 switch_0_case_24:
 	mov rax, qword [rbp+8]
 	push rax
@@ -5969,7 +6059,7 @@ switch_0_case_24:
 	pop rdi
 	mov al, 0
 	call _ast_neq_write
-	jmp label_71
+	jmp label_78
 switch_0_case_25:
 	mov rax, qword [rbp+8]
 	push rax
@@ -5982,7 +6072,7 @@ switch_0_case_25:
 	pop rdi
 	mov al, 0
 	call _ast_logical_and_write
-	jmp label_71
+	jmp label_78
 switch_0_case_26:
 	mov rax, qword [rbp+8]
 	push rax
@@ -5995,7 +6085,7 @@ switch_0_case_26:
 	pop rdi
 	mov al, 0
 	call _ast_logical_or_write
-	jmp label_71
+	jmp label_78
 switch_0_case_27:
 	mov rax, qword [rbp+8]
 	push rax
@@ -6008,7 +6098,7 @@ switch_0_case_27:
 	pop rdi
 	mov al, 0
 	call _ast_ternary_write
-	jmp label_71
+	jmp label_78
 switch_0_case_28:
 	mov rax, qword [rbp+8]
 	push rax
@@ -6021,7 +6111,7 @@ switch_0_case_28:
 	pop rdi
 	mov al, 0
 	call _ast_assign_write
-	jmp label_71
+	jmp label_78
 switch_0_case_29:
 	mov rax, qword [rbp+8]
 	push rax
@@ -6034,7 +6124,7 @@ switch_0_case_29:
 	pop rdi
 	mov al, 0
 	call _ast_declaration_write
-	jmp label_71
+	jmp label_78
 switch_0_case_30:
 	mov rax, qword [rbp+8]
 	push rax
@@ -6047,7 +6137,7 @@ switch_0_case_30:
 	pop rdi
 	mov al, 0
 	call _ast_statement_write
-	jmp label_71
+	jmp label_78
 switch_0_case_31:
 	mov rax, qword [rbp+8]
 	push rax
@@ -6060,7 +6150,7 @@ switch_0_case_31:
 	pop rdi
 	mov al, 0
 	call _ast_if_write
-	jmp label_71
+	jmp label_78
 switch_0_case_32:
 	mov rax, qword [rbp+8]
 	push rax
@@ -6073,7 +6163,7 @@ switch_0_case_32:
 	pop rdi
 	mov al, 0
 	call _ast_while_write
-	jmp label_71
+	jmp label_78
 switch_0_case_33:
 	mov rax, qword [rbp+8]
 	push rax
@@ -6086,7 +6176,7 @@ switch_0_case_33:
 	pop rdi
 	mov al, 0
 	call _ast_return_write
-	jmp label_71
+	jmp label_78
 switch_0_case_34:
 	mov rax, qword [rbp+8]
 	push rax
@@ -6099,7 +6189,7 @@ switch_0_case_34:
 	pop rdi
 	mov al, 0
 	call _ast_for_write
-	jmp label_71
+	jmp label_78
 switch_0_case_35:
 	mov rax, qword [rbp+8]
 	push rax
@@ -6112,7 +6202,7 @@ switch_0_case_35:
 	pop rdi
 	mov al, 0
 	call _ast_break_write
-	jmp label_71
+	jmp label_78
 switch_0_case_36:
 	mov rax, qword [rbp+8]
 	push rax
@@ -6125,7 +6215,7 @@ switch_0_case_36:
 	pop rdi
 	mov al, 0
 	call _ast_switch_write
-	jmp label_71
+	jmp label_78
 switch_0_case_37:
 	mov rax, qword [rbp+8]
 	push rax
@@ -6138,7 +6228,7 @@ switch_0_case_37:
 	pop rdi
 	mov al, 0
 	call _ast_sequence_write
-	jmp label_71
+	jmp label_78
 switch_0_case_38:
 	mov rax, qword [rbp+8]
 	push rax
@@ -6151,7 +6241,7 @@ switch_0_case_38:
 	pop rdi
 	mov al, 0
 	call _ast_function_write
-	jmp label_71
+	jmp label_78
 switch_0_case_39:
 	mov rax, qword [rbp+8]
 	push rax
@@ -6164,7 +6254,7 @@ switch_0_case_39:
 	pop rdi
 	mov al, 0
 	call _ast_global_write
-	jmp label_71
+	jmp label_78
 switch_0_case_40:
 	mov rax, qword [rbp+8]
 	push rax
@@ -6177,7 +6267,7 @@ switch_0_case_40:
 	pop rdi
 	mov al, 0
 	call _ast_struct_write
-	jmp label_71
+	jmp label_78
 switch_0_case_41:
 	mov rax, qword [rbp+8]
 	push rax
@@ -6190,7 +6280,7 @@ switch_0_case_41:
 	pop rdi
 	mov al, 0
 	call _ast_typedef_write
-	jmp label_71
+	jmp label_78
 switch_0_case_42:
 	mov rax, qword [rbp+8]
 	push rax
@@ -6203,11 +6293,11 @@ switch_0_case_42:
 	pop rdi
 	mov al, 0
 	call _ast_enum_write
-	jmp label_71
+	jmp label_78
 switch_0_default:
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_118
+	mov rax, _string_120
 	push rax
 	mov rax, qword [rbp+16]
 	mov rax, [rax+0]
@@ -6217,8 +6307,8 @@ switch_0_default:
 	pop rdi
 	mov al, 0
 	call _fprintf
-	jmp label_71
-label_71:
+	jmp label_78
+label_78:
 	mov rsp, rbp
 	pop rbp
 	add rsp, 32
@@ -6239,11 +6329,8 @@ _write_header:
 	pop rdi
 	mov al, 0
 	call _malloc
-	push rax
-	mov rax, g1
-	pop rcx
-	mov [rax], rcx
-	mov rax, _string_119
+	mov [g1], rax
+	mov rax, _string_121
 	push rax
 	mov rax, 0
 	imul rax, 8
@@ -6253,7 +6340,7 @@ _write_header:
 	add rax, rcx
 	pop rcx
 	mov [rax], rcx
-	mov rax, _string_120
+	mov rax, _string_122
 	push rax
 	mov rax, 1
 	imul rax, 8
@@ -6263,7 +6350,7 @@ _write_header:
 	add rax, rcx
 	pop rcx
 	mov [rax], rcx
-	mov rax, _string_121
+	mov rax, _string_123
 	push rax
 	mov rax, 2
 	imul rax, 8
@@ -6273,7 +6360,7 @@ _write_header:
 	add rax, rcx
 	pop rcx
 	mov [rax], rcx
-	mov rax, _string_122
+	mov rax, _string_124
 	push rax
 	mov rax, 3
 	imul rax, 8
@@ -6283,7 +6370,7 @@ _write_header:
 	add rax, rcx
 	pop rcx
 	mov [rax], rcx
-	mov rax, _string_123
+	mov rax, _string_125
 	push rax
 	mov rax, 4
 	imul rax, 8
@@ -6293,7 +6380,7 @@ _write_header:
 	add rax, rcx
 	pop rcx
 	mov [rax], rcx
-	mov rax, _string_124
+	mov rax, _string_126
 	push rax
 	mov rax, 5
 	imul rax, 8
@@ -6305,7 +6392,7 @@ _write_header:
 	mov [rax], rcx
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_125
+	mov rax, _string_127
 	push rax
 	pop rsi
 	pop rdi
@@ -6313,7 +6400,7 @@ _write_header:
 	call _fprintf
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_126
+	mov rax, _string_128
 	push rax
 	pop rsi
 	pop rdi
@@ -6321,7 +6408,7 @@ _write_header:
 	call _fprintf
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_10
+	mov rax, _string_129
 	push rax
 	pop rsi
 	pop rdi
@@ -6349,23 +6436,23 @@ _write_var:
 	sete al
 	movzx rax, al
 	cmp rax, 0
-	je label_72
+	je label_79
 	mov rax, 0
 	mov rsp, rbp
 	pop rbp
 	add rsp, 32
 	ret
-label_72:
+label_79:
 	mov rax, qword [rbp+8]
 	mov [rbp-8], rax
 	mov rax, qword [rbp-8]
 	push rax
-	mov rax, _string_127
+	mov rax, _string_130
 	push rax
 	mov rax, qword [rbp+24]
 	mov rax, [rax+16]
 	push rax
-	mov rax, _string_128
+	mov rax, _string_131
 	push rax
 	pop rcx
 	pop rdx
@@ -6390,7 +6477,7 @@ _write_string:
 	mov [rbp-8], rax
 	mov rax, qword [rbp-8]
 	push rax
-	mov rax, _string_129
+	mov rax, _string_132
 	push rax
 	mov rax, qword [rbp+24]
 	push rax
@@ -6399,7 +6486,7 @@ _write_string:
 	pop rdi
 	mov al, 0
 	call _fprintf
-label_73:
+label_80:
 	mov rax, 0
 	push rax
 	mov rax, qword [rbp+16]
@@ -6411,10 +6498,10 @@ label_73:
 	setne al
 	movzx rax, al
 	cmp rax, 0
-	je label_74
+	je label_81
 	mov rax, qword [rbp-8]
 	push rax
-	mov rax, _string_130
+	mov rax, _string_133
 	push rax
 	mov rax, qword [rbp+16]
 	xor rcx, rcx
@@ -6430,11 +6517,11 @@ label_73:
 	mov rcx, [rax]
 	add qword [rax], 1
 	mov rax, rcx
-	jmp label_73
-label_74:
+	jmp label_80
+label_81:
 	mov rax, qword [rbp-8]
 	push rax
-	mov rax, _string_131
+	mov rax, _string_134
 	push rax
 	pop rsi
 	pop rdi
@@ -6463,10 +6550,10 @@ _write_fn_info:
 	sete al
 	movzx rax, al
 	cmp rax, 0
-	je label_75
+	je label_82
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_132
+	mov rax, _string_135
 	push rax
 	mov rax, qword [rbp+16]
 	push rax
@@ -6475,11 +6562,11 @@ _write_fn_info:
 	pop rdi
 	mov al, 0
 	call _fprintf
-	jmp label_76
-label_75:
+	jmp label_83
+label_82:
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_133
+	mov rax, _string_136
 	push rax
 	mov rax, qword [rbp+16]
 	push rax
@@ -6488,7 +6575,7 @@ label_75:
 	pop rdi
 	mov al, 0
 	call _fprintf
-label_76:
+label_83:
 	mov rsp, rbp
 	pop rbp
 	add rsp, 32
@@ -6504,7 +6591,7 @@ _write_switch:
 	and rsp, -16
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_134
+	mov rax, _string_137
 	push rax
 	mov rax, qword [rbp+24]
 	push rax
@@ -6515,7 +6602,7 @@ _write_switch:
 	call _fprintf
 	mov rax, 0
 	mov [rbp-8], rax
-label_77:
+label_84:
 	mov rax, qword [rbp+16]
 	mov rax, [rax+8]
 	push rax
@@ -6525,10 +6612,10 @@ label_77:
 	setl al
 	movzx rax, al
 	cmp rax, 0
-	je label_78
+	je label_85
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_135
+	mov rax, _string_138
 	push rax
 	mov rax, qword [rbp+24]
 	push rax
@@ -6544,8 +6631,8 @@ label_77:
 	mov rcx, [rax]
 	add qword [rax], 1
 	mov rax, rcx
-	jmp label_77
-label_78:
+	jmp label_84
+label_85:
 	mov rsp, rbp
 	pop rbp
 	add rsp, 32
@@ -6562,9 +6649,9 @@ _write_env_vars:
 	mov [rbp-8], rax
 	mov rax, _string_2
 	push rax
-	mov rax, 881
+	mov rax, 897
 	push rax
-	mov rax, _string_136
+	mov rax, _string_139
 	push rax
 	mov rax, 0
 	push rax
@@ -6582,7 +6669,7 @@ _write_env_vars:
 	call _my_assert
 	mov rax, 0
 	mov [rbp-16], rax
-label_79:
+label_86:
 	mov rax, qword [rbp-8]
 	mov rax, [rax+8]
 	push rax
@@ -6592,7 +6679,7 @@ label_79:
 	setl al
 	movzx rax, al
 	cmp rax, 0
-	je label_80
+	je label_87
 	mov rax, qword [rbp-16]
 	imul rax, 8
 	push rax
@@ -6602,7 +6689,7 @@ label_79:
 	add rax, rcx
 	mov rax, [rax]
 	mov [rbp-24], rax
-label_81:
+label_88:
 	mov rax, 0
 	push rax
 	mov rax, qword [rbp-24]
@@ -6611,7 +6698,7 @@ label_81:
 	setne al
 	movzx rax, al
 	cmp rax, 0
-	je label_82
+	je label_89
 	mov rax, qword [rbp+16]
 	push rax
 	mov rax, qword [rbp-24]
@@ -6627,18 +6714,15 @@ label_81:
 	call _write_var
 	mov rax, qword [rbp-24]
 	mov rax, [rax+16]
-	push rax
-	lea rax, [rbp-24]
-	pop rcx
-	mov [rax], rcx
-	jmp label_81
-label_82:
+	mov [rbp-24], rax
+	jmp label_88
+label_89:
 	lea rax, [rbp-16]
 	mov rcx, [rax]
 	add qword [rax], 1
 	mov rax, rcx
-	jmp label_79
-label_80:
+	jmp label_86
+label_87:
 	mov rsp, rbp
 	pop rbp
 	add rsp, 16
@@ -6655,9 +6739,9 @@ _write_env_strings:
 	mov [rbp-8], rax
 	mov rax, _string_2
 	push rax
-	mov rax, 894
+	mov rax, 910
 	push rax
-	mov rax, _string_136
+	mov rax, _string_139
 	push rax
 	mov rax, 0
 	push rax
@@ -6675,7 +6759,7 @@ _write_env_strings:
 	call _my_assert
 	mov rax, 0
 	mov [rbp-16], rax
-label_83:
+label_90:
 	mov rax, qword [rbp-8]
 	mov rax, [rax+8]
 	push rax
@@ -6685,7 +6769,7 @@ label_83:
 	setl al
 	movzx rax, al
 	cmp rax, 0
-	je label_84
+	je label_91
 	mov rax, qword [rbp-16]
 	imul rax, 8
 	push rax
@@ -6695,7 +6779,7 @@ label_83:
 	add rax, rcx
 	mov rax, [rax]
 	mov [rbp-24], rax
-label_85:
+label_92:
 	mov rax, 0
 	push rax
 	mov rax, qword [rbp-24]
@@ -6704,7 +6788,7 @@ label_85:
 	setne al
 	movzx rax, al
 	cmp rax, 0
-	je label_86
+	je label_93
 	mov rax, qword [rbp+16]
 	push rax
 	mov rax, qword [rbp-24]
@@ -6720,18 +6804,15 @@ label_85:
 	call _write_string
 	mov rax, qword [rbp-24]
 	mov rax, [rax+16]
-	push rax
-	lea rax, [rbp-24]
-	pop rcx
-	mov [rax], rcx
-	jmp label_85
-label_86:
+	mov [rbp-24], rax
+	jmp label_92
+label_93:
 	lea rax, [rbp-16]
 	mov rcx, [rax]
 	add qword [rax], 1
 	mov rax, rcx
-	jmp label_83
-label_84:
+	jmp label_90
+label_91:
 	mov rsp, rbp
 	pop rbp
 	add rsp, 16
@@ -6748,9 +6829,9 @@ _write_env_fns:
 	mov [rbp-8], rax
 	mov rax, _string_2
 	push rax
-	mov rax, 907
+	mov rax, 923
 	push rax
-	mov rax, _string_136
+	mov rax, _string_139
 	push rax
 	mov rax, 0
 	push rax
@@ -6768,7 +6849,7 @@ _write_env_fns:
 	call _my_assert
 	mov rax, 0
 	mov [rbp-16], rax
-label_87:
+label_94:
 	mov rax, qword [rbp-8]
 	mov rax, [rax+8]
 	push rax
@@ -6778,7 +6859,7 @@ label_87:
 	setl al
 	movzx rax, al
 	cmp rax, 0
-	je label_88
+	je label_95
 	mov rax, qword [rbp-16]
 	imul rax, 8
 	push rax
@@ -6788,7 +6869,7 @@ label_87:
 	add rax, rcx
 	mov rax, [rax]
 	mov [rbp-24], rax
-label_89:
+label_96:
 	mov rax, 0
 	push rax
 	mov rax, qword [rbp-24]
@@ -6797,7 +6878,7 @@ label_89:
 	setne al
 	movzx rax, al
 	cmp rax, 0
-	je label_90
+	je label_97
 	mov rax, qword [rbp+16]
 	push rax
 	mov rax, qword [rbp-24]
@@ -6813,18 +6894,15 @@ label_89:
 	call _write_fn_info
 	mov rax, qword [rbp-24]
 	mov rax, [rax+16]
-	push rax
-	lea rax, [rbp-24]
-	pop rcx
-	mov [rax], rcx
-	jmp label_89
-label_90:
+	mov [rbp-24], rax
+	jmp label_96
+label_97:
 	lea rax, [rbp-16]
 	mov rcx, [rax]
 	add qword [rax], 1
 	mov rax, rcx
-	jmp label_87
-label_88:
+	jmp label_94
+label_95:
 	mov rsp, rbp
 	pop rbp
 	add rsp, 16
@@ -6838,7 +6916,7 @@ _write_footer:
 	and rsp, -16
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_137
+	mov rax, _string_140
 	push rax
 	pop rsi
 	pop rdi
@@ -6846,7 +6924,7 @@ _write_footer:
 	call _emit
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_138
+	mov rax, _string_141
 	push rax
 	pop rsi
 	pop rdi
@@ -6854,7 +6932,7 @@ _write_footer:
 	call _fprintf
 	mov rax, qword [rbp+8]
 	push rax
-	mov rax, _string_139
+	mov rax, _string_142
 	push rax
 	pop rsi
 	pop rdi
@@ -6892,145 +6970,148 @@ _write_footer:
 section .data
 	dummy: dw 16
 	g1: dq 0
-	_string_122: db 114, 99, 120, 0
-	_string_89: db 9, 106, 101, 32, 108, 97, 98, 101, 108, 95, 37, 105, 10, 0
-	_string_73: db 9, 108, 101, 97, 32, 114, 97, 120, 44, 32, 91, 114, 98, 112, 45, 37, 105, 93, 10, 0
-	_string_48: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 76, 79, 71, 73, 67, 65, 76, 95, 78, 79, 84, 0
-	_string_28: db 70, 105, 101, 108, 100, 32, 37, 115, 32, 110, 111, 116, 32, 102, 111, 117, 110, 100, 32, 105, 110, 32, 115, 116, 114, 117, 99, 116, 32, 37, 115, 10, 0
-	_string_24: db 9, 109, 111, 118, 32, 114, 97, 120, 44, 32, 37, 100, 10, 0
-	_string_21: db 109, 111, 118, 32, 97, 108, 44, 32, 48, 0
-	_string_17: db 9, 109, 111, 118, 32, 114, 97, 120, 44, 32, 95, 115, 116, 114, 105, 110, 103, 95, 37, 105, 10, 0
-	_string_101: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 83, 87, 73, 84, 67, 72, 0
-	_string_74: db 65, 116, 116, 101, 109, 112, 116, 101, 100, 32, 116, 111, 32, 100, 101, 114, 101, 102, 101, 114, 101, 110, 99, 101, 32, 110, 111, 110, 45, 112, 111, 105, 110, 116, 101, 114, 32, 116, 121, 112, 101, 32, 37, 105, 0
-	_string_69: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 78, 69, 81, 0
-	_string_65: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 71, 84, 69, 0
-	_string_41: db 97, 100, 100, 32, 113, 119, 111, 114, 100, 32, 91, 114, 97, 120, 93, 44, 32, 49, 0
-	_string_36: db 109, 111, 118, 32, 114, 97, 120, 44, 32, 114, 99, 120, 0
-	_string_15: db 9, 37, 115, 32, 91, 114, 98, 112, 45, 37, 105, 93, 10, 0
-	_string_128: db 100, 113, 0
-	_string_96: db 114, 101, 116, 0
-	_string_79: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 76, 79, 71, 73, 67, 65, 76, 95, 79, 82, 0
-	_string_121: db 114, 100, 120, 0
-	_string_120: db 114, 115, 105, 0
-	_string_115: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 83, 84, 82, 85, 67, 84, 95, 68, 69, 67, 76, 65, 82, 65, 84, 73, 79, 78, 0
-	_string_59: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 76, 84, 0
-	_string_47: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 68, 69, 82, 69, 70, 69, 82, 69, 78, 67, 69, 0
+	_string_124: db 114, 99, 120, 0
+	_string_91: db 9, 106, 101, 32, 108, 97, 98, 101, 108, 95, 37, 105, 10, 0
+	_string_70: db 9, 108, 101, 97, 32, 114, 97, 120, 44, 32, 91, 114, 98, 112, 45, 37, 105, 93, 10, 0
+	_string_45: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 76, 79, 71, 73, 67, 65, 76, 95, 78, 79, 84, 0
+	_string_25: db 70, 105, 101, 108, 100, 32, 37, 115, 32, 110, 111, 116, 32, 102, 111, 117, 110, 100, 32, 105, 110, 32, 115, 116, 114, 117, 99, 116, 32, 37, 115, 10, 0
+	_string_21: db 9, 109, 111, 118, 32, 114, 97, 120, 44, 32, 37, 100, 10, 0
+	_string_18: db 109, 111, 118, 32, 97, 108, 44, 32, 48, 0
+	_string_14: db 9, 109, 111, 118, 32, 114, 97, 120, 44, 32, 95, 115, 116, 114, 105, 110, 103, 95, 37, 105, 10, 0
+	_string_103: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 83, 87, 73, 84, 67, 72, 0
+	_string_71: db 65, 116, 116, 101, 109, 112, 116, 101, 100, 32, 116, 111, 32, 100, 101, 114, 101, 102, 101, 114, 101, 110, 99, 101, 32, 110, 111, 110, 45, 112, 111, 105, 110, 116, 101, 114, 32, 116, 121, 112, 101, 32, 37, 105, 0
+	_string_66: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 78, 69, 81, 0
+	_string_62: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 71, 84, 69, 0
+	_string_38: db 97, 100, 100, 32, 113, 119, 111, 114, 100, 32, 91, 114, 97, 120, 93, 44, 32, 49, 0
+	_string_33: db 109, 111, 118, 32, 114, 97, 120, 44, 32, 114, 99, 120, 0
+	_string_12: db 9, 37, 115, 32, 91, 114, 98, 112, 45, 37, 105, 93, 10, 0
+	_string_131: db 100, 113, 0
+	_string_98: db 114, 101, 116, 0
+	_string_76: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 76, 79, 71, 73, 67, 65, 76, 95, 79, 82, 0
+	_string_123: db 114, 100, 120, 0
+	_string_122: db 114, 115, 105, 0
+	_string_117: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 83, 84, 82, 85, 67, 84, 95, 68, 69, 67, 76, 65, 82, 65, 84, 73, 79, 78, 0
+	_string_56: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 76, 84, 0
+	_string_44: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 68, 69, 82, 69, 70, 69, 82, 69, 78, 67, 69, 0
+	_string_84: db 97, 108, 10, 0
 	_string_3: db 110, 32, 33, 61, 32, 78, 85, 76, 76, 0
-	_string_62: db 99, 109, 112, 32, 114, 97, 120, 44, 32, 114, 99, 120, 10, 9, 115, 101, 116, 108, 101, 32, 97, 108, 10, 9, 109, 111, 118, 122, 120, 32, 114, 97, 120, 44, 32, 97, 108, 0
-	_string_29: db 9, 109, 111, 118, 32, 114, 97, 120, 44, 32, 91, 114, 97, 120, 43, 37, 105, 93, 10, 0
-	_string_112: db 109, 111, 118, 32, 114, 98, 112, 44, 32, 114, 115, 112, 0
-	_string_88: db 99, 109, 112, 32, 114, 97, 120, 44, 32, 48, 0
-	_string_18: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 70, 78, 95, 67, 65, 76, 76, 0
-	_string_113: db 97, 110, 100, 32, 114, 115, 112, 44, 32, 45, 49, 54, 0
-	_string_51: db 109, 111, 118, 122, 120, 32, 114, 97, 120, 44, 32, 99, 108, 0
-	_string_35: db 109, 111, 118, 32, 99, 108, 44, 32, 91, 114, 97, 120, 93, 0
-	_string_117: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 69, 78, 85, 77, 0
-	_string_106: db 115, 119, 105, 116, 99, 104, 95, 37, 105, 95, 100, 101, 102, 97, 117, 108, 116, 58, 10, 0
-	_string_57: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 68, 73, 86, 73, 83, 73, 79, 78, 0
-	_string_44: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 78, 69, 71, 65, 84, 73, 86, 69, 0
-	_string_16: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 83, 84, 82, 73, 78, 71, 0
-	_string_134: db 115, 119, 105, 116, 99, 104, 95, 116, 97, 98, 108, 101, 95, 37, 105, 58, 10, 0
-	_string_67: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 69, 81, 0
-	_string_110: db 9, 112, 117, 115, 104, 32, 37, 115, 10, 0
-	_string_87: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 73, 70, 0
-	_string_83: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 65, 83, 83, 73, 71, 78, 0
-	_string_81: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 84, 69, 82, 78, 65, 82, 89, 0
-	_string_137: db 0
-	_string_98: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 76, 79, 67, 65, 76, 95, 68, 69, 67, 76, 65, 82, 65, 84, 73, 79, 78, 0
-	_string_85: db 109, 111, 118, 32, 91, 114, 97, 120, 93, 44, 32, 114, 99, 120, 0
-	_string_52: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 65, 68, 68, 73, 84, 73, 79, 78, 0
-	_string_49: db 116, 101, 115, 116, 32, 114, 97, 120, 44, 32, 114, 97, 120, 0
-	_string_37: db 109, 111, 118, 32, 114, 97, 120, 44, 32, 91, 114, 97, 120, 93, 0
-	_string_138: db 115, 101, 99, 116, 105, 111, 110, 32, 46, 100, 97, 116, 97, 10, 0
-	_string_118: db 59, 32, 117, 110, 107, 110, 111, 119, 110, 32, 105, 110, 115, 116, 114, 117, 99, 116, 105, 111, 110, 32, 37, 105, 10, 0
-	_string_75: db 9, 97, 100, 100, 32, 114, 97, 120, 44, 32, 37, 105, 10, 0
-	_string_66: db 99, 109, 112, 32, 114, 97, 120, 44, 32, 114, 99, 120, 10, 9, 115, 101, 116, 103, 101, 32, 97, 108, 10, 9, 109, 111, 118, 122, 120, 32, 114, 97, 120, 44, 32, 97, 108, 0
-	_string_131: db 48, 10, 0
-	_string_114: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 71, 76, 79, 66, 65, 76, 95, 68, 69, 67, 76, 65, 82, 65, 84, 73, 79, 78, 0
-	_string_111: db 112, 117, 115, 104, 32, 114, 98, 112, 0
-	_string_84: db 109, 111, 118, 32, 91, 114, 97, 120, 93, 44, 32, 99, 108, 0
-	_string_46: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 65, 68, 68, 82, 69, 83, 83, 0
-	_string_10: db 10, 0
-	_string_76: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 76, 79, 71, 73, 67, 65, 76, 95, 65, 78, 68, 0
-	_string_60: db 99, 109, 112, 32, 114, 97, 120, 44, 32, 114, 99, 120, 10, 9, 115, 101, 116, 108, 32, 97, 108, 10, 9, 109, 111, 118, 122, 120, 32, 114, 97, 120, 44, 32, 97, 108, 0
-	_string_31: db 9, 105, 109, 117, 108, 32, 114, 97, 120, 44, 32, 37, 105, 10, 0
+	_string_59: db 99, 109, 112, 32, 114, 97, 120, 44, 32, 114, 99, 120, 10, 9, 115, 101, 116, 108, 101, 32, 97, 108, 10, 9, 109, 111, 118, 122, 120, 32, 114, 97, 120, 44, 32, 97, 108, 0
+	_string_26: db 9, 109, 111, 118, 32, 114, 97, 120, 44, 32, 91, 114, 97, 120, 43, 37, 105, 93, 10, 0
+	_string_114: db 109, 111, 118, 32, 114, 98, 112, 44, 32, 114, 115, 112, 0
+	_string_90: db 99, 109, 112, 32, 114, 97, 120, 44, 32, 48, 0
+	_string_15: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 70, 78, 95, 67, 65, 76, 76, 0
+	_string_115: db 97, 110, 100, 32, 114, 115, 112, 44, 32, 45, 49, 54, 0
+	_string_48: db 109, 111, 118, 122, 120, 32, 114, 97, 120, 44, 32, 99, 108, 0
+	_string_32: db 109, 111, 118, 32, 99, 108, 44, 32, 91, 114, 97, 120, 93, 0
+	_string_119: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 69, 78, 85, 77, 0
+	_string_108: db 115, 119, 105, 116, 99, 104, 95, 37, 105, 95, 100, 101, 102, 97, 117, 108, 116, 58, 10, 0
+	_string_54: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 68, 73, 86, 73, 83, 73, 79, 78, 0
+	_string_41: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 78, 69, 71, 65, 84, 73, 86, 69, 0
+	_string_13: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 83, 84, 82, 73, 78, 71, 0
+	_string_137: db 115, 119, 105, 116, 99, 104, 95, 116, 97, 98, 108, 101, 95, 37, 105, 58, 10, 0
+	_string_83: db 9, 109, 111, 118, 32, 91, 114, 98, 112, 45, 37, 105, 93, 44, 32, 0
+	_string_64: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 69, 81, 0
+	_string_112: db 9, 112, 117, 115, 104, 32, 37, 115, 10, 0
+	_string_89: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 73, 70, 0
+	_string_80: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 65, 83, 83, 73, 71, 78, 0
+	_string_78: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 84, 69, 82, 78, 65, 82, 89, 0
+	_string_140: db 0
+	_string_100: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 76, 79, 67, 65, 76, 95, 68, 69, 67, 76, 65, 82, 65, 84, 73, 79, 78, 0
+	_string_87: db 109, 111, 118, 32, 91, 114, 97, 120, 93, 44, 32, 114, 99, 120, 0
+	_string_81: db 9, 109, 111, 118, 32, 91, 103, 37, 105, 93, 44, 32, 0
+	_string_49: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 65, 68, 68, 73, 84, 73, 79, 78, 0
+	_string_46: db 116, 101, 115, 116, 32, 114, 97, 120, 44, 32, 114, 97, 120, 0
+	_string_34: db 109, 111, 118, 32, 114, 97, 120, 44, 32, 91, 114, 97, 120, 93, 0
+	_string_141: db 115, 101, 99, 116, 105, 111, 110, 32, 46, 100, 97, 116, 97, 10, 0
+	_string_120: db 59, 32, 117, 110, 107, 110, 111, 119, 110, 32, 105, 110, 115, 116, 114, 117, 99, 116, 105, 111, 110, 32, 37, 105, 10, 0
+	_string_72: db 9, 97, 100, 100, 32, 114, 97, 120, 44, 32, 37, 105, 10, 0
+	_string_63: db 99, 109, 112, 32, 114, 97, 120, 44, 32, 114, 99, 120, 10, 9, 115, 101, 116, 103, 101, 32, 97, 108, 10, 9, 109, 111, 118, 122, 120, 32, 114, 97, 120, 44, 32, 97, 108, 0
+	_string_134: db 48, 10, 0
+	_string_129: db 10, 0
+	_string_116: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 71, 76, 79, 66, 65, 76, 95, 68, 69, 67, 76, 65, 82, 65, 84, 73, 79, 78, 0
+	_string_113: db 112, 117, 115, 104, 32, 114, 98, 112, 0
+	_string_86: db 109, 111, 118, 32, 91, 114, 97, 120, 93, 44, 32, 99, 108, 0
+	_string_43: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 65, 68, 68, 82, 69, 83, 83, 0
+	_string_73: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 76, 79, 71, 73, 67, 65, 76, 95, 65, 78, 68, 0
+	_string_57: db 99, 109, 112, 32, 114, 97, 120, 44, 32, 114, 99, 120, 10, 9, 115, 101, 116, 108, 32, 97, 108, 10, 9, 109, 111, 118, 122, 120, 32, 114, 97, 120, 44, 32, 97, 108, 0
+	_string_28: db 9, 105, 109, 117, 108, 32, 114, 97, 120, 44, 32, 37, 105, 10, 0
 	_string_2: db 119, 114, 105, 116, 101, 114, 47, 100, 114, 105, 118, 101, 114, 46, 99, 0
-	_string_126: db 115, 101, 99, 116, 105, 111, 110, 32, 46, 116, 101, 120, 116, 10, 0
+	_string_128: db 115, 101, 99, 116, 105, 111, 110, 32, 46, 116, 101, 120, 116, 10, 0
+	_string_82: db 9, 109, 111, 118, 32, 91, 114, 98, 112, 43, 37, 105, 93, 44, 32, 0
 	_string_5: db 9, 109, 111, 118, 32, 114, 97, 120, 44, 32, 37, 105, 10, 0
 	_string_4: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 73, 78, 84, 69, 71, 69, 82, 0
-	_string_136: db 72, 32, 33, 61, 32, 78, 85, 76, 76, 0
-	_string_108: db 95, 37, 115, 58, 10, 0
-	_string_94: db 112, 111, 112, 32, 114, 98, 112, 0
-	_string_86: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 83, 84, 65, 84, 69, 77, 69, 78, 84, 0
-	_string_61: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 76, 84, 69, 0
-	_string_39: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 73, 78, 67, 82, 69, 77, 69, 78, 84, 0
-	_string_11: db 109, 111, 118, 122, 120, 32, 114, 97, 120, 44, 32, 98, 121, 116, 101, 0
-	_string_123: db 114, 56, 0
-	_string_124: db 114, 57, 0
-	_string_119: db 114, 100, 105, 0
-	_string_72: db 9, 108, 101, 97, 32, 114, 97, 120, 44, 32, 91, 114, 98, 112, 43, 37, 105, 93, 10, 0
-	_string_63: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 71, 84, 0
-	_string_50: db 115, 101, 116, 122, 32, 99, 108, 0
-	_string_38: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 67, 65, 83, 84, 0
-	_string_27: db 65, 116, 116, 101, 109, 112, 116, 101, 100, 32, 116, 111, 32, 97, 114, 114, 111, 119, 32, 110, 111, 110, 45, 115, 116, 114, 117, 99, 116, 45, 112, 111, 105, 110, 116, 101, 114, 32, 37, 105, 10, 0
-	_string_19: db 112, 117, 115, 104, 32, 114, 97, 120, 0
-	_string_68: db 99, 109, 112, 32, 114, 97, 120, 44, 32, 114, 99, 120, 10, 9, 115, 101, 116, 101, 32, 97, 108, 10, 9, 109, 111, 118, 122, 120, 32, 114, 97, 120, 44, 32, 97, 108, 0
-	_string_20: db 9, 112, 111, 112, 32, 37, 115, 10, 0
-	_string_14: db 9, 37, 115, 32, 91, 114, 98, 112, 43, 37, 105, 93, 10, 0
-	_string_12: db 109, 111, 118, 32, 114, 97, 120, 44, 32, 113, 119, 111, 114, 100, 0
-	_string_132: db 101, 120, 116, 101, 114, 110, 32, 95, 37, 115, 10, 0
-	_string_104: db 9, 106, 109, 112, 32, 115, 119, 105, 116, 99, 104, 95, 37, 105, 95, 100, 101, 102, 97, 117, 108, 116, 10, 0
-	_string_100: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 83, 69, 81, 85, 69, 78, 67, 69, 0
-	_string_91: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 70, 79, 82, 0
-	_string_129: db 9, 95, 115, 116, 114, 105, 110, 103, 95, 37, 105, 58, 32, 100, 98, 32, 0
-	_string_109: db 9, 115, 117, 98, 32, 114, 115, 112, 44, 32, 37, 105, 10, 0
-	_string_102: db 9, 99, 109, 112, 32, 114, 97, 120, 44, 32, 37, 105, 10, 0
-	_string_77: db 9, 106, 122, 32, 108, 97, 98, 101, 108, 95, 37, 105, 10, 0
-	_string_70: db 99, 109, 112, 32, 114, 97, 120, 44, 32, 114, 99, 120, 10, 9, 115, 101, 116, 110, 101, 32, 97, 108, 10, 9, 109, 111, 118, 122, 120, 32, 114, 97, 120, 44, 32, 97, 108, 0
-	_string_53: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 83, 85, 66, 84, 82, 65, 67, 84, 73, 79, 78, 0
-	_string_99: db 9, 109, 111, 118, 32, 91, 114, 98, 112, 45, 37, 105, 93, 44, 32, 114, 97, 120, 10, 0
-	_string_97: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 66, 82, 69, 65, 75, 0
-	_string_78: db 108, 97, 98, 101, 108, 95, 37, 105, 58, 10, 0
-	_string_71: db 9, 109, 111, 118, 32, 114, 97, 120, 44, 32, 103, 37, 105, 10, 0
-	_string_25: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 65, 82, 82, 79, 87, 0
+	_string_139: db 72, 32, 33, 61, 32, 78, 85, 76, 76, 0
+	_string_110: db 95, 37, 115, 58, 10, 0
+	_string_96: db 112, 111, 112, 32, 114, 98, 112, 0
+	_string_88: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 83, 84, 65, 84, 69, 77, 69, 78, 84, 0
+	_string_58: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 76, 84, 69, 0
+	_string_36: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 73, 78, 67, 82, 69, 77, 69, 78, 84, 0
+	_string_8: db 109, 111, 118, 122, 120, 32, 114, 97, 120, 44, 32, 98, 121, 116, 101, 0
+	_string_125: db 114, 56, 0
+	_string_126: db 114, 57, 0
+	_string_121: db 114, 100, 105, 0
+	_string_69: db 9, 108, 101, 97, 32, 114, 97, 120, 44, 32, 91, 114, 98, 112, 43, 37, 105, 93, 10, 0
+	_string_60: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 71, 84, 0
+	_string_47: db 115, 101, 116, 122, 32, 99, 108, 0
+	_string_35: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 67, 65, 83, 84, 0
+	_string_24: db 65, 116, 116, 101, 109, 112, 116, 101, 100, 32, 116, 111, 32, 97, 114, 114, 111, 119, 32, 110, 111, 110, 45, 115, 116, 114, 117, 99, 116, 45, 112, 111, 105, 110, 116, 101, 114, 32, 37, 105, 10, 0
+	_string_16: db 112, 117, 115, 104, 32, 114, 97, 120, 0
+	_string_65: db 99, 109, 112, 32, 114, 97, 120, 44, 32, 114, 99, 120, 10, 9, 115, 101, 116, 101, 32, 97, 108, 10, 9, 109, 111, 118, 122, 120, 32, 114, 97, 120, 44, 32, 97, 108, 0
+	_string_17: db 9, 112, 111, 112, 32, 37, 115, 10, 0
+	_string_11: db 9, 37, 115, 32, 91, 114, 98, 112, 43, 37, 105, 93, 10, 0
+	_string_9: db 109, 111, 118, 32, 114, 97, 120, 44, 32, 113, 119, 111, 114, 100, 0
+	_string_135: db 101, 120, 116, 101, 114, 110, 32, 95, 37, 115, 10, 0
+	_string_106: db 9, 106, 109, 112, 32, 115, 119, 105, 116, 99, 104, 95, 37, 105, 95, 100, 101, 102, 97, 117, 108, 116, 10, 0
+	_string_102: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 83, 69, 81, 85, 69, 78, 67, 69, 0
+	_string_93: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 70, 79, 82, 0
+	_string_132: db 9, 95, 115, 116, 114, 105, 110, 103, 95, 37, 105, 58, 32, 100, 98, 32, 0
+	_string_111: db 9, 115, 117, 98, 32, 114, 115, 112, 44, 32, 37, 105, 10, 0
+	_string_104: db 9, 99, 109, 112, 32, 114, 97, 120, 44, 32, 37, 105, 10, 0
+	_string_74: db 9, 106, 122, 32, 108, 97, 98, 101, 108, 95, 37, 105, 10, 0
+	_string_67: db 99, 109, 112, 32, 114, 97, 120, 44, 32, 114, 99, 120, 10, 9, 115, 101, 116, 110, 101, 32, 97, 108, 10, 9, 109, 111, 118, 122, 120, 32, 114, 97, 120, 44, 32, 97, 108, 0
+	_string_50: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 83, 85, 66, 84, 82, 65, 67, 84, 73, 79, 78, 0
+	_string_101: db 9, 109, 111, 118, 32, 91, 114, 98, 112, 45, 37, 105, 93, 44, 32, 114, 97, 120, 10, 0
+	_string_99: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 66, 82, 69, 65, 75, 0
+	_string_85: db 114, 97, 120, 10, 0
+	_string_75: db 108, 97, 98, 101, 108, 95, 37, 105, 58, 10, 0
+	_string_68: db 9, 109, 111, 118, 32, 114, 97, 120, 44, 32, 103, 37, 105, 10, 0
+	_string_22: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 65, 82, 82, 79, 87, 0
 	_string_1: db 9, 37, 115, 10, 0
-	_string_133: db 103, 108, 111, 98, 97, 108, 32, 95, 37, 115, 10, 0
-	_string_55: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 77, 85, 76, 84, 73, 80, 76, 73, 67, 65, 84, 73, 79, 78, 0
-	_string_9: db 115, 105, 122, 101, 32, 111, 102, 32, 118, 97, 114, 32, 37, 115, 32, 105, 115, 32, 37, 100, 0
+	_string_136: db 103, 108, 111, 98, 97, 108, 32, 95, 37, 115, 10, 0
+	_string_52: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 77, 85, 76, 84, 73, 80, 76, 73, 67, 65, 84, 73, 79, 78, 0
 	_string_7: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 86, 65, 82, 73, 65, 66, 76, 69, 0
-	_string_135: db 9, 100, 113, 32, 115, 119, 105, 116, 99, 104, 95, 37, 105, 95, 99, 97, 115, 101, 95, 37, 105, 10, 0
-	_string_116: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 84, 89, 80, 69, 68, 69, 70, 0
-	_string_95: db 9, 97, 100, 100, 32, 114, 115, 112, 44, 32, 37, 105, 10, 0
-	_string_93: db 109, 111, 118, 32, 114, 115, 112, 44, 32, 114, 98, 112, 0
-	_string_56: db 109, 117, 108, 32, 114, 99, 120, 0
-	_string_45: db 110, 101, 103, 32, 114, 97, 120, 0
-	_string_43: db 115, 117, 98, 32, 113, 119, 111, 114, 100, 32, 91, 114, 97, 120, 93, 44, 32, 49, 0
-	_string_139: db 100, 117, 109, 109, 121, 58, 32, 100, 119, 32, 49, 54, 0
-	_string_92: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 82, 69, 84, 85, 82, 78, 0
-	_string_80: db 9, 106, 110, 122, 32, 108, 97, 98, 101, 108, 95, 37, 105, 10, 0
-	_string_64: db 99, 109, 112, 32, 114, 97, 120, 44, 32, 114, 99, 120, 10, 9, 115, 101, 116, 103, 32, 97, 108, 10, 9, 109, 111, 118, 122, 120, 32, 114, 97, 120, 44, 32, 97, 108, 0
-	_string_58: db 99, 113, 111, 10, 9, 100, 105, 118, 32, 114, 99, 120, 0
-	_string_54: db 115, 117, 98, 32, 114, 97, 120, 44, 32, 114, 99, 120, 0
-	_string_30: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 65, 82, 82, 65, 89, 95, 83, 85, 66, 0
-	_string_22: db 9, 99, 97, 108, 108, 32, 95, 37, 115, 10, 0
-	_string_13: db 9, 37, 115, 32, 91, 103, 37, 105, 93, 10, 0
+	_string_138: db 9, 100, 113, 32, 115, 119, 105, 116, 99, 104, 95, 37, 105, 95, 99, 97, 115, 101, 95, 37, 105, 10, 0
+	_string_118: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 84, 89, 80, 69, 68, 69, 70, 0
+	_string_97: db 9, 97, 100, 100, 32, 114, 115, 112, 44, 32, 37, 105, 10, 0
+	_string_95: db 109, 111, 118, 32, 114, 115, 112, 44, 32, 114, 98, 112, 0
+	_string_53: db 109, 117, 108, 32, 114, 99, 120, 0
+	_string_42: db 110, 101, 103, 32, 114, 97, 120, 0
+	_string_40: db 115, 117, 98, 32, 113, 119, 111, 114, 100, 32, 91, 114, 97, 120, 93, 44, 32, 49, 0
+	_string_142: db 100, 117, 109, 109, 121, 58, 32, 100, 119, 32, 49, 54, 0
+	_string_94: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 82, 69, 84, 85, 82, 78, 0
+	_string_77: db 9, 106, 110, 122, 32, 108, 97, 98, 101, 108, 95, 37, 105, 10, 0
+	_string_61: db 99, 109, 112, 32, 114, 97, 120, 44, 32, 114, 99, 120, 10, 9, 115, 101, 116, 103, 32, 97, 108, 10, 9, 109, 111, 118, 122, 120, 32, 114, 97, 120, 44, 32, 97, 108, 0
+	_string_55: db 99, 113, 111, 10, 9, 100, 105, 118, 32, 114, 99, 120, 0
+	_string_51: db 115, 117, 98, 32, 114, 97, 120, 44, 32, 114, 99, 120, 0
+	_string_27: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 65, 82, 82, 65, 89, 95, 83, 85, 66, 0
+	_string_19: db 9, 99, 97, 108, 108, 32, 95, 37, 115, 10, 0
+	_string_10: db 9, 37, 115, 32, 91, 103, 37, 105, 93, 10, 0
 	_string_6: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 67, 72, 65, 82, 0
-	_string_105: db 115, 119, 105, 116, 99, 104, 95, 37, 105, 95, 99, 97, 115, 101, 95, 37, 105, 58, 10, 0
-	_string_103: db 9, 106, 101, 32, 115, 119, 105, 116, 99, 104, 95, 37, 105, 95, 99, 97, 115, 101, 95, 37, 105, 10, 0
-	_string_125: db 100, 101, 102, 97, 117, 108, 116, 32, 114, 101, 108, 10, 0
-	_string_32: db 112, 111, 112, 32, 114, 99, 120, 0
-	_string_23: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 83, 73, 90, 69, 79, 70, 0
-	_string_8: db 37, 115, 58, 37, 100, 32, 9, 0
-	_string_90: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 87, 72, 73, 76, 69, 0
-	_string_82: db 9, 106, 109, 112, 32, 108, 97, 98, 101, 108, 95, 37, 105, 10, 0
-	_string_42: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 68, 69, 67, 82, 69, 77, 69, 78, 84, 0
-	_string_34: db 120, 111, 114, 32, 114, 99, 120, 44, 32, 114, 99, 120, 0
-	_string_33: db 97, 100, 100, 32, 114, 97, 120, 44, 32, 114, 99, 120, 0
-	_string_130: db 37, 105, 44, 32, 0
-	_string_127: db 9, 103, 37, 105, 58, 32, 37, 115, 32, 48, 10, 0
-	_string_107: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 70, 85, 78, 67, 84, 73, 79, 78, 0
-	_string_40: db 109, 111, 118, 32, 114, 99, 120, 44, 32, 91, 114, 97, 120, 93, 0
-	_string_26: db 65, 116, 116, 101, 109, 112, 116, 101, 100, 32, 116, 111, 32, 100, 101, 114, 101, 102, 101, 114, 101, 110, 99, 101, 32, 110, 111, 110, 45, 112, 111, 105, 110, 116, 101, 114, 10, 0
+	_string_107: db 115, 119, 105, 116, 99, 104, 95, 37, 105, 95, 99, 97, 115, 101, 95, 37, 105, 58, 10, 0
+	_string_105: db 9, 106, 101, 32, 115, 119, 105, 116, 99, 104, 95, 37, 105, 95, 99, 97, 115, 101, 95, 37, 105, 10, 0
+	_string_127: db 100, 101, 102, 97, 117, 108, 116, 32, 114, 101, 108, 10, 0
+	_string_29: db 112, 111, 112, 32, 114, 99, 120, 0
+	_string_20: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 83, 73, 90, 69, 79, 70, 0
+	_string_92: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 87, 72, 73, 76, 69, 0
+	_string_79: db 9, 106, 109, 112, 32, 108, 97, 98, 101, 108, 95, 37, 105, 10, 0
+	_string_39: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 68, 69, 67, 82, 69, 77, 69, 78, 84, 0
+	_string_31: db 120, 111, 114, 32, 114, 99, 120, 44, 32, 114, 99, 120, 0
+	_string_30: db 97, 100, 100, 32, 114, 97, 120, 44, 32, 114, 99, 120, 0
+	_string_133: db 37, 105, 44, 32, 0
+	_string_130: db 9, 103, 37, 105, 58, 32, 37, 115, 32, 48, 10, 0
+	_string_109: db 110, 45, 62, 116, 121, 112, 101, 32, 61, 61, 32, 65, 83, 84, 95, 70, 85, 78, 67, 84, 73, 79, 78, 0
+	_string_37: db 109, 111, 118, 32, 114, 99, 120, 44, 32, 91, 114, 97, 120, 93, 0
+	_string_23: db 65, 116, 116, 101, 109, 112, 116, 101, 100, 32, 116, 111, 32, 100, 101, 114, 101, 102, 101, 114, 101, 110, 99, 101, 32, 110, 111, 110, 45, 112, 111, 105, 110, 116, 101, 114, 10, 0
 extern _env_get_label
 extern _new_node_typedef
 extern _new_node_struct

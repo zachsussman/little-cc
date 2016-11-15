@@ -22,7 +22,10 @@ main: $(OBJ)
 	cc -g -o $@ $^
 	
 %.o: %.c $(DEPS)
-	$(CC) -c -o $@ $< 
+	$(CC) -O3 -c -o $@ $< 
+
+lean: $(OBJ)
+	cc -o $@ $^
 
 test: main test.c
 	cat test.c | ./main

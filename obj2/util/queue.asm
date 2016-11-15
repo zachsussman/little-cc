@@ -530,10 +530,7 @@ label_7:
 	je label_8
 	mov rax, qword [rbp-8]
 	mov rax, [rax+8]
-	push rax
-	lea rax, [rbp-8]
-	pop rcx
-	mov [rax], rcx
+	mov [rbp-8], rax
 	lea rax, [rbp-16]
 	mov rcx, [rax]
 	add qword [rax], 1
