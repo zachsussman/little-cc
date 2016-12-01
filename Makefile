@@ -1,7 +1,7 @@
 CC=cc
 
-TOK_DEPS = tokenizer/tokenize.h tokenizer/tokens.h 
-TOK_OBJS = tokenizer/tokens.o tokenizer/tokenize.o 
+TOK_DEPS = tokenizer/tokenize.h tokenizer/tokens.h
+TOK_OBJS = tokenizer/tokens.o tokenizer/tokenize.o
 
 UTIL_DEPS = util/list.h util/stack.h util/queue.h util/hash.h
 UTIL_OBJS = util/list.o util/stack.o util/queue.o util/hash.o
@@ -20,9 +20,9 @@ OBJ = $(TOK_OBJS) $(UTIL_OBJS) $(PARSE_OBJS) $(WRITE_OBJS) $(MAIN_OBJS)
 
 main: $(OBJ)
 	cc -g -o $@ $^
-	
+
 %.o: %.c $(DEPS)
-	$(CC) -O3 -c -o $@ $< 
+	$(CC) -O3 -c -o $@ $<
 
 lean: $(OBJ)
 	cc -o $@ $^
@@ -30,13 +30,15 @@ lean: $(OBJ)
 clean:
 	rm *.o
 	rm main
+	rm -r obj
+	rm -r obj2
 
 test: main test.c
 	cat test.c | ./main
 	nasm -o test.o -f macho64 test.asm
 	ld -lc test.o -o test /usr/lib/libc.dylib /usr/lib/crt1.o
 
-link_my_cc: 
+link_my_cc:
 	ld -lc obj/util/list.o obj/util/queue.o obj/util/hash.o obj/util/stack.o \
 		obj/tokenizer/tokens.o obj/tokenizer/tokenize.o \
 		obj/incmain.o obj/token_q.o obj/contracts.o \
@@ -45,7 +47,7 @@ link_my_cc:
 		obj/parser/env.o obj/writer/driver.o \
 		-o my_cc /usr/lib/libc.dylib /usr/lib/crt1.o
 
-my_cc: 
+my_cc:
 	./my_cc.sh incmain
 	./my_cc.sh token_q
 	./my_cc.sh contracts
@@ -68,8 +70,8 @@ my_cc:
 		obj/parser/types.o  obj/parser/scope.o \
 		obj/parser/env.o obj/writer/driver.o \
 		-o my_cc /usr/lib/libc.dylib /usr/lib/crt1.o
-		
-my_cc_test: 
+
+my_cc_test:
 	./test test.c
 	nasm -o test.o -f macho64 test.asm
 	ld -lc test.o -o my_test /usr/lib/libc.dylib /usr/lib/crt1.o
