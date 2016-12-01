@@ -27,6 +27,10 @@ main: $(OBJ)
 lean: $(OBJ)
 	cc -o $@ $^
 
+clean:
+	rm *.o
+	rm main
+
 test: main test.c
 	cat test.c | ./main
 	nasm -o test.o -f macho64 test.asm
