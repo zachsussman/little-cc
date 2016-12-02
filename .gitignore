@@ -50,6 +50,8 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-obj/
-obj2/
 *.asm
+main
+my_cc
+obj/*
+obj2/*
