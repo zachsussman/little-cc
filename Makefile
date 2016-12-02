@@ -19,7 +19,7 @@ DEPS = $(TOK_DEPS) $(UTIL_DEPS) $(PARSE_DEPS) $(WRITE_DEPS) $(MAIN_DEPS)
 OBJ = $(TOK_OBJS) $(UTIL_OBJS) $(PARSE_OBJS) $(WRITE_OBJS) $(MAIN_OBJS)
 
 main: $(OBJ)
-	cc -g -o $@ $^
+	cc -lprofiler -Wl,-no_pie -g -o  $@ $^
 
 %.o: %.c $(DEPS)
 	$(CC) -O3 -c -o $@ $<

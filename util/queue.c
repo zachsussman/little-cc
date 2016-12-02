@@ -9,6 +9,7 @@ bool is_segment_q(list* a, list* b) {
 
 
 bool is_queue(queue* Q) {
+    printf("is_queue is BAD!\n");
     return Q != NULL && is_segment_q(Q->front, Q->back);
 }
 
@@ -41,7 +42,7 @@ void enq(queue* Q, void* d) {
     Q->back->next = l;
     l->next = NULL;
     Q->back = l;
-    
+
     assert(is_queue(Q));
 }
 

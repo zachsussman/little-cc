@@ -123,7 +123,7 @@ var_info* env_get_info(env* E, char* name) {
         printf("Variable '%s' not found\n", name);
         assert(false);
     }
-    
+
 }
 
 void env_set_fn(env* E, char* name) {
@@ -167,7 +167,7 @@ void env_add_fn(env* E, char* name, var_type* ret, scope* s) {
     if (hash_get(E->fns, name) == NULL) {
         char* new_name = strdup(name);
         fn_info* f = new_fn_info(ret, s);
-        hash_insert(E->fns, new_name, f); 
+        hash_insert(E->fns, new_name, f);
     }
     else {
         fn_info* fn = hash_get(E->fns, name);
@@ -213,7 +213,7 @@ int env_align(int s) {
 int env_get_local_size(env* E) {
     assert(is_env(E));
 
-    if (E->curr_fn != NULL && E->curr_fn->locals != NULL) 
+    if (E->curr_fn != NULL && E->curr_fn->locals != NULL)
         return env_align(E->curr_fn->locals->nall);
     else {
         assert(false);
@@ -285,7 +285,7 @@ var_type* _env_ast_unop_type(env* E, node* n) {
 }
 
 var_type* env_dereference_type(env* E, var_type* type) {
-    while (type != NULL && (type->base == LANG_UNDET_STRUCT || type->base == LANG_UNDET)) 
+    while (type != NULL && (type->base == LANG_UNDET_STRUCT || type->base == LANG_UNDET))
         type = env_get_type(E, type->extra);
     if (type->base != LANG_POINTER) {
         printf("Attempted to dereference non-pointer type %i (env_ast_type)\n", type->base);
@@ -319,7 +319,7 @@ var_type* env_ast_type(env* E, node* n) {
     } else if (t == AST_ARROW) {
         extra_arrow* e = (extra_arrow*)n->extra;
         var_type* st_t = env_dereference_type(E, env_ast_type(E, e->inner));
-        while (st_t != NULL && (st_t->base == LANG_UNDET_STRUCT || st_t->base == LANG_UNDET)) 
+        while (st_t != NULL && (st_t->base == LANG_UNDET_STRUCT || st_t->base == LANG_UNDET))
             st_t = env_get_type(E, st_t->extra);
         if (st_t->base != LANG_STRUCT) {
             printf("Attempted to arrow non-struct, env ast type, %i\n", st_t->base);

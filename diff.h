@@ -2,6 +2,8 @@
 
 #ifndef MY_CC
 
+#define NDEBUG
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -15,7 +17,6 @@
 
 #else
 
-#define assert(c) my_assert(__FILE__, __LINE__, #c, c)
 #define FILE void
 typedef int bool;
 typedef int long;
@@ -44,5 +45,13 @@ void fclose(FILE* f);
 // #define mark(...) (printf("%s:%d \t", __FILE__, __LINE__) && (printf(__VA_ARGS__)+1) && printf("\n"))
 #define mark(...) 0
 #define DEBUGGING false
+
+#define NDEBUG
+#ifdef NDEBUG
+#define assert(c) (void*)0
+#else
+#define assert(c) my_assert(__FILE__, __LINE__, #c, c)
+#endif
+
 #endif
 

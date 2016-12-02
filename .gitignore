@@ -56,3 +56,4 @@ my_cc
 my_my_cc
 obj/*
 obj2/*
+*.swp
