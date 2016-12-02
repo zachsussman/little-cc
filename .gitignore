@@ -53,5 +53,6 @@ dkms.conf
 *.asm
 main
 my_cc
+my_my_cc
 obj/*
 obj2/*
