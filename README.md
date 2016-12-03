@@ -12,19 +12,19 @@ To self-compile:
 ```
 make my_cc
 ```
-which produces `my_cc`, taking a C filename and an assembly filename on the command line (much better).  This produces a bunch of garbage in `obj/`.
+which produces `my_cc`, taking a C filename and an assembly filename on the command line (much better).
 
 To self-compile again, for fun:
 ```
 make my_my_cc
 ```
-which produces `my_my_cc`, which should be identical to `my_cc`, thus proving that this compiler is actually self-hosting.  This produces a bunch of garbage in `obj2/`, all identical to the garbage in `obj/`.
+which produces `my_my_cc`, which should be identical to `my_cc`, thus proving that this compiler is actually self-hosting.
 
 To compile, say, test.c:
 ```
 mkdir tmp
-cc -E test.c -o tmp/test.c 
-my_cc tmp/test.c tmp/test.asm 
+cc -E test.c -o tmp/test.c
+my_cc tmp/test.c tmp/test.asm
 nasm -o tmp/test.o -f your_object_format tmp/test.asm
 ld -lc tmp/test.o -o test /path/to/libc
 rm -rf tmp
@@ -34,7 +34,7 @@ To rid yourself of garbage:
 ```
 make clean
 ```
-    
+
 ## Supported Syntax
 Implemented behavior includes:
  - Typed local and global variables, with declaration permitted anywhere and lexical scoping
@@ -52,7 +52,7 @@ Not implemented behavior includes, but is not limited to:
  - Static variables
  - Unions
  - Typechecking
- - Preprocessing 
+ - Preprocessing
  - Gracefully recovering from errors
  - Optimization
 
@@ -74,8 +74,7 @@ Everything works on 64-bit Mac OS X, but I'm not sure how the C calling conventi
 Improvements that would be easy to implement include:
  - Implementing the rest of C
  - Basic optimizations like constant folding
- 
+
 Improvements that would be hard to implement and would likely entail rewriting a significant body of code include:
  - More involved optimizations like propagation analysis, SSA, loop unrolling and exchanging
  - More graceful error-checking
- - Optimization of the compiler itself

@@ -2,7 +2,7 @@
 #include "../util/hash.h"
 #include "env.h"
 #include "ast.h"
-
+#include "../util/xerror.h"
 
 int max(int a, int b) {
     if (a > b) return a;
@@ -121,7 +121,7 @@ var_info* env_get_info(env* E, char* name) {
         return (var_info*) hash_get(E->vars, name);
     } else {
         printf("Variable '%s' not found\n", name);
-        assert(false);
+        exit(1);
     }
 
 }
@@ -131,7 +131,7 @@ void env_set_fn(env* E, char* name) {
     fn_info* f = hash_get(E->fns, name);
     if (f == NULL) {
         printf("Function %s not found\n", name);
-        assert(false);
+        exit(1);
     }
     else {
         E->curr_fn = f;
@@ -216,14 +216,18 @@ int env_get_local_size(env* E) {
     if (E->curr_fn != NULL && E->curr_fn->locals != NULL)
         return env_align(E->curr_fn->locals->nall);
     else {
-        assert(false);
+        xerror("INTERNAL: env.c tried to get locals size outside of a function");
+        return 0;
     }
 }
 
 int env_get_args_size(env* E) {
     assert(is_env(E));
     if (E->curr_fn) return env_align(E->curr_fn->argc);
-    else assert(false);
+    else {
+        xerror("INTERNAL: env.c tried to get args size outside of a function");
+        return 0;
+    }
 }
 
 void env_register_struct(env* E, char* name, var_type* decl) {
